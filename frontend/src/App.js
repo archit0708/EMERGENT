@@ -23,9 +23,10 @@ const App = () => {
     category: 'LIQUOR CHOCOLATES',
     quantity: 6,
     ingredientCost: '',
+    costPrice: '', // New field for total cost price
     targetSellingPrice: '',
     targetMargin: 75,
-    customProfitPercent: 75 // New field for cost-price mode
+    customProfitPercent: 75
   });
 
   const productCategories = [
@@ -51,7 +52,7 @@ const App = () => {
 
   // Load saved products
   useEffect(() => {
-    const savedProducts = localStorage.getItem('chocolatePricing_products_v3');
+    const savedProducts = localStorage.getItem('chocolatePricing_products_v4');
     if (savedProducts) {
       setProducts(JSON.parse(savedProducts));
     }
@@ -59,7 +60,7 @@ const App = () => {
 
   // Save products
   useEffect(() => {
-    localStorage.setItem('chocolatePricing_products_v3', JSON.stringify(products));
+    localStorage.setItem('chocolatePricing_products_v4', JSON.stringify(products));
   }, [products]);
 
   // Core calculation engine - Forward calculation (Cost to Price)
@@ -102,35 +103,28 @@ const App = () => {
     };
   };
 
-  // New: Cost-price calculator with custom profit margin
-  const calculateCostPriceSelling = (inputs) => {
-    const ingredientCost = parseFloat(inputs.ingredientCost) || 0;
+  // New: Cost-price to selling price calculator (takes total cost as input)
+  const calculateCostToSelling = (inputs) => {
+    const totalCostPrice = parseFloat(inputs.costPrice) || 0;
     const customProfit = inputs.customProfitPercent || 75;
     
-    const labour = (ingredientCost * FIXED_COSTS.labourPercent) / 100;
-    const packaging = FIXED_COSTS.packagingAmount;
-    const manufacturing = (ingredientCost * FIXED_COSTS.manufacturingPercent) / 100;
-    const marketing = (ingredientCost * FIXED_COSTS.marketingPercent) / 100;
-    const delivery = FIXED_COSTS.deliveryAmount;
-    
-    const totalCost = ingredientCost + labour + packaging + manufacturing + marketing + delivery;
-    
     // Calculate with custom profit margin
-    const profitAmount = (totalCost * customProfit) / 100;
-    const sellingPriceBeforeGST = totalCost + profitAmount;
+    const profitAmount = (totalCostPrice * customProfit) / 100;
+    const sellingPriceBeforeGST = totalCostPrice + profitAmount;
     const gstAmount = (sellingPriceBeforeGST * FIXED_COSTS.gstPercent) / 100;
     const finalSellingPrice = sellingPriceBeforeGST + gstAmount;
     
     // Smart recommendations based on industry standards
     const recommendations = [
+      { margin: 50, label: 'Basic', color: 'gray' },
       { margin: 60, label: 'Competitive', color: 'blue' },
       { margin: 70, label: 'Standard', color: 'green' },
       { margin: 75, label: 'Recommended', color: 'amber' },
       { margin: 80, label: 'Premium', color: 'purple' },
       { margin: 85, label: 'Luxury', color: 'pink' }
     ].map(rec => {
-      const recProfitAmount = (totalCost * rec.margin) / 100;
-      const recSellingPriceBeforeGST = totalCost + recProfitAmount;
+      const recProfitAmount = (totalCostPrice * rec.margin) / 100;
+      const recSellingPriceBeforeGST = totalCostPrice + recProfitAmount;
       const recGstAmount = (recSellingPriceBeforeGST * FIXED_COSTS.gstPercent) / 100;
       const recFinalSellingPrice = recSellingPriceBeforeGST + recGstAmount;
       
@@ -144,19 +138,66 @@ const App = () => {
     });
     
     return {
-      ingredientCost,
-      labour,
-      packaging,
-      manufacturing,
-      marketing,
-      delivery,
-      totalCost,
+      totalCostPrice,
       customProfit,
       profitAmount,
       sellingPriceBeforeGST,
       gstAmount,
       finalSellingPrice,
       recommendations
+    };
+  };
+
+  // New: Cost price + Target price analysis
+  const calculateCostTargetAnalysis = (inputs) => {
+    const totalCostPrice = parseFloat(inputs.costPrice) || 0;
+    const targetFinalPrice = parseFloat(inputs.targetSellingPrice) || 0;
+    
+    if (totalCostPrice === 0 || targetFinalPrice === 0) {
+      return null;
+    }
+    
+    // Remove GST to get price before GST
+    const targetPriceBeforeGST = targetFinalPrice / (1 + FIXED_COSTS.gstPercent / 100);
+    const gstAmount = targetFinalPrice - targetPriceBeforeGST;
+    
+    // Calculate profit and margin
+    const profitAmount = targetPriceBeforeGST - totalCostPrice;
+    const actualMargin = (profitAmount / totalCostPrice) * 100;
+    
+    // Analysis
+    let analysis = '';
+    let analysisColor = '';
+    
+    if (actualMargin < 0) {
+      analysis = 'LOSS - Target price too low';
+      analysisColor = 'red';
+    } else if (actualMargin < 30) {
+      analysis = 'Very Low Margin - Not sustainable';
+      analysisColor = 'red';
+    } else if (actualMargin < 50) {
+      analysis = 'Low Margin - Consider increasing price';
+      analysisColor = 'orange';
+    } else if (actualMargin < 70) {
+      analysis = 'Good Margin - Competitive pricing';
+      analysisColor = 'green';
+    } else if (actualMargin < 85) {
+      analysis = 'Excellent Margin - Premium positioning';
+      analysisColor = 'blue';
+    } else {
+      analysis = 'Luxury Margin - High-end market';
+      analysisColor = 'purple';
+    }
+    
+    return {
+      totalCostPrice,
+      targetFinalPrice,
+      targetPriceBeforeGST,
+      gstAmount,
+      profitAmount,
+      actualMargin,
+      analysis,
+      analysisColor
     };
   };
 
@@ -217,6 +258,7 @@ const App = () => {
         name: calcInputs.productName,
         category: calcInputs.category,
         quantity: calcInputs.quantity,
+        calculatorMode: calculatorMode,
         ...calcInputs,
         ...calculations,
         savedAt: new Date().toLocaleDateString()
@@ -229,6 +271,7 @@ const App = () => {
         category: 'LIQUOR CHOCOLATES',
         quantity: 6,
         ingredientCost: '',
+        costPrice: '',
         targetSellingPrice: '',
         targetMargin: 75,
         customProfitPercent: 75
@@ -238,7 +281,7 @@ const App = () => {
 
   // Update existing product with new calculations
   const updateProductFromEdit = (id, newInputs) => {
-    const newCalc = calculateCostPriceSelling(newInputs);
+    const newCalc = calculateCostToSelling(newInputs);
     setProducts(products.map(product => 
       product.id === id ? { 
         ...product, 
@@ -263,6 +306,7 @@ const App = () => {
       category: product.category,
       quantity: product.quantity,
       ingredientCost: product.ingredientCost || product.maxIngredientCost || '',
+      costPrice: product.totalCostPrice || '',
       customProfitPercent: product.customProfit || 75,
       labourPercent: FIXED_COSTS.labourPercent,
       packagingAmount: FIXED_COSTS.packagingAmount,
@@ -307,7 +351,8 @@ const App = () => {
 
   // Get calculations for display
   const forwardCalc = calculatePricing(calcInputs);
-  const costPriceCalc = calculatorMode === 'cost-price-selling' ? calculateCostPriceSelling(calcInputs) : null;
+  const costToSellingCalc = calculatorMode === 'cost-to-selling' ? calculateCostToSelling(calcInputs) : null;
+  const costTargetCalc = calculatorMode === 'cost-target-analysis' ? calculateCostTargetAnalysis(calcInputs) : null;
   const reverseCalc = calculatorMode === 'price-to-cost' ? calculateReversePricing(calcInputs) : null;
   const editPreview = calculateEditPreview(editingProduct);
 
@@ -390,36 +435,46 @@ const App = () => {
             {/* Calculator Mode Selection */}
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Pricing Calculation Engine</h2>
-              <div className="flex space-x-4 mb-6 flex-wrap">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 <button
                   onClick={() => setCalculatorMode('cost-to-price')}
-                  className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+                  className={`px-4 py-3 rounded-lg font-semibold transition-all text-sm ${
                     calculatorMode === 'cost-to-price'
                       ? 'bg-blue-600 text-white shadow-lg'
                       : 'bg-gray-100 text-gray-700 hover:bg-blue-100'
                   }`}
                 >
-                  Cost → Price Scenarios
+                  Ingredient → Price Scenarios
                 </button>
                 <button
-                  onClick={() => setCalculatorMode('cost-price-selling')}
-                  className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                    calculatorMode === 'cost-price-selling'
+                  onClick={() => setCalculatorMode('cost-to-selling')}
+                  className={`px-4 py-3 rounded-lg font-semibold transition-all text-sm ${
+                    calculatorMode === 'cost-to-selling'
                       ? 'bg-purple-600 text-white shadow-lg'
                       : 'bg-gray-100 text-gray-700 hover:bg-purple-100'
                   }`}
                 >
-                  Cost → Selling Price
+                  Cost Price → Selling Price
+                </button>
+                <button
+                  onClick={() => setCalculatorMode('cost-target-analysis')}
+                  className={`px-4 py-3 rounded-lg font-semibold transition-all text-sm ${
+                    calculatorMode === 'cost-target-analysis'
+                      ? 'bg-indigo-600 text-white shadow-lg'
+                      : 'bg-gray-100 text-gray-700 hover:bg-indigo-100'
+                  }`}
+                >
+                  Cost + Target Analysis
                 </button>
                 <button
                   onClick={() => setCalculatorMode('price-to-cost')}
-                  className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+                  className={`px-4 py-3 rounded-lg font-semibold transition-all text-sm ${
                     calculatorMode === 'price-to-cost'
                       ? 'bg-green-600 text-white shadow-lg'
                       : 'bg-gray-100 text-gray-700 hover:bg-green-100'
                   }`}
                 >
-                  Price → Cost Calculator
+                  Target Price → Max Cost
                 </button>
               </div>
             </div>
@@ -428,8 +483,9 @@ const App = () => {
               {/* Input Panel */}
               <div className="bg-white rounded-xl shadow-lg p-6">
                 <h3 className="text-xl font-bold text-gray-900 mb-6">
-                  {calculatorMode === 'cost-to-price' ? 'Product Cost Inputs' : 
-                   calculatorMode === 'cost-price-selling' ? 'Cost & Profit Inputs' :
+                  {calculatorMode === 'cost-to-price' ? 'Ingredient Cost Inputs' : 
+                   calculatorMode === 'cost-to-selling' ? 'Cost Price & Profit Inputs' :
+                   calculatorMode === 'cost-target-analysis' ? 'Cost Price & Target Price' :
                    'Target Price Inputs'}
                 </h3>
                 
@@ -488,31 +544,67 @@ const App = () => {
                     </div>
                   </div>
 
-                  {calculatorMode === 'cost-to-price' || calculatorMode === 'cost-price-selling' ? (
+                  {calculatorMode === 'cost-to-price' ? (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Ingredient Cost (₹)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={calcInputs.ingredientCost}
+                        onChange={(e) => updateCalcInputs('ingredientCost', e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-600 focus:border-transparent"
+                        placeholder="180"
+                      />
+                    </div>
+                  ) : calculatorMode === 'cost-to-selling' ? (
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Ingredient Cost (₹)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Total Cost Price (₹)</label>
                         <input
                           type="number"
                           step="0.01"
-                          value={calcInputs.ingredientCost}
-                          onChange={(e) => updateCalcInputs('ingredientCost', e.target.value)}
+                          value={calcInputs.costPrice}
+                          onChange={(e) => updateCalcInputs('costPrice', e.target.value)}
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-600 focus:border-transparent"
-                          placeholder="180"
+                          placeholder="500"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Enter your total cost including all components</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Profit Margin (%)</label>
+                        <input
+                          type="number"
+                          value={calcInputs.customProfitPercent}
+                          onChange={(e) => updateCalcInputs('customProfitPercent', parseInt(e.target.value))}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-600 focus:border-transparent"
+                          placeholder="75"
                         />
                       </div>
-                      {calculatorMode === 'cost-price-selling' && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Profit Margin (%)</label>
-                          <input
-                            type="number"
-                            value={calcInputs.customProfitPercent}
-                            onChange={(e) => updateCalcInputs('customProfitPercent', parseInt(e.target.value))}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-600 focus:border-transparent"
-                            placeholder="75"
-                          />
-                        </div>
-                      )}
+                    </div>
+                  ) : calculatorMode === 'cost-target-analysis' ? (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Total Cost Price (₹)</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={calcInputs.costPrice}
+                          onChange={(e) => updateCalcInputs('costPrice', e.target.value)}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-600 focus:border-transparent"
+                          placeholder="500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Target Selling Price (₹)</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={calcInputs.targetSellingPrice}
+                          onChange={(e) => updateCalcInputs('targetSellingPrice', e.target.value)}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-600 focus:border-transparent"
+                          placeholder="1000"
+                        />
+                      </div>
                     </div>
                   ) : (
                     <div className="grid grid-cols-2 gap-4">
@@ -546,7 +638,8 @@ const App = () => {
               <div className="bg-white rounded-xl shadow-lg p-6">
                 <h3 className="text-xl font-bold text-gray-900 mb-6">
                   {calculatorMode === 'cost-to-price' ? 'Pricing Scenarios' : 
-                   calculatorMode === 'cost-price-selling' ? 'Selling Price & Recommendations' :
+                   calculatorMode === 'cost-to-selling' ? 'Selling Price & Recommendations' :
+                   calculatorMode === 'cost-target-analysis' ? 'Margin Analysis' :
                    'Cost Requirements'}
                 </h3>
 
@@ -603,70 +696,113 @@ const App = () => {
                       </div>
                     )}
                   </div>
-                ) : calculatorMode === 'cost-price-selling' ? (
+                ) : calculatorMode === 'cost-to-selling' ? (
                   <div className="space-y-6">
-                    {/* Cost Breakdown */}
-                    {calcInputs.ingredientCost && (
-                      <div className="bg-gray-50 p-4 rounded-lg">
-                        <h4 className="font-semibold text-gray-900 mb-3">Cost Breakdown</h4>
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                          <div>Ingredient: ₹{costPriceCalc.ingredientCost.toFixed(0)}</div>
-                          <div>Labour (20%): ₹{costPriceCalc.labour.toFixed(0)}</div>
-                          <div>Packaging: ₹{costPriceCalc.packaging.toFixed(0)}</div>
-                          <div>Manufacturing (20%): ₹{costPriceCalc.manufacturing.toFixed(0)}</div>
-                          <div>Marketing (20%): ₹{costPriceCalc.marketing.toFixed(0)}</div>
-                          <div>Delivery: ₹{costPriceCalc.delivery.toFixed(0)}</div>
-                          <div className="font-bold text-lg text-amber-700 col-span-2 border-t pt-2">
-                            Total Cost: ₹{costPriceCalc.totalCost.toFixed(0)}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
                     {/* Custom Margin Result */}
-                    {calcInputs.ingredientCost && (
+                    {calcInputs.costPrice && (
                       <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-300">
                         <div className="flex justify-between items-center mb-3">
-                          <span className="font-semibold text-lg">Your {costPriceCalc.customProfit}% Margin</span>
-                          <span className="text-3xl font-bold text-purple-600">₹{costPriceCalc.finalSellingPrice.toFixed(0)}</span>
+                          <span className="font-semibold text-lg">Your {costToSellingCalc.customProfit}% Margin</span>
+                          <span className="text-3xl font-bold text-purple-600">₹{costToSellingCalc.finalSellingPrice.toFixed(0)}</span>
                         </div>
                         <div className="grid grid-cols-3 gap-4 text-sm">
                           <div>
-                            <div className="text-gray-600">Price before GST</div>
-                            <div className="font-semibold">₹{costPriceCalc.sellingPriceBeforeGST.toFixed(0)}</div>
-                          </div>
-                          <div>
-                            <div className="text-gray-600">GST (18%)</div>
-                            <div className="font-semibold">₹{costPriceCalc.gstAmount.toFixed(0)}</div>
+                            <div className="text-gray-600">Total Cost</div>
+                            <div className="font-semibold">₹{costToSellingCalc.totalCostPrice.toFixed(0)}</div>
                           </div>
                           <div>
                             <div className="text-gray-600">Profit Amount</div>
-                            <div className="font-semibold text-purple-600">₹{costPriceCalc.profitAmount.toFixed(0)}</div>
+                            <div className="font-semibold text-purple-600">₹{costToSellingCalc.profitAmount.toFixed(0)}</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-600">Price before GST</div>
+                            <div className="font-semibold">₹{costToSellingCalc.sellingPriceBeforeGST.toFixed(0)}</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-600">GST (18%)</div>
+                            <div className="font-semibold">₹{costToSellingCalc.gstAmount.toFixed(0)}</div>
+                          </div>
+                          <div className="font-bold text-purple-700 text-center col-span-2">
+                            Final Selling Price: ₹{costToSellingCalc.finalSellingPrice.toFixed(0)}
                           </div>
                         </div>
                       </div>
                     )}
 
                     {/* Smart Recommendations */}
-                    {calcInputs.ingredientCost && (
+                    {calcInputs.costPrice && (
                       <div className="space-y-3">
                         <h4 className="font-semibold text-gray-900">Smart Recommendations</h4>
-                        {costPriceCalc.recommendations.map((rec) => (
-                          <div key={rec.margin} className={`bg-gradient-to-r p-3 rounded-lg border ${
-                            rec.color === 'amber' ? 'from-amber-50 to-amber-100 border-amber-300' :
-                            rec.color === 'green' ? 'from-green-50 to-green-100 border-green-300' :
-                            rec.color === 'blue' ? 'from-blue-50 to-blue-100 border-blue-300' :
-                            rec.color === 'purple' ? 'from-purple-50 to-purple-100 border-purple-300' :
-                            'from-pink-50 to-pink-100 border-pink-300'
+                        <div className="grid grid-cols-2 gap-3">
+                          {costToSellingCalc.recommendations.map((rec) => (
+                            <div key={rec.margin} className={`bg-gradient-to-r p-3 rounded-lg border ${
+                              rec.color === 'amber' ? 'from-amber-50 to-amber-100 border-amber-300' :
+                              rec.color === 'green' ? 'from-green-50 to-green-100 border-green-300' :
+                              rec.color === 'blue' ? 'from-blue-50 to-blue-100 border-blue-300' :
+                              rec.color === 'purple' ? 'from-purple-50 to-purple-100 border-purple-300' :
+                              rec.color === 'pink' ? 'from-pink-50 to-pink-100 border-pink-300' :
+                              'from-gray-50 to-gray-100 border-gray-300'
+                            }`}>
+                              <div className="flex justify-between items-center">
+                                <span className="font-medium text-sm">
+                                  {rec.margin}% - {rec.label}
+                                </span>
+                                <span className="font-bold">₹{rec.finalSellingPrice.toFixed(0)}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : calculatorMode === 'cost-target-analysis' ? (
+                  <div className="space-y-6">
+                    {costTargetCalc && (
+                      <div className={`bg-gradient-to-r p-4 rounded-lg border ${
+                        costTargetCalc.analysisColor === 'red' ? 'from-red-50 to-red-100 border-red-300' :
+                        costTargetCalc.analysisColor === 'orange' ? 'from-orange-50 to-orange-100 border-orange-300' :
+                        costTargetCalc.analysisColor === 'green' ? 'from-green-50 to-green-100 border-green-300' :
+                        costTargetCalc.analysisColor === 'blue' ? 'from-blue-50 to-blue-100 border-blue-300' :
+                        'from-purple-50 to-purple-100 border-purple-300'
+                      }`}>
+                        <h4 className="font-semibold text-gray-900 mb-3">Margin Analysis</h4>
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-lg font-semibold">Actual Margin:</span>
+                            <span className="text-2xl font-bold">{costTargetCalc.actualMargin.toFixed(1)}%</span>
+                          </div>
+                          <div className={`text-center font-bold text-lg ${
+                            costTargetCalc.analysisColor === 'red' ? 'text-red-700' :
+                            costTargetCalc.analysisColor === 'orange' ? 'text-orange-700' :
+                            costTargetCalc.analysisColor === 'green' ? 'text-green-700' :
+                            costTargetCalc.analysisColor === 'blue' ? 'text-blue-700' :
+                            'text-purple-700'
                           }`}>
-                            <div className="flex justify-between items-center">
-                              <span className="font-medium">
-                                {rec.margin}% - {rec.label}
-                              </span>
-                              <span className="font-bold text-lg">₹{rec.finalSellingPrice.toFixed(0)}</span>
+                            {costTargetCalc.analysis}
+                          </div>
+                          <div className="grid grid-cols-2 gap-4 text-sm border-t pt-3">
+                            <div>
+                              <div className="text-gray-600">Cost Price</div>
+                              <div className="font-semibold">₹{costTargetCalc.totalCostPrice.toFixed(0)}</div>
+                            </div>
+                            <div>
+                              <div className="text-gray-600">Target Price</div>
+                              <div className="font-semibold">₹{costTargetCalc.targetFinalPrice.toFixed(0)}</div>
+                            </div>
+                            <div>
+                              <div className="text-gray-600">Price before GST</div>
+                              <div className="font-semibold">₹{costTargetCalc.targetPriceBeforeGST.toFixed(0)}</div>
+                            </div>
+                            <div>
+                              <div className="text-gray-600">GST (18%)</div>
+                              <div className="font-semibold">₹{costTargetCalc.gstAmount.toFixed(0)}</div>
+                            </div>
+                            <div className="col-span-2">
+                              <div className="text-gray-600">Profit Amount</div>
+                              <div className="font-semibold text-green-600">₹{costTargetCalc.profitAmount.toFixed(0)}</div>
                             </div>
                           </div>
-                        ))}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -708,11 +844,12 @@ const App = () => {
                 )}
 
                 {/* Save Product Button */}
-                {calcInputs.productName && (calcInputs.ingredientCost || calcInputs.targetSellingPrice) && (
+                {calcInputs.productName && (calcInputs.ingredientCost || calcInputs.costPrice || calcInputs.targetSellingPrice) && (
                   <button
                     onClick={() => saveProduct(
                       calculatorMode === 'cost-to-price' ? forwardCalc : 
-                      calculatorMode === 'cost-price-selling' ? costPriceCalc : 
+                      calculatorMode === 'cost-to-selling' ? costToSellingCalc :
+                      calculatorMode === 'cost-target-analysis' ? costTargetCalc :
                       reverseCalc
                     )}
                     className="w-full bg-amber-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-amber-700 transition-colors mt-6"
@@ -741,6 +878,7 @@ const App = () => {
                       const displayPrice = product.scenarios?.[2]?.finalSellingPrice || product.finalSellingPrice || product.targetFinalPrice;
                       const displayMargin = product.scenarios?.[2]?.margin || product.customProfit || product.actualMargin;
                       const ingredientCost = product.ingredientCost || product.maxIngredientCost;
+                      const totalCost = product.totalCost || product.totalCostPrice || product.requiredTotalCost;
                       
                       return (
                         <div key={product.id} className="border rounded-lg p-6 hover:shadow-md transition-shadow">
@@ -762,63 +900,88 @@ const App = () => {
                             </div>
                           </div>
                           
-                          {/* Detailed breakdown */}
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                            <div>
-                              <div className="text-gray-600">Quantity</div>
-                              <div className="font-semibold">{boxCategories.includes(product.category) ? `Box of ${product.quantity}` : product.quantity}</div>
+                          {/* Show different layouts based on calculator mode used */}
+                          {product.calculatorMode === 'cost-to-selling' || product.calculatorMode === 'cost-target-analysis' ? (
+                            // For cost price based products
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                              <div>
+                                <div className="text-gray-600">Quantity</div>
+                                <div className="font-semibold">{boxCategories.includes(product.category) ? `Box of ${product.quantity}` : product.quantity}</div>
+                              </div>
+                              <div>
+                                <div className="text-gray-600">Total Cost Price</div>
+                                <div className="font-semibold">₹{product.totalCostPrice?.toFixed(0) || totalCost?.toFixed(0)}</div>
+                              </div>
+                              <div>
+                                <div className="text-gray-600">Profit Margin</div>
+                                <div className="font-semibold">{displayMargin?.toFixed(0)}%</div>
+                              </div>
+                              <div>
+                                <div className="text-gray-600 font-bold">Final Selling Price</div>
+                                <div className="font-bold text-green-600 text-lg">₹{displayPrice?.toFixed(0)}</div>
+                              </div>
                             </div>
-                            <div>
-                              <div className="text-gray-600">Ingredient Cost</div>
-                              <div className="font-semibold">₹{ingredientCost?.toFixed(0)}</div>
-                            </div>
-                            <div>
-                              <div className="text-gray-600">Total Cost</div>
-                              <div className="font-semibold">₹{(product.totalCost || product.requiredTotalCost)?.toFixed(0)}</div>
-                            </div>
-                            <div>
-                              <div className="text-gray-600">Profit Margin</div>
-                              <div className="font-semibold">{displayMargin?.toFixed(0)}%</div>
-                            </div>
-                          </div>
-                          
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mt-3">
-                            <div>
-                              <div className="text-gray-600">Labour (20%)</div>
-                              <div className="font-semibold">₹{((ingredientCost * 20) / 100)?.toFixed(0)}</div>
-                            </div>
-                            <div>
-                              <div className="text-gray-600">Packaging</div>
-                              <div className="font-semibold">₹100</div>
-                            </div>
-                            <div>
-                              <div className="text-gray-600">Manufacturing (20%)</div>
-                              <div className="font-semibold">₹{((ingredientCost * 20) / 100)?.toFixed(0)}</div>
-                            </div>
-                            <div>
-                              <div className="text-gray-600">Marketing (20%)</div>
-                              <div className="font-semibold">₹{((ingredientCost * 20) / 100)?.toFixed(0)}</div>
-                            </div>
-                          </div>
-                          
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mt-3">
-                            <div>
-                              <div className="text-gray-600">Delivery</div>
-                              <div className="font-semibold">₹100</div>
-                            </div>
-                            <div>
-                              <div className="text-gray-600">Price before GST</div>
-                              <div className="font-semibold">₹{(product.scenarios?.[2]?.sellingPriceBeforeGST || product.sellingPriceBeforeGST)?.toFixed(0)}</div>
-                            </div>
-                            <div>
-                              <div className="text-gray-600">GST (18%)</div>
-                              <div className="font-semibold">₹{(product.scenarios?.[2]?.gstAmount || product.gstAmount)?.toFixed(0)}</div>
-                            </div>
-                            <div>
-                              <div className="text-gray-600 font-bold">Final Selling Price</div>
-                              <div className="font-bold text-green-600 text-lg">₹{displayPrice?.toFixed(0)}</div>
-                            </div>
-                          </div>
+                          ) : (
+                            // For ingredient cost based products
+                            <>
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                <div>
+                                  <div className="text-gray-600">Quantity</div>
+                                  <div className="font-semibold">{boxCategories.includes(product.category) ? `Box of ${product.quantity}` : product.quantity}</div>
+                                </div>
+                                <div>
+                                  <div className="text-gray-600">Ingredient Cost</div>
+                                  <div className="font-semibold">₹{ingredientCost?.toFixed(0)}</div>
+                                </div>
+                                <div>
+                                  <div className="text-gray-600">Total Cost</div>
+                                  <div className="font-semibold">₹{totalCost?.toFixed(0)}</div>
+                                </div>
+                                <div>
+                                  <div className="text-gray-600">Profit Margin</div>
+                                  <div className="font-semibold">{displayMargin?.toFixed(0)}%</div>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mt-3">
+                                <div>
+                                  <div className="text-gray-600">Labour (20%)</div>
+                                  <div className="font-semibold">₹{((ingredientCost * 20) / 100)?.toFixed(0)}</div>
+                                </div>
+                                <div>
+                                  <div className="text-gray-600">Packaging</div>
+                                  <div className="font-semibold">₹100</div>
+                                </div>
+                                <div>
+                                  <div className="text-gray-600">Manufacturing (20%)</div>
+                                  <div className="font-semibold">₹{((ingredientCost * 20) / 100)?.toFixed(0)}</div>
+                                </div>
+                                <div>
+                                  <div className="text-gray-600">Marketing (20%)</div>
+                                  <div className="font-semibold">₹{((ingredientCost * 20) / 100)?.toFixed(0)}</div>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mt-3">
+                                <div>
+                                  <div className="text-gray-600">Delivery</div>
+                                  <div className="font-semibold">₹100</div>
+                                </div>
+                                <div>
+                                  <div className="text-gray-600">Price before GST</div>
+                                  <div className="font-semibold">₹{(product.scenarios?.[2]?.sellingPriceBeforeGST || product.sellingPriceBeforeGST)?.toFixed(0)}</div>
+                                </div>
+                                <div>
+                                  <div className="text-gray-600">GST (18%)</div>
+                                  <div className="font-semibold">₹{(product.scenarios?.[2]?.gstAmount || product.gstAmount)?.toFixed(0)}</div>
+                                </div>
+                                <div>
+                                  <div className="text-gray-600 font-bold">Final Selling Price</div>
+                                  <div className="font-bold text-green-600 text-lg">₹{displayPrice?.toFixed(0)}</div>
+                                </div>
+                              </div>
+                            </>
+                          )}
                         </div>
                       );
                     })}
@@ -904,7 +1067,7 @@ const App = () => {
                 <div className="text-3xl font-bold text-purple-600">
                   ₹{products.length > 0 
                     ? (products.reduce((sum, product) => 
-                        sum + (product.totalCost || product.requiredTotalCost || 0), 0) / products.length).toFixed(0)
+                        sum + (product.totalCost || product.totalCostPrice || product.requiredTotalCost || 0), 0) / products.length).toFixed(0)
                     : '0'}
                 </div>
                 <div className="text-gray-600">Avg Total Cost</div>
