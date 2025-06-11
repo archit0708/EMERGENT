@@ -17,63 +17,118 @@ body {
 
 /* Custom scrollbar for overflow areas */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
+  background: #f1f5f9;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
+  background: #cbd5e1;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
+  background: #94a3b8;
 }
 
-/* Smooth transitions for interactive elements */
+/* Professional transitions */
 .transition-all {
   transition: all 0.2s ease-in-out;
 }
 
-/* Enhanced focus styles */
+/* Enhanced focus styles for professional look */
 input:focus, select:focus, button:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
 }
 
-/* Animation for adding items */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Professional table styling */
+table {
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
-.fade-in-up {
-  animation: fadeInUp 0.3s ease-out;
+table th {
+  background-color: #f8fafc;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: #374151;
 }
 
-/* Gradient background for cards */
-.gradient-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+table td, table th {
+  border-bottom: 1px solid #e5e7eb;
 }
 
-/* Custom button hover effects */
-.btn-primary:hover {
+table tr:hover {
+  background-color: #f9fafb;
+}
+
+/* Professional card hover effects */
+.card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(245, 158, 11, 0.2);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
-/* Responsive table */
-@media (max-width: 768px) {
+/* Cost breakdown grid */
+.cost-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.5rem;
+}
+
+/* Manufacturing dashboard specific styles */
+.dashboard-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid #e2e8f0;
+}
+
+.dashboard-card:hover {
+  border-color: #d97706;
+}
+
+/* Category performance indicators */
+.category-indicator {
+  position: relative;
+  overflow: hidden;
+}
+
+.category-indicator::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #d97706 0%, #f59e0b 100%);
+}
+
+/* Professional button styling */
+.btn-professional {
+  background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+  color: white;
+  font-weight: 600;
+  border: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-professional:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(217, 119, 6, 0.3);
+}
+
+/* Cost preview styling */
+.cost-preview {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 1px solid #f59e0b;
+}
+
+/* Responsive improvements */
+@media (max-width: 1024px) {
   .table-responsive {
     font-size: 0.875rem;
   }
@@ -84,19 +139,66 @@ input:focus, select:focus, button:focus {
   }
 }
 
-/* Category badges */
-.category-star {
-  background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+@media (max-width: 768px) {
+  .mobile-stack {
+    display: block;
+  }
+  
+  .mobile-stack > * {
+    margin-bottom: 1rem;
+  }
+  
+  .mobile-hide {
+    display: none;
+  }
 }
 
-.category-puzzle {
-  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+/* Professional color scheme */
+.text-primary {
+  color: #d97706;
 }
 
-.category-workhorse {
-  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+.bg-primary {
+  background-color: #d97706;
 }
 
-.category-dog {
-  background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+.border-primary {
+  border-color: #d97706;
+}
+
+/* Animation for adding products */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in-up {
+  animation: slideInUp 0.4s ease-out;
+}
+
+/* Professional margins analysis colors */
+.margin-low {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  border-left: 4px solid #dc2626;
+}
+
+.margin-medium {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-left: 4px solid #f59e0b;
+}
+
+.margin-good {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  border-left: 4px solid #16a34a;
+}
+
+.margin-high {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border-left: 4px solid #2563eb;
 }
