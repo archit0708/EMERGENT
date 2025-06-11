@@ -6,30 +6,21 @@ const App = () => {
   const [calculatorMode, setCalculatorMode] = useState('cost-to-price');
   const [products, setProducts] = useState([]);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [newCategoryName, setNewCategoryName] = useState('');
   
-  // Fixed cost structure
-  const FIXED_COSTS = {
+  // Dynamic cost structure (now editable)
+  const [costStructure, setCostStructure] = useState({
     labourPercent: 20,
     packagingAmount: 100,
     manufacturingPercent: 20,
     marketingPercent: 20,
     deliveryAmount: 100,
     gstPercent: 18
-  };
-
-  // Calculator inputs
-  const [calcInputs, setCalcInputs] = useState({
-    productName: '',
-    category: 'LIQUOR CHOCOLATES',
-    quantity: 6,
-    ingredientCost: '',
-    costPrice: '', // New field for total cost price
-    targetSellingPrice: '',
-    targetMargin: 75,
-    customProfitPercent: 75
   });
 
-  const productCategories = [
+  // Dynamic product categories (now editable)
+  const [productCategories, setProductCategories] = useState([
     'LIQUOR CHOCOLATES',
     'BON BON',
     'GANACHE',
@@ -45,33 +36,103 @@ const App = () => {
     'CHOCOLATE CUBE',
     'BISCOTTI',
     'CHOCOLATE FLOWER BAR'
-  ];
+  ]);
+
+  // Calculator inputs
+  const [calcInputs, setCalcInputs] = useState({
+    productName: '',
+    category: 'LIQUOR CHOCOLATES',
+    quantity: 6,
+    ingredientCost: '',
+    costPrice: '',
+    targetSellingPrice: '',
+    targetMargin: 75,
+    customProfitPercent: 75
+  });
 
   const boxCategories = ['LIQUOR CHOCOLATES', 'GANACHE', 'BON BON', 'TRUFFLES'];
   const quantityOptions = [6, 8, 12];
 
-  // Load saved products
+  // Load saved data
   useEffect(() => {
-    const savedProducts = localStorage.getItem('chocolatePricing_products_v4');
+    const savedProducts = localStorage.getItem('nolitaCacao_products_v1');
+    const savedCostStructure = localStorage.getItem('nolitaCacao_costStructure');
+    const savedCategories = localStorage.getItem('nolitaCacao_categories');
+    
     if (savedProducts) {
       setProducts(JSON.parse(savedProducts));
     }
+    if (savedCostStructure) {
+      setCostStructure(JSON.parse(savedCostStructure));
+    }
+    if (savedCategories) {
+      setProductCategories(JSON.parse(savedCategories));
+    }
   }, []);
 
-  // Save products
+  // Save data
   useEffect(() => {
-    localStorage.setItem('chocolatePricing_products_v4', JSON.stringify(products));
+    localStorage.setItem('nolitaCacao_products_v1', JSON.stringify(products));
   }, [products]);
+
+  useEffect(() => {
+    localStorage.setItem('nolitaCacao_costStructure', JSON.stringify(costStructure));
+  }, [costStructure]);
+
+  useEffect(() => {
+    localStorage.setItem('nolitaCacao_categories', JSON.stringify(productCategories));
+  }, [productCategories]);
+
+  // Update cost structure
+  const updateCostStructure = (field, value) => {
+    setCostStructure(prev => ({ ...prev, [field]: parseFloat(value) || 0 }));
+  };
+
+  // Category management functions
+  const addCategory = () => {
+    if (newCategoryName.trim() && !productCategories.includes(newCategoryName.trim().toUpperCase())) {
+      setProductCategories([...productCategories, newCategoryName.trim().toUpperCase()]);
+      setNewCategoryName('');
+    }
+  };
+
+  const updateCategory = (oldName, newName) => {
+    if (newName.trim() && newName.trim().toUpperCase() !== oldName) {
+      const updatedCategories = productCategories.map(cat => 
+        cat === oldName ? newName.trim().toUpperCase() : cat
+      );
+      setProductCategories(updatedCategories);
+      
+      // Update products with the old category
+      setProducts(products.map(product => 
+        product.category === oldName ? { ...product, category: newName.trim().toUpperCase() } : product
+      ));
+      
+      setEditingCategory(null);
+    }
+  };
+
+  const deleteCategory = (categoryName) => {
+    if (productCategories.length > 1) { // Keep at least one category
+      setProductCategories(productCategories.filter(cat => cat !== categoryName));
+      
+      // Remove products with this category or move them to first available category
+      const firstAvailableCategory = productCategories.find(cat => cat !== categoryName);
+      setProducts(products.map(product => 
+        product.category === categoryName ? { ...product, category: firstAvailableCategory } : product
+      ).filter(product => product.category !== categoryName || firstAvailableCategory));
+    }
+  };
 
   // Core calculation engine - Forward calculation (Cost to Price)
   const calculatePricing = (inputs) => {
     const ingredientCost = parseFloat(inputs.ingredientCost) || 0;
     
-    const labour = (ingredientCost * FIXED_COSTS.labourPercent) / 100;
-    const packaging = FIXED_COSTS.packagingAmount;
-    const manufacturing = (ingredientCost * FIXED_COSTS.manufacturingPercent) / 100;
-    const marketing = (ingredientCost * FIXED_COSTS.marketingPercent) / 100;
-    const delivery = FIXED_COSTS.deliveryAmount;
+    const labour = (ingredientCost * costStructure.labourPercent) / 100;
+    const packaging = costStructure.packagingAmount;
+    const manufacturing = (ingredientCost * costStructure.manufacturingPercent) / 100;
+    const marketing = (ingredientCost * costStructure.marketingPercent) / 100;
+    const delivery = costStructure.deliveryAmount;
     
     const totalCost = ingredientCost + labour + packaging + manufacturing + marketing + delivery;
     
@@ -79,7 +140,7 @@ const App = () => {
     const scenarios = [60, 70, 75, 80, 85].map(margin => {
       const profitAmount = (totalCost * margin) / 100;
       const sellingPriceBeforeGST = totalCost + profitAmount;
-      const gstAmount = (sellingPriceBeforeGST * FIXED_COSTS.gstPercent) / 100;
+      const gstAmount = (sellingPriceBeforeGST * costStructure.gstPercent) / 100;
       const finalSellingPrice = sellingPriceBeforeGST + gstAmount;
       
       return {
@@ -103,18 +164,16 @@ const App = () => {
     };
   };
 
-  // New: Cost-price to selling price calculator (takes total cost as input)
+  // Cost-price to selling price calculator
   const calculateCostToSelling = (inputs) => {
     const totalCostPrice = parseFloat(inputs.costPrice) || 0;
     const customProfit = inputs.customProfitPercent || 75;
     
-    // Calculate with custom profit margin
     const profitAmount = (totalCostPrice * customProfit) / 100;
     const sellingPriceBeforeGST = totalCostPrice + profitAmount;
-    const gstAmount = (sellingPriceBeforeGST * FIXED_COSTS.gstPercent) / 100;
+    const gstAmount = (sellingPriceBeforeGST * costStructure.gstPercent) / 100;
     const finalSellingPrice = sellingPriceBeforeGST + gstAmount;
     
-    // Smart recommendations based on industry standards
     const recommendations = [
       { margin: 50, label: 'Basic', color: 'gray' },
       { margin: 60, label: 'Competitive', color: 'blue' },
@@ -125,7 +184,7 @@ const App = () => {
     ].map(rec => {
       const recProfitAmount = (totalCostPrice * rec.margin) / 100;
       const recSellingPriceBeforeGST = totalCostPrice + recProfitAmount;
-      const recGstAmount = (recSellingPriceBeforeGST * FIXED_COSTS.gstPercent) / 100;
+      const recGstAmount = (recSellingPriceBeforeGST * costStructure.gstPercent) / 100;
       const recFinalSellingPrice = recSellingPriceBeforeGST + recGstAmount;
       
       return {
@@ -148,7 +207,7 @@ const App = () => {
     };
   };
 
-  // New: Cost price + Target price analysis
+  // Cost price + Target price analysis
   const calculateCostTargetAnalysis = (inputs) => {
     const totalCostPrice = parseFloat(inputs.costPrice) || 0;
     const targetFinalPrice = parseFloat(inputs.targetSellingPrice) || 0;
@@ -157,15 +216,12 @@ const App = () => {
       return null;
     }
     
-    // Remove GST to get price before GST
-    const targetPriceBeforeGST = targetFinalPrice / (1 + FIXED_COSTS.gstPercent / 100);
+    const targetPriceBeforeGST = targetFinalPrice / (1 + costStructure.gstPercent / 100);
     const gstAmount = targetFinalPrice - targetPriceBeforeGST;
     
-    // Calculate profit and margin
     const profitAmount = targetPriceBeforeGST - totalCostPrice;
     const actualMargin = (profitAmount / totalCostPrice) * 100;
     
-    // Analysis
     let analysis = '';
     let analysisColor = '';
     
@@ -201,31 +257,27 @@ const App = () => {
     };
   };
 
-  // Core calculation engine - Reverse calculation (Price to Cost)
+  // Reverse calculation (Price to Cost)
   const calculateReversePricing = (inputs) => {
     const targetFinalPrice = parseFloat(inputs.targetSellingPrice) || 0;
     const targetMargin = inputs.targetMargin;
     
-    // Remove GST to get price before GST
-    const sellingPriceBeforeGST = targetFinalPrice / (1 + FIXED_COSTS.gstPercent / 100);
+    const sellingPriceBeforeGST = targetFinalPrice / (1 + costStructure.gstPercent / 100);
     const gstAmount = targetFinalPrice - sellingPriceBeforeGST;
     
-    // Calculate required total cost based on target margin
     const requiredTotalCost = sellingPriceBeforeGST / (1 + targetMargin / 100);
     const profitAmount = sellingPriceBeforeGST - requiredTotalCost;
     
-    // Back-calculate ingredient cost
-    const fixedAmounts = FIXED_COSTS.packagingAmount + FIXED_COSTS.deliveryAmount;
-    const variablePercent = FIXED_COSTS.labourPercent + FIXED_COSTS.manufacturingPercent + FIXED_COSTS.marketingPercent;
+    const fixedAmounts = costStructure.packagingAmount + costStructure.deliveryAmount;
+    const variablePercent = costStructure.labourPercent + costStructure.manufacturingPercent + costStructure.marketingPercent;
     
     const maxIngredientCost = (requiredTotalCost - fixedAmounts) / (1 + variablePercent / 100);
     
-    // Calculate individual components
-    const labour = (maxIngredientCost * FIXED_COSTS.labourPercent) / 100;
-    const packaging = FIXED_COSTS.packagingAmount;
-    const manufacturing = (maxIngredientCost * FIXED_COSTS.manufacturingPercent) / 100;
-    const marketing = (maxIngredientCost * FIXED_COSTS.marketingPercent) / 100;
-    const delivery = FIXED_COSTS.deliveryAmount;
+    const labour = (maxIngredientCost * costStructure.labourPercent) / 100;
+    const packaging = costStructure.packagingAmount;
+    const manufacturing = (maxIngredientCost * costStructure.manufacturingPercent) / 100;
+    const marketing = (maxIngredientCost * costStructure.marketingPercent) / 100;
+    const delivery = costStructure.deliveryAmount;
     
     const calculatedTotalCost = maxIngredientCost + labour + packaging + manufacturing + marketing + delivery;
     
@@ -259,6 +311,7 @@ const App = () => {
         category: calcInputs.category,
         quantity: calcInputs.quantity,
         calculatorMode: calculatorMode,
+        costStructureSnapshot: { ...costStructure }, // Save cost structure used
         ...calcInputs,
         ...calculations,
         savedAt: new Date().toLocaleDateString()
@@ -268,7 +321,7 @@ const App = () => {
       // Reset calculator
       setCalcInputs({
         productName: '',
-        category: 'LIQUOR CHOCOLATES',
+        category: productCategories[0] || '',
         quantity: 6,
         ingredientCost: '',
         costPrice: '',
@@ -287,6 +340,7 @@ const App = () => {
         ...product, 
         ...newInputs,
         ...newCalc,
+        costStructureSnapshot: { ...costStructure },
         updatedAt: new Date().toLocaleDateString() 
       } : product
     ));
@@ -308,11 +362,11 @@ const App = () => {
       ingredientCost: product.ingredientCost || product.maxIngredientCost || '',
       costPrice: product.totalCostPrice || '',
       customProfitPercent: product.customProfit || 75,
-      labourPercent: FIXED_COSTS.labourPercent,
-      packagingAmount: FIXED_COSTS.packagingAmount,
-      manufacturingPercent: FIXED_COSTS.manufacturingPercent,
-      marketingPercent: FIXED_COSTS.marketingPercent,
-      deliveryAmount: FIXED_COSTS.deliveryAmount
+      labourPercent: costStructure.labourPercent,
+      packagingAmount: costStructure.packagingAmount,
+      manufacturingPercent: costStructure.manufacturingPercent,
+      marketingPercent: costStructure.marketingPercent,
+      deliveryAmount: costStructure.deliveryAmount
     });
   };
 
@@ -330,7 +384,7 @@ const App = () => {
     const totalCost = ingredientCost + labour + packaging + manufacturing + marketing + delivery;
     const profitAmount = (totalCost * editData.customProfitPercent) / 100;
     const sellingPriceBeforeGST = totalCost + profitAmount;
-    const gstAmount = (sellingPriceBeforeGST * FIXED_COSTS.gstPercent) / 100;
+    const gstAmount = (sellingPriceBeforeGST * costStructure.gstPercent) / 100;
     const finalSellingPrice = sellingPriceBeforeGST + gstAmount;
     
     return {
@@ -363,23 +417,75 @@ const App = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center">
-              <div className="text-3xl font-bold text-gray-900">ChocolatePro Pricing Engine</div>
+              <div className="text-3xl font-bold text-gray-900">Nolita Cacao Calculator- TSL</div>
               <div className="ml-4 text-sm text-gray-600">Professional Cost & Pricing Calculator</div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Fixed Cost Structure Display */}
+      {/* Editable Cost Structure Display */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-          <h3 className="font-semibold text-amber-800 mb-2">Fixed Cost Structure</h3>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
-            <div>Labour: {FIXED_COSTS.labourPercent}% of ingredient</div>
-            <div>Packaging: ₹{FIXED_COSTS.packagingAmount} fixed</div>
-            <div>Manufacturing: {FIXED_COSTS.manufacturingPercent}% of ingredient</div>
-            <div>Marketing: {FIXED_COSTS.marketingPercent}% of ingredient</div>
-            <div>Delivery: ₹{FIXED_COSTS.deliveryAmount} fixed</div>
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="font-semibold text-amber-800">Cost Structure Settings</h3>
+            <span className="text-xs text-amber-600">Changes apply to all new calculations</span>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-4 text-sm">
+            <div>
+              <label className="block text-xs text-amber-700">Labour (%)</label>
+              <input
+                type="number"
+                value={costStructure.labourPercent}
+                onChange={(e) => updateCostStructure('labourPercent', e.target.value)}
+                className="w-full px-2 py-1 text-xs border border-amber-300 rounded focus:ring-1 focus:ring-amber-500"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-amber-700">Packaging (₹)</label>
+              <input
+                type="number"
+                value={costStructure.packagingAmount}
+                onChange={(e) => updateCostStructure('packagingAmount', e.target.value)}
+                className="w-full px-2 py-1 text-xs border border-amber-300 rounded focus:ring-1 focus:ring-amber-500"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-amber-700">Manufacturing (%)</label>
+              <input
+                type="number"
+                value={costStructure.manufacturingPercent}
+                onChange={(e) => updateCostStructure('manufacturingPercent', e.target.value)}
+                className="w-full px-2 py-1 text-xs border border-amber-300 rounded focus:ring-1 focus:ring-amber-500"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-amber-700">Marketing (%)</label>
+              <input
+                type="number"
+                value={costStructure.marketingPercent}
+                onChange={(e) => updateCostStructure('marketingPercent', e.target.value)}
+                className="w-full px-2 py-1 text-xs border border-amber-300 rounded focus:ring-1 focus:ring-amber-500"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-amber-700">Delivery (₹)</label>
+              <input
+                type="number"
+                value={costStructure.deliveryAmount}
+                onChange={(e) => updateCostStructure('deliveryAmount', e.target.value)}
+                className="w-full px-2 py-1 text-xs border border-amber-300 rounded focus:ring-1 focus:ring-amber-500"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-amber-700">GST (%)</label>
+              <input
+                type="number"
+                value={costStructure.gstPercent}
+                onChange={(e) => updateCostStructure('gstPercent', e.target.value)}
+                className="w-full px-2 py-1 text-xs border border-amber-300 rounded focus:ring-1 focus:ring-amber-500"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -406,6 +512,16 @@ const App = () => {
             }`}
           >
             Product Repository
+          </button>
+          <button
+            onClick={() => setActiveTab('categories')}
+            className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+              activeTab === 'categories'
+                ? 'bg-amber-600 text-white shadow-lg'
+                : 'bg-white text-gray-700 hover:bg-amber-100'
+            }`}
+          >
+            Category Management
           </button>
           <button
             onClick={() => setActiveTab('ratecard')}
@@ -651,10 +767,10 @@ const App = () => {
                         <h4 className="font-semibold text-gray-900 mb-3">Cost Breakdown</h4>
                         <div className="grid grid-cols-2 gap-2 text-sm">
                           <div>Ingredient: ₹{forwardCalc.ingredientCost.toFixed(0)}</div>
-                          <div>Labour (20%): ₹{forwardCalc.labour.toFixed(0)}</div>
+                          <div>Labour ({costStructure.labourPercent}%): ₹{forwardCalc.labour.toFixed(0)}</div>
                           <div>Packaging: ₹{forwardCalc.packaging.toFixed(0)}</div>
-                          <div>Manufacturing (20%): ₹{forwardCalc.manufacturing.toFixed(0)}</div>
-                          <div>Marketing (20%): ₹{forwardCalc.marketing.toFixed(0)}</div>
+                          <div>Manufacturing ({costStructure.manufacturingPercent}%): ₹{forwardCalc.manufacturing.toFixed(0)}</div>
+                          <div>Marketing ({costStructure.marketingPercent}%): ₹{forwardCalc.marketing.toFixed(0)}</div>
                           <div>Delivery: ₹{forwardCalc.delivery.toFixed(0)}</div>
                           <div className="font-bold text-lg text-amber-700 col-span-2 border-t pt-2">
                             Total Cost: ₹{forwardCalc.totalCost.toFixed(0)}
@@ -683,7 +799,7 @@ const App = () => {
                                 <div className="font-semibold">₹{scenario.sellingPriceBeforeGST.toFixed(0)}</div>
                               </div>
                               <div>
-                                <div className="text-gray-600">GST (18%)</div>
+                                <div className="text-gray-600">GST ({costStructure.gstPercent}%)</div>
                                 <div className="font-semibold">₹{scenario.gstAmount.toFixed(0)}</div>
                               </div>
                               <div>
@@ -719,7 +835,7 @@ const App = () => {
                             <div className="font-semibold">₹{costToSellingCalc.sellingPriceBeforeGST.toFixed(0)}</div>
                           </div>
                           <div>
-                            <div className="text-gray-600">GST (18%)</div>
+                            <div className="text-gray-600">GST ({costStructure.gstPercent}%)</div>
                             <div className="font-semibold">₹{costToSellingCalc.gstAmount.toFixed(0)}</div>
                           </div>
                           <div className="font-bold text-purple-700 text-center col-span-2">
@@ -794,7 +910,7 @@ const App = () => {
                               <div className="font-semibold">₹{costTargetCalc.targetPriceBeforeGST.toFixed(0)}</div>
                             </div>
                             <div>
-                              <div className="text-gray-600">GST (18%)</div>
+                              <div className="text-gray-600">GST ({costStructure.gstPercent}%)</div>
                               <div className="font-semibold">₹{costTargetCalc.gstAmount.toFixed(0)}</div>
                             </div>
                             <div className="col-span-2">
@@ -815,7 +931,7 @@ const App = () => {
                         <div className="grid grid-cols-2 gap-2 text-sm mb-4">
                           <div>Final Selling Price: ₹{reverseCalc.targetFinalPrice.toFixed(0)}</div>  
                           <div>Price before GST: ₹{reverseCalc.sellingPriceBeforeGST.toFixed(0)}</div>
-                          <div>GST (18%): ₹{reverseCalc.gstAmount.toFixed(0)}</div>
+                          <div>GST ({costStructure.gstPercent}%): ₹{reverseCalc.gstAmount.toFixed(0)}</div>
                           <div>Profit Amount: ₹{reverseCalc.profitAmount.toFixed(0)}</div>
                           <div className="font-bold col-span-2 border-t pt-2">
                             Required Total Cost: ₹{reverseCalc.requiredTotalCost.toFixed(0)}
@@ -829,10 +945,10 @@ const App = () => {
                         <h4 className="font-semibold text-gray-900 mb-3">Maximum Allowable Costs</h4>
                         <div className="grid grid-cols-2 gap-2 text-sm">
                           <div>Max Ingredient Cost: ₹{reverseCalc.maxIngredientCost.toFixed(0)}</div>
-                          <div>Labour (20%): ₹{reverseCalc.labour.toFixed(0)}</div>
+                          <div>Labour ({costStructure.labourPercent}%): ₹{reverseCalc.labour.toFixed(0)}</div>
                           <div>Packaging: ₹{reverseCalc.packaging.toFixed(0)}</div>
-                          <div>Manufacturing (20%): ₹{reverseCalc.manufacturing.toFixed(0)}</div>
-                          <div>Marketing (20%): ₹{reverseCalc.marketing.toFixed(0)}</div>
+                          <div>Manufacturing ({costStructure.manufacturingPercent}%): ₹{reverseCalc.manufacturing.toFixed(0)}</div>
+                          <div>Marketing ({costStructure.marketingPercent}%): ₹{reverseCalc.marketing.toFixed(0)}</div>
                           <div>Delivery: ₹{reverseCalc.delivery.toFixed(0)}</div>
                           <div className="font-bold text-amber-700 col-span-2 border-t pt-2">
                             Actual Margin: {reverseCalc.actualMargin.toFixed(1)}%
@@ -857,6 +973,91 @@ const App = () => {
                     Save Product Configuration
                   </button>
                 )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Category Management Tab */}
+        {activeTab === 'categories' && (
+          <div className="space-y-8">
+            {/* Add New Category */}
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Category Management</h2>
+              <div className="flex gap-4 mb-6">
+                <input
+                  type="text"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  placeholder="Enter new category name"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-600 focus:border-transparent"
+                />
+                <button
+                  onClick={addCategory}
+                  className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                >
+                  Add Category
+                </button>
+              </div>
+            </div>
+
+            {/* Existing Categories */}
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-6">Existing Categories</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {productCategories.map((category) => (
+                  <div key={category} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                    {editingCategory === category ? (
+                      <div className="space-y-3">
+                        <input
+                          type="text"
+                          defaultValue={category}
+                          onBlur={(e) => updateCategory(category, e.target.value)}
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter') {
+                              updateCategory(category, e.target.value);
+                            }
+                          }}
+                          className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-amber-600 focus:border-transparent"
+                          autoFocus
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setEditingCategory(null)}
+                            className="text-sm bg-gray-300 text-gray-700 px-3 py-1 rounded hover:bg-gray-400"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="flex justify-between items-center">
+                          <h4 className="font-semibold text-gray-900">{category}</h4>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => setEditingCategory(category)}
+                              className="text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                            >
+                              Edit
+                            </button>
+                            {productCategories.length > 1 && (
+                              <button
+                                onClick={() => deleteCategory(category)}
+                                className="text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                              >
+                                Delete
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-sm text-gray-600 mt-2">
+                          Products: {products.filter(p => p.category === category).length}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -945,34 +1146,34 @@ const App = () => {
                               
                               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mt-3">
                                 <div>
-                                  <div className="text-gray-600">Labour (20%)</div>
-                                  <div className="font-semibold">₹{((ingredientCost * 20) / 100)?.toFixed(0)}</div>
+                                  <div className="text-gray-600">Labour ({costStructure.labourPercent}%)</div>
+                                  <div className="font-semibold">₹{((ingredientCost * costStructure.labourPercent) / 100)?.toFixed(0)}</div>
                                 </div>
                                 <div>
                                   <div className="text-gray-600">Packaging</div>
-                                  <div className="font-semibold">₹100</div>
+                                  <div className="font-semibold">₹{costStructure.packagingAmount}</div>
                                 </div>
                                 <div>
-                                  <div className="text-gray-600">Manufacturing (20%)</div>
-                                  <div className="font-semibold">₹{((ingredientCost * 20) / 100)?.toFixed(0)}</div>
+                                  <div className="text-gray-600">Manufacturing ({costStructure.manufacturingPercent}%)</div>
+                                  <div className="font-semibold">₹{((ingredientCost * costStructure.manufacturingPercent) / 100)?.toFixed(0)}</div>
                                 </div>
                                 <div>
-                                  <div className="text-gray-600">Marketing (20%)</div>
-                                  <div className="font-semibold">₹{((ingredientCost * 20) / 100)?.toFixed(0)}</div>
+                                  <div className="text-gray-600">Marketing ({costStructure.marketingPercent}%)</div>
+                                  <div className="font-semibold">₹{((ingredientCost * costStructure.marketingPercent) / 100)?.toFixed(0)}</div>
                                 </div>
                               </div>
                               
                               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mt-3">
                                 <div>
                                   <div className="text-gray-600">Delivery</div>
-                                  <div className="font-semibold">₹100</div>
+                                  <div className="font-semibold">₹{costStructure.deliveryAmount}</div>
                                 </div>
                                 <div>
                                   <div className="text-gray-600">Price before GST</div>
                                   <div className="font-semibold">₹{(product.scenarios?.[2]?.sellingPriceBeforeGST || product.sellingPriceBeforeGST)?.toFixed(0)}</div>
                                 </div>
                                 <div>
-                                  <div className="text-gray-600">GST (18%)</div>
+                                  <div className="text-gray-600">GST ({costStructure.gstPercent}%)</div>
                                   <div className="font-semibold">₹{(product.scenarios?.[2]?.gstAmount || product.gstAmount)?.toFixed(0)}</div>
                                 </div>
                                 <div>
@@ -1233,7 +1434,7 @@ const App = () => {
                         <span className="font-semibold">₹{editPreview.sellingPriceBeforeGST.toFixed(0)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>GST (18%):</span>
+                        <span>GST ({costStructure.gstPercent}%):</span>
                         <span className="font-semibold">₹{editPreview.gstAmount.toFixed(0)}</span>
                       </div>
                       <div className="flex justify-between border-t pt-2">
