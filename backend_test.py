@@ -4,6 +4,7 @@ import json
 import time
 import uuid
 from datetime import datetime
+import random
 
 # Get the backend URL from the frontend .env file
 BACKEND_URL = "https://cfc593e8-afc2-4477-a5b1-d21c4cbc9ec6.preview.emergentagent.com"
@@ -18,7 +19,8 @@ def test_api_health():
         print(f"Response: {response.json()}")
         
         assert response.status_code == 200, f"Expected status code 200, got {response.status_code}"
-        assert response.json() == {"message": "Hello World"}, "Unexpected response content"
+        assert "message" in response.json(), "Response missing 'message' field"
+        assert "Nolita Cacao Calculator API" in response.json()["message"], "Unexpected response content"
         
         print("✅ Basic API Health Check: PASSED")
         return True
@@ -144,6 +146,542 @@ def test_cors_configuration():
         print(f"❌ CORS Configuration: FAILED - {str(e)}")
         return False
 
+# ==================== COST STRUCTURE API TESTS ====================
+
+def test_get_cost_structure():
+    """Test retrieving the cost structure"""
+    print("\n=== Testing Cost Structure Retrieval ===")
+    try:
+        response = requests.get(f"{API_BASE_URL}/cost-structure")
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {response.json()}")
+        
+        assert response.status_code == 200, f"Expected status code 200, got {response.status_code}"
+        assert "id" in response.json(), "Response missing 'id' field"
+        assert "labourPercent" in response.json(), "Response missing 'labourPercent' field"
+        assert "packagingAmount" in response.json(), "Response missing 'packagingAmount' field"
+        assert "manufacturingPercent" in response.json(), "Response missing 'manufacturingPercent' field"
+        assert "marketingPercent" in response.json(), "Response missing 'marketingPercent' field"
+        assert "deliveryAmount" in response.json(), "Response missing 'deliveryAmount' field"
+        assert "gstPercent" in response.json(), "Response missing 'gstPercent' field"
+        
+        print("✅ Cost Structure Retrieval: PASSED")
+        return response.json()
+    except Exception as e:
+        print(f"❌ Cost Structure Retrieval: FAILED - {str(e)}")
+        return None
+
+def test_update_cost_structure():
+    """Test updating the cost structure"""
+    print("\n=== Testing Cost Structure Update ===")
+    try:
+        # First get the current cost structure
+        current = test_get_cost_structure()
+        if not current:
+            print("❌ Cost Structure Update: FAILED - Could not retrieve current cost structure")
+            return False
+        
+        # Update with new values
+        updated = current.copy()
+        updated["labourPercent"] = 25.5
+        updated["packagingAmount"] = 150.75
+        updated["manufacturingPercent"] = 22.5
+        updated["marketingPercent"] = 18.5
+        updated["deliveryAmount"] = 120.25
+        updated["gstPercent"] = 18.0
+        
+        response = requests.put(f"{API_BASE_URL}/cost-structure", json=updated)
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {response.json()}")
+        
+        assert response.status_code == 200, f"Expected status code 200, got {response.status_code}"
+        assert response.json()["labourPercent"] == 25.5, "labourPercent not updated correctly"
+        assert response.json()["packagingAmount"] == 150.75, "packagingAmount not updated correctly"
+        assert response.json()["manufacturingPercent"] == 22.5, "manufacturingPercent not updated correctly"
+        assert response.json()["marketingPercent"] == 18.5, "marketingPercent not updated correctly"
+        assert response.json()["deliveryAmount"] == 120.25, "deliveryAmount not updated correctly"
+        assert response.json()["gstPercent"] == 18.0, "gstPercent not updated correctly"
+        
+        # Verify the update persisted
+        time.sleep(1)
+        verification = test_get_cost_structure()
+        assert verification["labourPercent"] == 25.5, "labourPercent update did not persist"
+        assert verification["packagingAmount"] == 150.75, "packagingAmount update did not persist"
+        
+        print("✅ Cost Structure Update: PASSED")
+        return True
+    except Exception as e:
+        print(f"❌ Cost Structure Update: FAILED - {str(e)}")
+        return False
+
+# ==================== CATEGORIES API TESTS ====================
+
+def test_get_categories():
+    """Test retrieving all categories"""
+    print("\n=== Testing Categories Retrieval ===")
+    try:
+        response = requests.get(f"{API_BASE_URL}/categories")
+        print(f"Status Code: {response.status_code}")
+        print(f"Response contains {len(response.json())} categories")
+        
+        assert response.status_code == 200, f"Expected status code 200, got {response.status_code}"
+        assert isinstance(response.json(), list), "Response is not a list"
+        assert len(response.json()) > 0, "No categories returned"
+        
+        print("✅ Categories Retrieval: PASSED")
+        return response.json()
+    except Exception as e:
+        print(f"❌ Categories Retrieval: FAILED - {str(e)}")
+        return None
+
+def test_add_category():
+    """Test adding a new category"""
+    print("\n=== Testing Category Addition ===")
+    try:
+        # Generate a unique category name
+        category_name = f"TEST CATEGORY {uuid.uuid4().hex[:8]}"
+        payload = {"name": category_name}
+        
+        response = requests.post(f"{API_BASE_URL}/categories", json=payload)
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {response.json()}")
+        
+        assert response.status_code == 200, f"Expected status code 200, got {response.status_code}"
+        assert "message" in response.json(), "Response missing 'message' field"
+        assert "name" in response.json(), "Response missing 'name' field"
+        assert response.json()["name"] == category_name.upper(), "Category name in response doesn't match request"
+        
+        # Verify the category was added
+        time.sleep(1)
+        categories = test_get_categories()
+        assert category_name.upper() in categories, f"Added category {category_name.upper()} not found in retrieved list"
+        
+        print("✅ Category Addition: PASSED")
+        return category_name.upper()
+    except Exception as e:
+        print(f"❌ Category Addition: FAILED - {str(e)}")
+        return None
+
+def test_update_category():
+    """Test updating a category name"""
+    print("\n=== Testing Category Update ===")
+    try:
+        # First add a new category
+        old_name = test_add_category()
+        if not old_name:
+            print("❌ Category Update: FAILED - Could not add category to update")
+            return False
+        
+        # Update the category name
+        new_name = f"UPDATED CATEGORY {uuid.uuid4().hex[:8]}"
+        
+        response = requests.put(f"{API_BASE_URL}/categories/{old_name}?new_name={new_name}")
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {response.json()}")
+        
+        assert response.status_code == 200, f"Expected status code 200, got {response.status_code}"
+        assert "message" in response.json(), "Response missing 'message' field"
+        
+        # Verify the update persisted
+        time.sleep(1)
+        categories = test_get_categories()
+        assert new_name.upper() in categories, f"Updated category {new_name.upper()} not found in retrieved list"
+        assert old_name not in categories, f"Old category {old_name} still exists in retrieved list"
+        
+        print("✅ Category Update: PASSED")
+        return new_name.upper()
+    except Exception as e:
+        print(f"❌ Category Update: FAILED - {str(e)}")
+        return None
+
+def test_delete_category():
+    """Test deleting a category"""
+    print("\n=== Testing Category Deletion ===")
+    try:
+        # First add a new category
+        category_name = test_add_category()
+        if not category_name:
+            print("❌ Category Deletion: FAILED - Could not add category to delete")
+            return False
+        
+        # Delete the category
+        response = requests.delete(f"{API_BASE_URL}/categories/{category_name}")
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {response.json()}")
+        
+        assert response.status_code == 200, f"Expected status code 200, got {response.status_code}"
+        assert "message" in response.json(), "Response missing 'message' field"
+        
+        # Verify the deletion persisted
+        time.sleep(1)
+        categories = test_get_categories()
+        assert category_name not in categories, f"Deleted category {category_name} still exists in retrieved list"
+        
+        print("✅ Category Deletion: PASSED")
+        return True
+    except Exception as e:
+        print(f"❌ Category Deletion: FAILED - {str(e)}")
+        return False
+
+# ==================== PRODUCTS API TESTS ====================
+
+def test_get_products():
+    """Test retrieving all products"""
+    print("\n=== Testing Products Retrieval ===")
+    try:
+        response = requests.get(f"{API_BASE_URL}/products")
+        print(f"Status Code: {response.status_code}")
+        print(f"Response contains {len(response.json())} products")
+        
+        assert response.status_code == 200, f"Expected status code 200, got {response.status_code}"
+        assert isinstance(response.json(), list), "Response is not a list"
+        
+        print("✅ Products Retrieval: PASSED")
+        return response.json()
+    except Exception as e:
+        print(f"❌ Products Retrieval: FAILED - {str(e)}")
+        return None
+
+def test_create_product():
+    """Test creating a new product"""
+    print("\n=== Testing Product Creation ===")
+    try:
+        # Get categories for product creation
+        categories = test_get_categories()
+        if not categories:
+            print("❌ Product Creation: FAILED - Could not retrieve categories")
+            return False
+        
+        # Get cost structure for product creation
+        cost_structure = test_get_cost_structure()
+        if not cost_structure:
+            print("❌ Product Creation: FAILED - Could not retrieve cost structure")
+            return False
+        
+        # Create a new product
+        product_name = f"Test Chocolate {uuid.uuid4().hex[:8]}"
+        category = random.choice(categories)
+        
+        payload = {
+            "name": product_name,
+            "category": category,
+            "quantity": "100g",
+            "calculatorMode": "ingredientToPrice",
+            "costStructureSnapshot": cost_structure,
+            "ingredientCost": 150.0,
+            "totalCost": 250.0,
+            "totalCostPrice": 300.0,
+            "finalSellingPrice": 450.0,
+            "actualMargin": 33.33
+        }
+        
+        response = requests.post(f"{API_BASE_URL}/products", json=payload)
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {response.json()}")
+        
+        assert response.status_code == 200, f"Expected status code 200, got {response.status_code}"
+        assert "id" in response.json(), "Response missing 'id' field"
+        assert response.json()["name"] == product_name, "Product name in response doesn't match request"
+        assert response.json()["category"] == category, "Category in response doesn't match request"
+        
+        print("✅ Product Creation: PASSED")
+        return response.json()
+    except Exception as e:
+        print(f"❌ Product Creation: FAILED - {str(e)}")
+        return None
+
+def test_update_product():
+    """Test updating a product"""
+    print("\n=== Testing Product Update ===")
+    try:
+        # First create a new product
+        product = test_create_product()
+        if not product:
+            print("❌ Product Update: FAILED - Could not create product to update")
+            return False
+        
+        # Update the product
+        updated_payload = {
+            "name": f"Updated {product['name']}",
+            "category": product["category"],
+            "quantity": "200g",
+            "calculatorMode": product["calculatorMode"],
+            "costStructureSnapshot": product["costStructureSnapshot"],
+            "ingredientCost": 200.0,
+            "totalCost": 300.0,
+            "totalCostPrice": 350.0,
+            "finalSellingPrice": 500.0,
+            "actualMargin": 30.0
+        }
+        
+        response = requests.put(f"{API_BASE_URL}/products/{product['id']}", json=updated_payload)
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {response.json()}")
+        
+        assert response.status_code == 200, f"Expected status code 200, got {response.status_code}"
+        assert response.json()["id"] == product["id"], "Product ID in response doesn't match request"
+        assert response.json()["name"] == updated_payload["name"], "Product name not updated correctly"
+        assert response.json()["quantity"] == updated_payload["quantity"], "Product quantity not updated correctly"
+        assert response.json()["ingredientCost"] == updated_payload["ingredientCost"], "Product ingredientCost not updated correctly"
+        
+        # Verify the update persisted
+        time.sleep(1)
+        response = requests.get(f"{API_BASE_URL}/products/{product['id']}")
+        assert response.status_code == 200, f"Expected status code 200, got {response.status_code}"
+        assert response.json()["name"] == updated_payload["name"], "Product name update did not persist"
+        
+        print("✅ Product Update: PASSED")
+        return response.json()
+    except Exception as e:
+        print(f"❌ Product Update: FAILED - {str(e)}")
+        return None
+
+def test_delete_product():
+    """Test deleting a product"""
+    print("\n=== Testing Product Deletion ===")
+    try:
+        # First create a new product
+        product = test_create_product()
+        if not product:
+            print("❌ Product Deletion: FAILED - Could not create product to delete")
+            return False
+        
+        # Delete the product
+        response = requests.delete(f"{API_BASE_URL}/products/{product['id']}")
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {response.json()}")
+        
+        assert response.status_code == 200, f"Expected status code 200, got {response.status_code}"
+        assert "message" in response.json(), "Response missing 'message' field"
+        
+        # Verify the deletion persisted
+        time.sleep(1)
+        response = requests.get(f"{API_BASE_URL}/products/{product['id']}")
+        assert response.status_code == 404, f"Expected status code 404, got {response.status_code}"
+        
+        print("✅ Product Deletion: PASSED")
+        return True
+    except Exception as e:
+        print(f"❌ Product Deletion: FAILED - {str(e)}")
+        return False
+
+# ==================== HAMPERS API TESTS ====================
+
+def test_get_hampers():
+    """Test retrieving all hampers"""
+    print("\n=== Testing Hampers Retrieval ===")
+    try:
+        response = requests.get(f"{API_BASE_URL}/hampers")
+        print(f"Status Code: {response.status_code}")
+        print(f"Response contains {len(response.json())} hampers")
+        
+        assert response.status_code == 200, f"Expected status code 200, got {response.status_code}"
+        assert isinstance(response.json(), list), "Response is not a list"
+        
+        print("✅ Hampers Retrieval: PASSED")
+        return response.json()
+    except Exception as e:
+        print(f"❌ Hampers Retrieval: FAILED - {str(e)}")
+        return None
+
+def test_create_hamper():
+    """Test creating a new hamper"""
+    print("\n=== Testing Hamper Creation ===")
+    try:
+        # First create a product to include in the hamper
+        product1 = test_create_product()
+        if not product1:
+            print("❌ Hamper Creation: FAILED - Could not create product for hamper")
+            return False
+        
+        # Create another product
+        product2 = test_create_product()
+        if not product2:
+            print("❌ Hamper Creation: FAILED - Could not create second product for hamper")
+            return False
+        
+        # Create a new hamper
+        hamper_name = f"Test Hamper {uuid.uuid4().hex[:8]}"
+        
+        hamper_products = [
+            {
+                "id": product1["id"],
+                "name": product1["name"],
+                "category": product1["category"],
+                "quantity": 2,
+                "unitPrice": product1["finalSellingPrice"],
+                "totalPrice": product1["finalSellingPrice"] * 2
+            },
+            {
+                "id": product2["id"],
+                "name": product2["name"],
+                "category": product2["category"],
+                "quantity": 1,
+                "unitPrice": product2["finalSellingPrice"],
+                "totalPrice": product2["finalSellingPrice"]
+            }
+        ]
+        
+        total_cost = sum(p["totalPrice"] for p in hamper_products)
+        
+        payload = {
+            "occasionName": hamper_name,
+            "category": "Gold",
+            "products": hamper_products,
+            "totalCost": total_cost,
+            "finalPrice": total_cost * 1.2,  # 20% markup
+            "profitMargin": 20.0,
+            "description": "A test hamper with chocolate products"
+        }
+        
+        response = requests.post(f"{API_BASE_URL}/hampers", json=payload)
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {response.json()}")
+        
+        assert response.status_code == 200, f"Expected status code 200, got {response.status_code}"
+        assert "id" in response.json(), "Response missing 'id' field"
+        assert response.json()["occasionName"] == hamper_name, "Hamper name in response doesn't match request"
+        assert len(response.json()["products"]) == 2, "Hamper should contain 2 products"
+        
+        print("✅ Hamper Creation: PASSED")
+        return response.json()
+    except Exception as e:
+        print(f"❌ Hamper Creation: FAILED - {str(e)}")
+        return None
+
+def test_delete_hamper():
+    """Test deleting a hamper"""
+    print("\n=== Testing Hamper Deletion ===")
+    try:
+        # First create a new hamper
+        hamper = test_create_hamper()
+        if not hamper:
+            print("❌ Hamper Deletion: FAILED - Could not create hamper to delete")
+            return False
+        
+        # Delete the hamper
+        response = requests.delete(f"{API_BASE_URL}/hampers/{hamper['id']}")
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {response.json()}")
+        
+        assert response.status_code == 200, f"Expected status code 200, got {response.status_code}"
+        assert "message" in response.json(), "Response missing 'message' field"
+        
+        # Verify the deletion persisted
+        time.sleep(1)
+        response = requests.get(f"{API_BASE_URL}/hampers/{hamper['id']}")
+        assert response.status_code == 404, f"Expected status code 404, got {response.status_code}"
+        
+        print("✅ Hamper Deletion: PASSED")
+        return True
+    except Exception as e:
+        print(f"❌ Hamper Deletion: FAILED - {str(e)}")
+        return False
+
+# ==================== COMPREHENSIVE DATA PERSISTENCE TEST ====================
+
+def test_comprehensive_data_persistence():
+    """Test comprehensive data persistence across all API endpoints"""
+    print("\n=== Testing Comprehensive Data Persistence ===")
+    try:
+        # 1. Update cost structure
+        cost_structure_updated = test_update_cost_structure()
+        if not cost_structure_updated:
+            print("❌ Comprehensive Data Persistence: FAILED - Cost structure update failed")
+            return False
+        
+        # 2. Create a category
+        category_name = test_add_category()
+        if not category_name:
+            print("❌ Comprehensive Data Persistence: FAILED - Category creation failed")
+            return False
+        
+        # 3. Create a product in that category
+        payload = {
+            "name": f"Persistence Test Product {uuid.uuid4().hex[:8]}",
+            "category": category_name,
+            "quantity": "150g",
+            "calculatorMode": "ingredientToPrice",
+            "costStructureSnapshot": test_get_cost_structure(),
+            "ingredientCost": 175.0,
+            "totalCost": 275.0,
+            "totalCostPrice": 325.0,
+            "finalSellingPrice": 475.0,
+            "actualMargin": 31.58
+        }
+        
+        product_response = requests.post(f"{API_BASE_URL}/products", json=payload)
+        if product_response.status_code != 200:
+            print(f"❌ Comprehensive Data Persistence: FAILED - Product creation failed with status {product_response.status_code}")
+            return False
+        
+        product = product_response.json()
+        print(f"Created product: {product['name']} with ID: {product['id']}")
+        
+        # 4. Create a hamper with that product
+        hamper_products = [
+            {
+                "id": product["id"],
+                "name": product["name"],
+                "category": product["category"],
+                "quantity": 3,
+                "unitPrice": product["finalSellingPrice"],
+                "totalPrice": product["finalSellingPrice"] * 3
+            }
+        ]
+        
+        hamper_payload = {
+            "occasionName": f"Persistence Test Hamper {uuid.uuid4().hex[:8]}",
+            "category": "Platinum",
+            "products": hamper_products,
+            "totalCost": hamper_products[0]["totalPrice"],
+            "finalPrice": hamper_products[0]["totalPrice"] * 1.25,  # 25% markup
+            "profitMargin": 25.0,
+            "description": "A test hamper for persistence testing"
+        }
+        
+        hamper_response = requests.post(f"{API_BASE_URL}/hampers", json=hamper_payload)
+        if hamper_response.status_code != 200:
+            print(f"❌ Comprehensive Data Persistence: FAILED - Hamper creation failed with status {hamper_response.status_code}")
+            return False
+        
+        hamper = hamper_response.json()
+        print(f"Created hamper: {hamper['occasionName']} with ID: {hamper['id']}")
+        
+        # 5. Wait to ensure data is persisted
+        time.sleep(2)
+        
+        # 6. Verify all data persists
+        # Check cost structure
+        cost_structure = test_get_cost_structure()
+        if not cost_structure or cost_structure["labourPercent"] != 25.5:
+            print("❌ Comprehensive Data Persistence: FAILED - Cost structure did not persist")
+            return False
+        
+        # Check category
+        categories = test_get_categories()
+        if not categories or category_name not in categories:
+            print("❌ Comprehensive Data Persistence: FAILED - Category did not persist")
+            return False
+        
+        # Check product
+        product_verification = requests.get(f"{API_BASE_URL}/products/{product['id']}")
+        if product_verification.status_code != 200:
+            print(f"❌ Comprehensive Data Persistence: FAILED - Product did not persist, status {product_verification.status_code}")
+            return False
+        
+        # Check hamper
+        hamper_verification = requests.get(f"{API_BASE_URL}/hampers/{hamper['id']}")
+        if hamper_verification.status_code != 200:
+            print(f"❌ Comprehensive Data Persistence: FAILED - Hamper did not persist, status {hamper_verification.status_code}")
+            return False
+        
+        print("✅ Comprehensive Data Persistence: PASSED")
+        return True
+    except Exception as e:
+        print(f"❌ Comprehensive Data Persistence: FAILED - {str(e)}")
+        return False
+
 def run_all_tests():
     """Run all tests and return overall result"""
     print("\n======= NOLITA CACAO CALCULATOR BACKEND TESTS =======")
@@ -153,7 +691,31 @@ def run_all_tests():
         ("Basic API Health", test_api_health),
         ("Status Check CRUD", test_data_persistence),
         ("Error Handling", test_error_handling),
-        ("CORS Configuration", test_cors_configuration)
+        ("CORS Configuration", test_cors_configuration),
+        
+        # Cost Structure API Tests
+        ("Cost Structure Retrieval", test_get_cost_structure),
+        ("Cost Structure Update", test_update_cost_structure),
+        
+        # Categories API Tests
+        ("Categories Retrieval", test_get_categories),
+        ("Category Addition", test_add_category),
+        ("Category Update", test_update_category),
+        ("Category Deletion", test_delete_category),
+        
+        # Products API Tests
+        ("Products Retrieval", test_get_products),
+        ("Product Creation", test_create_product),
+        ("Product Update", test_update_product),
+        ("Product Deletion", test_delete_product),
+        
+        # Hampers API Tests
+        ("Hampers Retrieval", test_get_hampers),
+        ("Hamper Creation", test_create_hamper),
+        ("Hamper Deletion", test_delete_hamper),
+        
+        # Comprehensive Data Persistence
+        ("Comprehensive Data Persistence", test_comprehensive_data_persistence)
     ]
     
     results = {}
@@ -165,12 +727,15 @@ def run_all_tests():
         print(f"{'=' * 50}")
         result = test_func()
         results[name] = result
-        if not result:
+        if not result and result is not None:  # None means the test was skipped
             all_passed = False
     
     print("\n\n======= TEST SUMMARY =======")
     for name, result in results.items():
-        status = "✅ PASSED" if result else "❌ FAILED"
+        if result is None:
+            status = "⚠️ SKIPPED"
+        else:
+            status = "✅ PASSED" if result else "❌ FAILED"
         print(f"{name}: {status}")
     
     if all_passed:
