@@ -215,7 +215,8 @@ metadata:
 test_plan:
   current_focus:
     - "Hamper Curation Functionality"
-  stuck_tasks: []
+  stuck_tasks:
+    - "Hamper Curation Functionality"
   test_all: false
   test_priority: "high_first"
 
