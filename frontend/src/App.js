@@ -1868,6 +1868,7 @@ const App = () => {
           </div>
         )}
       </div>
+      )}
 
       {/* Edit Product Modal - Enhanced */}
       {editingProduct && (
