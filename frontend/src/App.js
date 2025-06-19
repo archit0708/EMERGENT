@@ -3,26 +3,6 @@ import './App.css';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('calculator');
-  
-  // Handle tab switching
-  const handleTabClick = (tabName) => {
-    console.log(`Tab clicked: ${tabName}`);
-    if (tabName === 'hampers') {
-      console.log('Hamper tab clicked - special handling');
-      // Force a re-render by setting a timeout
-      setTimeout(() => {
-        console.log('Forcing re-render for hamper tab');
-        setActiveTab(tabName);
-      }, 100);
-    } else {
-      setActiveTab(tabName);
-    }
-  };
-  
-  // Debug activeTab changes
-  useEffect(() => {
-    console.log('Active tab changed to:', activeTab);
-  }, [activeTab]);
   const [calculatorMode, setCalculatorMode] = useState('cost-to-price');
   const [products, setProducts] = useState([]);
   const [hampers, setHampers] = useState([]);
@@ -30,6 +10,17 @@ const App = () => {
   const [editingCategory, setEditingCategory] = useState(null);
   const [editingHamper, setEditingHamper] = useState(null);
   const [newCategoryName, setNewCategoryName] = useState('');
+  
+  // Debug activeTab changes
+  useEffect(() => {
+    console.log('Active tab changed to:', activeTab);
+  }, [activeTab]);
+
+  // Simple tab click handler
+  const handleTabClick = (tabName) => {
+    console.log('Tab clicked:', tabName);
+    setActiveTab(tabName);
+  };
   
   // Dynamic cost structure (now editable)
   const [costStructure, setCostStructure] = useState({
