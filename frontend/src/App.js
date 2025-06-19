@@ -703,7 +703,7 @@ const App = () => {
         </div>
 
         {/* Hampers Tab */}
-        {activeTab === 'hampers' && (
+        {activeTab === 'hampers' ? (
           <div className="space-y-8">
             {/* Create New Hamper */}
             <div className="bg-white rounded-xl shadow-lg p-6">
