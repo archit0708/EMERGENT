@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import {
+  costStructureAPI,
+  categoriesAPI,
+  productsAPI,
+  hampersAPI,
+  initializeData
+} from './services/api';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('calculator');
@@ -10,6 +17,8 @@ const App = () => {
   const [editingCategory, setEditingCategory] = useState(null);
   const [editingHamper, setEditingHamper] = useState(null);
   const [newCategoryName, setNewCategoryName] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   
   // Debug activeTab changes
   useEffect(() => {
