@@ -7,21 +7,6 @@ const App = () => {
   // Debug activeTab changes
   useEffect(() => {
     console.log('Active tab changed to:', activeTab);
-    
-    // Force the correct content to be shown based on activeTab
-    if (activeTab === 'hampers') {
-      // Hide calculator content
-      const calculatorContent = document.querySelector('div:has(> h2:contains("Pricing Calculation Engine"))');
-      if (calculatorContent) {
-        calculatorContent.style.display = 'none';
-      }
-      
-      // Show hamper content if it exists
-      const hamperContent = document.querySelector('div:has(> h2:contains("Create Custom Hamper"))');
-      if (hamperContent) {
-        hamperContent.style.display = 'block';
-      }
-    }
   }, [activeTab]);
   const [calculatorMode, setCalculatorMode] = useState('cost-to-price');
   const [products, setProducts] = useState([]);
