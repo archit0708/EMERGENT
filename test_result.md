@@ -208,7 +208,7 @@ test_plan:
     - "Hamper Curation Functionality"
   stuck_tasks:
     - "Hamper Curation Functionality"
-  test_all: true
+  test_all: false
   test_priority: "high_first"
 
 agent_communication:
