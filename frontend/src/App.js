@@ -612,9 +612,9 @@ const App = () => {
   const hamperRecommendations = hamperCost > 0 ? getHamperRecommendations(hamperCost) : [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
       {/* Header */}
-      <div className="bg-white shadow-lg border-b-4 border-amber-600">
+      <div className="bg-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center">
