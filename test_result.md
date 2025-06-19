@@ -187,9 +187,9 @@ frontend:
         - comment: "After retesting, the Hamper Curation functionality is now working correctly. Clicking on the Hamper Curation tab successfully changes the view to display the hamper interface. Console logs show 'Tab clicked: hampers' and 'Active tab changed to: hampers' messages, confirming that the tab switching functionality is working as expected."
   - task: "Hamper Curation Functionality"
     implemented: true
-    working: true
+    working: false
     file: "App.js"
-    stuck_count: 2
+    stuck_count: 3
     priority: "high"
     needs_retesting: false
     status_history:
@@ -202,6 +202,9 @@ frontend:
         - working: true
         - agent: "testing"
         - comment: "The Hamper Curation functionality is now working correctly. Comprehensive testing confirms that: 1) Clicking on the Hamper Curation tab successfully changes the view to display the hamper interface, 2) Console logs show 'Tab clicked: hampers' and 'Active tab changed to: hampers' messages, 3) The hamper form elements (occasion name input, category dropdown, description textarea) are all present and functional, 4) Product selection interface is available, 5) Tab switching works correctly between all tabs (Hamper, Calculator, Repository, Category Management, etc.). The fix has successfully resolved the issue."
+        - working: false
+        - agent: "testing"
+        - comment: "URGENT: Testing the deployed application at https://cfc593e8-afc2-4477-a5b1-d21c4cbc9ec6.preview.emergentagent.com shows that the Hamper Curation functionality is not working. When clicking on the Hamper Curation tab, the application remains on the Calculator view instead of switching to the Hamper interface. The console logs only show 'Active tab changed to: calculator' messages, with no indication that the tab click is being registered or that the activeTab state is being updated to 'hampers'. This is a regression from the previously working state and needs immediate attention."
 
 metadata:
   created_by: "main_agent"
