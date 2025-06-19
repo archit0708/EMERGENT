@@ -5,8 +5,10 @@ const App = () => {
   const [activeTab, setActiveTab] = useState('calculator');
   const [calculatorMode, setCalculatorMode] = useState('cost-to-price');
   const [products, setProducts] = useState([]);
+  const [hampers, setHampers] = useState([]);
   const [editingProduct, setEditingProduct] = useState(null);
   const [editingCategory, setEditingCategory] = useState(null);
+  const [editingHamper, setEditingHamper] = useState(null);
   const [newCategoryName, setNewCategoryName] = useState('');
   
   // Dynamic cost structure (now editable)
@@ -38,6 +40,19 @@ const App = () => {
     'CHOCOLATE FLOWER BAR'
   ]);
 
+  // Hamper creation state
+  const [newHamper, setNewHamper] = useState({
+    occasionName: '',
+    category: 'Gold', // Gold, Platinum, Luxe
+    products: [],
+    finalPrice: '',
+    description: ''
+  });
+
+  const [selectedProductCategory, setSelectedProductCategory] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState('');
+  const [productQuantity, setProductQuantity] = useState(1);
+
   // Calculator inputs
   const [calcInputs, setCalcInputs] = useState({
     productName: '',
@@ -52,15 +67,20 @@ const App = () => {
 
   const boxCategories = ['LIQUOR CHOCOLATES', 'GANACHE', 'BON BON', 'TRUFFLES'];
   const quantityOptions = [6, 8, 12];
+  const hamperCategories = ['Gold', 'Platinum', 'Luxe'];
 
   // Load saved data
   useEffect(() => {
     const savedProducts = localStorage.getItem('nolitaCacao_products_v1');
+    const savedHampers = localStorage.getItem('nolitaCacao_hampers_v1');
     const savedCostStructure = localStorage.getItem('nolitaCacao_costStructure');
     const savedCategories = localStorage.getItem('nolitaCacao_categories');
     
     if (savedProducts) {
       setProducts(JSON.parse(savedProducts));
+    }
+    if (savedHampers) {
+      setHampers(JSON.parse(savedHampers));
     }
     if (savedCostStructure) {
       setCostStructure(JSON.parse(savedCostStructure));
@@ -74,6 +94,10 @@ const App = () => {
   useEffect(() => {
     localStorage.setItem('nolitaCacao_products_v1', JSON.stringify(products));
   }, [products]);
+
+  useEffect(() => {
+    localStorage.setItem('nolitaCacao_hampers_v1', JSON.stringify(hampers));
+  }, [hampers]);
 
   useEffect(() => {
     localStorage.setItem('nolitaCacao_costStructure', JSON.stringify(costStructure));
@@ -124,7 +148,118 @@ const App = () => {
     }
   };
 
-  // Core calculation engine - Forward calculation (Cost to Price)
+  // Hamper management functions
+  const addProductToHamper = () => {
+    if (selectedProduct && productQuantity > 0) {
+      const product = products.find(p => p.id === parseInt(selectedProduct));
+      if (product) {
+        const hamperProduct = {
+          id: product.id,
+          name: product.name,
+          category: product.category,
+          quantity: productQuantity,
+          unitPrice: product.scenarios?.[2]?.finalSellingPrice || product.finalSellingPrice || product.targetFinalPrice || 0,
+          totalPrice: (product.scenarios?.[2]?.finalSellingPrice || product.finalSellingPrice || product.targetFinalPrice || 0) * productQuantity
+        };
+        
+        setNewHamper(prev => ({
+          ...prev,
+          products: [...prev.products, hamperProduct]
+        }));
+        
+        setSelectedProduct('');
+        setProductQuantity(1);
+      }
+    }
+  };
+
+  const removeProductFromHamper = (index) => {
+    setNewHamper(prev => ({
+      ...prev,
+      products: prev.products.filter((_, i) => i !== index)
+    }));
+  };
+
+  const calculateHamperCost = (hamperProducts) => {
+    return hamperProducts.reduce((total, product) => total + product.totalPrice, 0);
+  };
+
+  const saveHamper = () => {
+    if (newHamper.occasionName && newHamper.products.length > 0 && newHamper.finalPrice) {
+      const totalCost = calculateHamperCost(newHamper.products);
+      const hamper = {
+        id: Date.now(),
+        occasionName: newHamper.occasionName,
+        category: newHamper.category,
+        products: newHamper.products,
+        totalCost: totalCost,
+        finalPrice: parseFloat(newHamper.finalPrice),
+        profitMargin: ((parseFloat(newHamper.finalPrice) - totalCost) / parseFloat(newHamper.finalPrice)) * 100,
+        description: newHamper.description,
+        createdAt: new Date().toLocaleDateString()
+      };
+      
+      setHampers([...hampers, hamper]);
+      
+      // Reset form
+      setNewHamper({
+        occasionName: '',
+        category: 'Gold',
+        products: [],
+        finalPrice: '',
+        description: ''
+      });
+    }
+  };
+
+  const deleteHamper = (id) => {
+    setHampers(hampers.filter(hamper => hamper.id !== id));
+    setEditingHamper(null);
+  };
+
+  const getHamperRecommendations = (totalCost) => {
+    const recommendations = [
+      { 
+        margin: 40, 
+        label: 'Competitive', 
+        price: totalCost / (1 - 0.40),
+        maxDiscount: 15,
+        color: 'blue' 
+      },
+      { 
+        margin: 50, 
+        label: 'Standard', 
+        price: totalCost / (1 - 0.50),
+        maxDiscount: 20,
+        color: 'green' 
+      },
+      { 
+        margin: 60, 
+        label: 'Recommended', 
+        price: totalCost / (1 - 0.60),
+        maxDiscount: 25,
+        color: 'amber' 
+      },
+      { 
+        margin: 70, 
+        label: 'Premium', 
+        price: totalCost / (1 - 0.70),
+        maxDiscount: 30,
+        color: 'purple' 
+      },
+      { 
+        margin: 75, 
+        label: 'Luxury', 
+        price: totalCost / (1 - 0.75),
+        maxDiscount: 35,
+        color: 'pink' 
+      }
+    ];
+    
+    return recommendations;
+  };
+
+  // Core calculation engines (existing code)
   const calculatePricing = (inputs) => {
     const ingredientCost = parseFloat(inputs.ingredientCost) || 0;
     
@@ -136,7 +271,6 @@ const App = () => {
     
     const totalCost = ingredientCost + labour + packaging + manufacturing + marketing + delivery;
     
-    // Multiple margin scenarios
     const scenarios = [60, 70, 75, 80, 85].map(margin => {
       const profitAmount = (totalCost * margin) / 100;
       const sellingPriceBeforeGST = totalCost + profitAmount;
@@ -164,7 +298,6 @@ const App = () => {
     };
   };
 
-  // Cost-price to selling price calculator
   const calculateCostToSelling = (inputs) => {
     const totalCostPrice = parseFloat(inputs.costPrice) || 0;
     const customProfit = inputs.customProfitPercent || 75;
@@ -207,7 +340,6 @@ const App = () => {
     };
   };
 
-  // Cost price + Target price analysis
   const calculateCostTargetAnalysis = (inputs) => {
     const totalCostPrice = parseFloat(inputs.costPrice) || 0;
     const targetFinalPrice = parseFloat(inputs.targetSellingPrice) || 0;
@@ -257,7 +389,6 @@ const App = () => {
     };
   };
 
-  // Reverse calculation (Price to Cost)
   const calculateReversePricing = (inputs) => {
     const targetFinalPrice = parseFloat(inputs.targetSellingPrice) || 0;
     const targetMargin = inputs.targetMargin;
@@ -311,14 +442,13 @@ const App = () => {
         category: calcInputs.category,
         quantity: calcInputs.quantity,
         calculatorMode: calculatorMode,
-        costStructureSnapshot: { ...costStructure }, // Save cost structure used
+        costStructureSnapshot: { ...costStructure },
         ...calcInputs,
         ...calculations,
         savedAt: new Date().toLocaleDateString()
       };
       setProducts([...products, product]);
       
-      // Reset calculator
       setCalcInputs({
         productName: '',
         category: productCategories[0] || '',
@@ -410,6 +540,14 @@ const App = () => {
   const reverseCalc = calculatorMode === 'price-to-cost' ? calculateReversePricing(calcInputs) : null;
   const editPreview = calculateEditPreview(editingProduct);
 
+  // Get filtered products for hamper creation
+  const getProductsByCategory = (category) => {
+    return products.filter(product => product.category === category);
+  };
+
+  const hamperCost = calculateHamperCost(newHamper.products);
+  const hamperRecommendations = hamperCost > 0 ? getHamperRecommendations(hamperCost) : [];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Header */}
@@ -492,7 +630,7 @@ const App = () => {
 
       {/* Navigation */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex space-x-4 mb-8">
+        <div className="flex space-x-4 mb-8 flex-wrap">
           <button
             onClick={() => setActiveTab('calculator')}
             className={`px-6 py-3 rounded-lg font-semibold transition-all ${
@@ -512,6 +650,16 @@ const App = () => {
             }`}
           >
             Product Repository
+          </button>
+          <button
+            onClick={() => setActiveTab('hampers')}
+            className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+              activeTab === 'hampers'
+                ? 'bg-amber-600 text-white shadow-lg'
+                : 'bg-white text-gray-700 hover:bg-amber-100'
+            }`}
+          >
+            Hamper Curation
           </button>
           <button
             onClick={() => setActiveTab('categories')}
@@ -544,6 +692,304 @@ const App = () => {
             Analysis
           </button>
         </div>
+
+        {/* Hampers Tab */}
+        {activeTab === 'hampers' && (
+          <div className="space-y-8">
+            {/* Create New Hamper */}
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Create Custom Hamper</h2>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Left Column - Hamper Details */}
+                <div className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Occasion Name</label>
+                      <input
+                        type="text"
+                        value={newHamper.occasionName}
+                        onChange={(e) => setNewHamper({...newHamper, occasionName: e.target.value})}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-600 focus:border-transparent"
+                        placeholder="e.g., Diwali, Valentine's Day"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                      <select
+                        value={newHamper.category}
+                        onChange={(e) => setNewHamper({...newHamper, category: e.target.value})}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-600 focus:border-transparent"
+                      >
+                        {hamperCategories.map((category) => (
+                          <option key={category} value={category}>
+                            {category}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Description (Optional)</label>
+                    <textarea
+                      value={newHamper.description}
+                      onChange={(e) => setNewHamper({...newHamper, description: e.target.value})}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-600 focus:border-transparent"
+                      rows={3}
+                      placeholder="Describe the hamper theme or special features..."
+                    />
+                  </div>
+
+                  {/* Add Products Section */}
+                  <div className="border-t pt-6">
+                    <h3 className="font-semibold text-gray-900 mb-4">Add Products to Hamper</h3>
+                    <div className="grid grid-cols-3 gap-4 mb-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Product Category</label>
+                        <select
+                          value={selectedProductCategory}
+                          onChange={(e) => {
+                            setSelectedProductCategory(e.target.value);
+                            setSelectedProduct('');
+                          }}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-600 focus:border-transparent"
+                        >
+                          <option value="">Select Category</option>
+                          {productCategories.map((category) => (
+                            <option key={category} value={category}>
+                              {category}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Product</label>
+                        <select
+                          value={selectedProduct}
+                          onChange={(e) => setSelectedProduct(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-600 focus:border-transparent"
+                          disabled={!selectedProductCategory}
+                        >
+                          <option value="">Select Product</option>
+                          {getProductsByCategory(selectedProductCategory).map((product) => (
+                            <option key={product.id} value={product.id}>
+                              {product.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={productQuantity}
+                          onChange={(e) => setProductQuantity(parseInt(e.target.value))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-600 focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+                    <button
+                      onClick={addProductToHamper}
+                      className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                    >
+                      Add Product to Hamper
+                    </button>
+                  </div>
+
+                  {/* Selected Products List */}
+                  <div className="border-t pt-6">
+                    <h3 className="font-semibold text-gray-900 mb-4">Selected Products</h3>
+                    <div className="space-y-3 max-h-60 overflow-y-auto">
+                      {newHamper.products.map((product, index) => (
+                        <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                          <div className="flex-1">
+                            <div className="font-medium text-gray-900">{product.name}</div>
+                            <div className="text-sm text-gray-600">
+                              {product.category} - Qty: {product.quantity} - ₹{product.unitPrice.toFixed(0)} each
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-4">
+                            <span className="font-semibold text-green-600">₹{product.totalPrice.toFixed(0)}</span>
+                            <button
+                              onClick={() => removeProductFromHamper(index)}
+                              className="text-red-500 hover:text-red-700 text-sm"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                      {newHamper.products.length === 0 && (
+                        <div className="text-center text-gray-500 py-4">
+                          No products added yet. Select products from above.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Final Price Input */}
+                  {hamperCost > 0 && (
+                    <div className="border-t pt-6">
+                      <div className="bg-amber-50 p-4 rounded-lg mb-4">
+                        <div className="font-semibold text-amber-800">
+                          Total Product Cost: ₹{hamperCost.toFixed(0)}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Final Hamper Price (₹)</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={newHamper.finalPrice}
+                          onChange={(e) => setNewHamper({...newHamper, finalPrice: e.target.value})}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-600 focus:border-transparent"
+                          placeholder="Enter final selling price"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Save Button */}
+                  {newHamper.occasionName && newHamper.products.length > 0 && newHamper.finalPrice && (
+                    <button
+                      onClick={saveHamper}
+                      className="w-full bg-amber-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-amber-700 transition-colors"
+                    >
+                      Save Hamper
+                    </button>
+                  )}
+                </div>
+
+                {/* Right Column - Smart Recommendations */}
+                <div className="space-y-6">
+                  {hamperCost > 0 && (
+                    <div className="bg-white border rounded-xl p-6">
+                      <h3 className="text-xl font-bold text-gray-900 mb-6">Smart Pricing Recommendations</h3>
+                      <div className="space-y-4">
+                        {hamperRecommendations.map((rec) => (
+                          <div key={rec.margin} className={`bg-gradient-to-r p-4 rounded-lg border ${
+                            rec.color === 'amber' ? 'from-amber-50 to-amber-100 border-amber-300' :
+                            rec.color === 'green' ? 'from-green-50 to-green-100 border-green-300' :
+                            rec.color === 'blue' ? 'from-blue-50 to-blue-100 border-blue-300' :
+                            rec.color === 'purple' ? 'from-purple-50 to-purple-100 border-purple-300' :
+                            'from-pink-50 to-pink-100 border-pink-300'
+                          }`}>
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="font-semibold text-lg">
+                                {rec.margin}% Margin - {rec.label}
+                              </span>
+                              <span className="text-xl font-bold">₹{rec.price.toFixed(0)}</span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <div className="text-gray-600">Product Cost</div>
+                                <div className="font-semibold">₹{hamperCost.toFixed(0)}</div>
+                              </div>
+                              <div>
+                                <div className="text-gray-600">Max Discount</div>
+                                <div className="font-semibold text-red-600">{rec.maxDiscount}%</div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {newHamper.finalPrice && (
+                        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                          <h4 className="font-semibold text-gray-900 mb-2">Your Pricing Analysis</h4>
+                          <div className="text-sm space-y-1">
+                            <div>Final Price: ₹{parseFloat(newHamper.finalPrice).toFixed(0)}</div>
+                            <div>Cost: ₹{hamperCost.toFixed(0)}</div>
+                            <div>Profit: ₹{(parseFloat(newHamper.finalPrice) - hamperCost).toFixed(0)}</div>
+                            <div className="font-semibold">
+                              Margin: {(((parseFloat(newHamper.finalPrice) - hamperCost) / parseFloat(newHamper.finalPrice)) * 100).toFixed(1)}%
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Existing Hampers */}
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Created Hampers</h2>
+              
+              {/* Group hampers by occasion */}
+              {Object.entries(
+                hampers.reduce((acc, hamper) => {
+                  if (!acc[hamper.occasionName]) {
+                    acc[hamper.occasionName] = {};
+                  }
+                  if (!acc[hamper.occasionName][hamper.category]) {
+                    acc[hamper.occasionName][hamper.category] = [];
+                  }
+                  acc[hamper.occasionName][hamper.category].push(hamper);
+                  return acc;
+                }, {})
+              ).map(([occasion, categories]) => (
+                <div key={occasion} className="mb-8">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">{occasion}</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {hamperCategories.map((categoryName) => {
+                      const categoryHampers = categories[categoryName] || [];
+                      return (
+                        <div key={categoryName} className="border rounded-lg p-4">
+                          <h4 className={`font-semibold mb-3 ${
+                            categoryName === 'Gold' ? 'text-yellow-600' :
+                            categoryName === 'Platinum' ? 'text-gray-600' :
+                            'text-purple-600'
+                          }`}>
+                            {categoryName} Collection
+                          </h4>
+                          {categoryHampers.length > 0 ? (
+                            categoryHampers.map((hamper) => (
+                              <div key={hamper.id} className="bg-gray-50 p-3 rounded mb-3">
+                                <div className="flex justify-between items-start mb-2">
+                                  <div className="font-medium text-gray-900">
+                                    {hamper.products.length} Items
+                                  </div>
+                                  <button
+                                    onClick={() => deleteHamper(hamper.id)}
+                                    className="text-red-500 hover:text-red-700 text-xs"
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                                <div className="text-sm text-gray-600 space-y-1">
+                                  <div>Cost: ₹{hamper.totalCost.toFixed(0)}</div>
+                                  <div>Price: ₹{hamper.finalPrice.toFixed(0)}</div>
+                                  <div>Margin: {hamper.profitMargin.toFixed(1)}%</div>
+                                  <div className="text-xs">
+                                    {hamper.products.map(p => p.name).join(', ')}
+                                  </div>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-gray-500 text-sm">
+                              No {categoryName.toLowerCase()} hampers created yet
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+              
+              {hampers.length === 0 && (
+                <div className="text-center text-gray-500 py-8">
+                  No hampers created yet. Create your first hamper above!
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Calculator Tab */}
         {activeTab === 'calculator' && (
@@ -978,6 +1424,7 @@ const App = () => {
           </div>
         )}
 
+        {/* Other tabs remain the same... */}
         {/* Category Management Tab */}
         {activeTab === 'categories' && (
           <div className="space-y-8">
@@ -1305,6 +1752,68 @@ const App = () => {
                 })}
               </div>
             </div>
+
+            {/* Hamper Analysis */}
+            {hampers.length > 0 && (
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Hamper Analysis</h2>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                  <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 p-4 rounded-lg">
+                    <div className="text-2xl font-bold text-yellow-600">{hampers.length}</div>
+                    <div className="text-yellow-700">Total Hampers</div>
+                  </div>
+                  <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg">
+                    <div className="text-2xl font-bold text-green-600">
+                      ₹{(hampers.reduce((sum, h) => sum + h.finalPrice, 0) / hampers.length).toFixed(0)}
+                    </div>
+                    <div className="text-green-700">Avg Hamper Price</div>
+                  </div>
+                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-600">
+                      {(hampers.reduce((sum, h) => sum + h.profitMargin, 0) / hampers.length).toFixed(1)}%
+                    </div>
+                    <div className="text-blue-700">Avg Margin</div>
+                  </div>
+                  <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg">
+                    <div className="text-2xl font-bold text-purple-600">
+                      ₹{(hampers.reduce((sum, h) => sum + h.totalCost, 0) / hampers.length).toFixed(0)}
+                    </div>
+                    <div className="text-purple-700">Avg Cost</div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {hamperCategories.map((category) => {
+                    const categoryHampers = hampers.filter(h => h.category === category);
+                    if (categoryHampers.length === 0) return null;
+                    
+                    const avgPrice = categoryHampers.reduce((sum, h) => sum + h.finalPrice, 0) / categoryHampers.length;
+                    const avgMargin = categoryHampers.reduce((sum, h) => sum + h.profitMargin, 0) / categoryHampers.length;
+                    
+                    return (
+                      <div key={category} className={`p-4 rounded-lg border-2 ${
+                        category === 'Gold' ? 'border-yellow-300 bg-yellow-50' :
+                        category === 'Platinum' ? 'border-gray-300 bg-gray-50' :
+                        'border-purple-300 bg-purple-50'
+                      }`}>
+                        <h3 className={`font-semibold mb-2 ${
+                          category === 'Gold' ? 'text-yellow-700' :
+                          category === 'Platinum' ? 'text-gray-700' :
+                          'text-purple-700'
+                        }`}>
+                          {category} Hampers
+                        </h3>
+                        <div className="space-y-1 text-sm">
+                          <div>Count: {categoryHampers.length}</div>
+                          <div>Avg Price: ₹{avgPrice.toFixed(0)}</div>
+                          <div>Avg Margin: {avgMargin.toFixed(1)}%</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
