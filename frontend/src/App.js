@@ -487,9 +487,15 @@ const App = () => {
         quantity: calcInputs.quantity,
         calculatorMode: calculatorMode,
         costStructureSnapshot: { ...costStructure },
-        ...calcInputs,
-        ...calculations,
-        savedAt: new Date().toLocaleDateString()
+        // Convert string inputs to numbers for API
+        ingredientCost: calcInputs.ingredientCost ? parseFloat(calcInputs.ingredientCost) : null,
+        costPrice: calcInputs.costPrice ? parseFloat(calcInputs.costPrice) : null,
+        targetSellingPrice: calcInputs.targetSellingPrice ? parseFloat(calcInputs.targetSellingPrice) : null,
+        targetMargin: calcInputs.targetMargin ? parseFloat(calcInputs.targetMargin) : null,
+        customProfitPercent: calcInputs.customProfitPercent ? parseFloat(calcInputs.customProfitPercent) : null,
+        // Include calculation results
+        ...calculations
+        // Remove savedAt - backend will generate it automatically
       };
       
       try {
