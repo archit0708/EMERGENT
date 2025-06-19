@@ -657,6 +657,7 @@ const App = () => {
             Product Repository
           </button>
           <button
+            id="hamperTabButton"
             onClick={() => {
               console.log('Hamper tab clicked');
               setActiveTab('hampers');
