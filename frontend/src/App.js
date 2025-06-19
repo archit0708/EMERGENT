@@ -657,7 +657,10 @@ const App = () => {
             Product Repository
           </button>
           <button
-            onClick={() => setActiveTab('hampers')}
+            onClick={() => {
+              console.log('Hamper tab clicked');
+              setActiveTab('hampers');
+            }}
             className={`px-6 py-3 rounded-lg font-semibold transition-all ${
               activeTab === 'hampers'
                 ? 'bg-amber-600 text-white shadow-lg'
