@@ -1459,7 +1459,11 @@ const App = () => {
                 )}
 
                 {/* Save Product Button */}
-                {calcInputs.productName && (calcInputs.ingredientCost || calcInputs.costPrice || calcInputs.targetSellingPrice) && (
+                {calcInputs.productName.trim() && (
+                  (calcInputs.ingredientCost && calcInputs.ingredientCost.trim()) || 
+                  (calcInputs.costPrice && calcInputs.costPrice.trim()) || 
+                  (calcInputs.targetSellingPrice && calcInputs.targetSellingPrice.trim())
+                ) && (
                   <button
                     onClick={() => saveProduct(
                       calculatorMode === 'cost-to-price' ? forwardCalc : 
