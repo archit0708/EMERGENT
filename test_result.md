@@ -167,9 +167,9 @@ backend:
 frontend:
   - task: "Complete Calculator Application"
     implemented: true
-    working: true
+    working: false
     file: "App.js"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -185,6 +185,9 @@ frontend:
         - working: true
         - agent: "testing"
         - comment: "After retesting, the Hamper Curation functionality is now working correctly. Clicking on the Hamper Curation tab successfully changes the view to display the hamper interface. Console logs show 'Tab clicked: hampers' and 'Active tab changed to: hampers' messages, confirming that the tab switching functionality is working as expected."
+        - working: false
+        - agent: "testing"
+        - comment: "URGENT: Testing the deployed application at https://cfc593e8-afc2-4477-a5b1-d21c4cbc9ec6.preview.emergentagent.com shows that the Hamper Curation functionality is not working in the deployed version. When clicking on the Hamper Curation tab, the application remains on the Calculator view instead of switching to the Hamper interface. This is a critical issue as it makes a key feature of the application inaccessible to users."
   - task: "Hamper Curation Functionality"
     implemented: true
     working: false
