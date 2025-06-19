@@ -461,11 +461,10 @@ const App = () => {
     setCalcInputs(prev => ({ ...prev, [field]: value }));
   };
 
-  // Save calculated product
-  const saveProduct = (calculations) => {
+  // Save calculated product (now uses API)
+  const saveProduct = async (calculations) => {
     if (calcInputs.productName) {
       const product = {
-        id: Date.now(),
         name: calcInputs.productName,
         category: calcInputs.category,
         quantity: calcInputs.quantity,
@@ -475,39 +474,60 @@ const App = () => {
         ...calculations,
         savedAt: new Date().toLocaleDateString()
       };
-      setProducts([...products, product]);
       
-      setCalcInputs({
-        productName: '',
-        category: productCategories[0] || '',
-        quantity: 6,
-        ingredientCost: '',
-        costPrice: '',
-        targetSellingPrice: '',
-        targetMargin: 75,
-        customProfitPercent: 75
-      });
+      try {
+        await productsAPI.create(product);
+        const updatedProducts = await productsAPI.getAll();
+        setProducts(updatedProducts);
+        
+        setCalcInputs({
+          productName: '',
+          category: productCategories[0] || '',
+          quantity: 6,
+          ingredientCost: '',
+          costPrice: '',
+          targetSellingPrice: '',
+          targetMargin: 75,
+          customProfitPercent: 75
+        });
+      } catch (error) {
+        console.error('Failed to save product:', error);
+        setError('Failed to save product');
+      }
     }
   };
 
-  // Update existing product with new calculations
-  const updateProductFromEdit = (id, newInputs) => {
-    const newCalc = calculateCostToSelling(newInputs);
-    setProducts(products.map(product => 
-      product.id === id ? { 
-        ...product, 
+  // Update existing product with new calculations (now uses API)
+  const updateProductFromEdit = async (id, newInputs) => {
+    try {
+      const newCalc = calculateCostToSelling(newInputs);
+      const updatedProductData = {
         ...newInputs,
         ...newCalc,
         costStructureSnapshot: { ...costStructure },
-        updatedAt: new Date().toLocaleDateString() 
-      } : product
-    ));
+        updatedAt: new Date().toLocaleDateString()
+      };
+      
+      await productsAPI.update(id, updatedProductData);
+      const updatedProducts = await productsAPI.getAll();
+      setProducts(updatedProducts);
+    } catch (error) {
+      console.error('Failed to update product:', error);
+      setError('Failed to update product');
+    }
   };
 
-  // Delete product
-  const deleteProduct = (id) => {
-    setProducts(products.filter(product => product.id !== id));
-    setEditingProduct(null);
+  // Delete product (now uses API)
+  const deleteProduct = async (id) => {
+    try {
+      await productsAPI.delete(id);
+      const updatedProducts = await productsAPI.getAll();
+      setProducts(updatedProducts);
+      setEditingProduct(null);
+    } catch (error) {
+      console.error('Failed to delete product:', error);
+      setError('Failed to delete product');
+    }
   };
 
   // Start editing product
