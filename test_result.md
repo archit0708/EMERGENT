@@ -185,7 +185,6 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Basic API Health Check"
     - "Complete Calculator Application"
   stuck_tasks: []
   test_all: true
