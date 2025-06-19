@@ -202,8 +202,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Complete Calculator Application"
-  stuck_tasks: []
+    - "Hamper Curation Functionality"
+  stuck_tasks:
+    - "Hamper Curation Functionality"
   test_all: true
   test_priority: "high_first"
 
