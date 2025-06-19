@@ -692,71 +692,57 @@ const App = () => {
         </div>
       </div>
 
-      {/* Navigation */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex space-x-4 mb-8 flex-wrap">
-          <button
-            onClick={() => handleTabClick('calculator')}
-            className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-              activeTab === 'calculator'
-                ? 'bg-amber-600 text-white shadow-lg'
-                : 'bg-white text-gray-700 hover:bg-amber-100'
-            }`}
-          >
-            Pricing Calculator
-          </button>
-          <button
-            onClick={() => handleTabClick('repository')}
-            className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-              activeTab === 'repository'
-                ? 'bg-amber-600 text-white shadow-lg'
-                : 'bg-white text-gray-700 hover:bg-amber-100'
-            }`}
-          >
-            Product Repository
-          </button>
-          <button
-            id="hamperTabButton"
-            onClick={() => handleTabClick('hampers')}
-            className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-              activeTab === 'hampers'
-                ? 'bg-amber-600 text-white shadow-lg'
-                : 'bg-white text-gray-700 hover:bg-amber-100'
-            }`}
-          >
-            Hamper Curation
-          </button>
-          <button
-            onClick={() => handleTabClick('categories')}
-            className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-              activeTab === 'categories'
-                ? 'bg-amber-600 text-white shadow-lg'
-                : 'bg-white text-gray-700 hover:bg-amber-100'
-            }`}
-          >
-            Category Management
-          </button>
-          <button
-            onClick={() => handleTabClick('ratecard')}
-            className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-              activeTab === 'ratecard'
-                ? 'bg-amber-600 text-white shadow-lg'
-                : 'bg-white text-gray-700 hover:bg-amber-100'
-            }`}
-          >
-            Rate Card
-          </button>
-          <button
-            onClick={() => handleTabClick('analysis')}
-            className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-              activeTab === 'analysis'
-                ? 'bg-amber-600 text-white shadow-lg'
-                : 'bg-white text-gray-700 hover:bg-amber-100'
-            }`}
-          >
-            Analysis
-          </button>
+      {/* Loading State */}
+      {loading && (
+        <div className="flex justify-center items-center h-64">
+          <div className="text-xl text-gray-600">Loading data from server...</div>
         </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            {error}
+            <button 
+              onClick={() => setError(null)}
+              className="ml-4 text-red-600 hover:text-red-800"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Main Content - Only show when not loading */}
+      {!loading && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Navigation */}
+          <div className="mb-8">
+            <div className="flex flex-wrap gap-2 bg-white rounded-lg p-2 shadow-md">
+              {[
+                { id: 'calculator', label: 'Calculator', icon: '🧮' },
+                { id: 'products', label: 'Product Repository', icon: '📦' },
+                { id: 'hampers', label: 'Hamper Curation', icon: '🎁' },
+                { id: 'categories', label: 'Category Management', icon: '🏷️' },
+                { id: 'rate-card', label: 'Rate Card', icon: '📋' },
+                { id: 'analysis', label: 'Analysis', icon: '📊' }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabClick(tab.id)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-all duration-200 ${
+                    activeTab === tab.id
+                      ? 'bg-amber-500 text-white shadow-md transform -translate-y-0.5'
+                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
+                  }`}
+                >
+                  <span className="text-lg">{tab.icon}</span>
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
         {/* Hampers Tab */}
         {activeTab === 'hampers' && (
