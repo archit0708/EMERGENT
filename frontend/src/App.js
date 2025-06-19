@@ -212,37 +212,52 @@ const App = () => {
     return hamperProducts.reduce((total, product) => total + product.totalPrice, 0);
   };
 
-  const saveHamper = () => {
-    if (newHamper.occasionName && newHamper.products.length > 0 && newHamper.finalPrice) {
-      const totalCost = calculateHamperCost(newHamper.products);
-      const hamper = {
-        id: Date.now(),
+  // Save hamper (now uses API)
+  const saveHamper = async (finalPrice, profitMargin) => {
+    if (newHamper.occasionName && newHamper.products.length > 0) {
+      const hamperData = {
         occasionName: newHamper.occasionName,
         category: newHamper.category,
         products: newHamper.products,
-        totalCost: totalCost,
-        finalPrice: parseFloat(newHamper.finalPrice),
-        profitMargin: ((parseFloat(newHamper.finalPrice) - totalCost) / parseFloat(newHamper.finalPrice)) * 100,
+        totalCost: newHamper.products.reduce((sum, p) => sum + p.totalPrice, 0),
+        finalPrice: parseFloat(finalPrice),
+        profitMargin: parseFloat(profitMargin),
         description: newHamper.description,
-        createdAt: new Date().toLocaleDateString()
       };
-      
-      setHampers([...hampers, hamper]);
-      
-      // Reset form
-      setNewHamper({
-        occasionName: '',
-        category: 'Gold',
-        products: [],
-        finalPrice: '',
-        description: ''
-      });
+
+      try {
+        await hampersAPI.create(hamperData);
+        const updatedHampers = await hampersAPI.getAll();
+        setHampers(updatedHampers);
+        
+        // Reset form
+        setNewHamper({
+          occasionName: '',
+          category: 'Gold',
+          products: [],
+          finalPrice: '',
+          description: ''
+        });
+        setSelectedProductCategory('');
+        setSelectedProduct('');
+        setProductQuantity(1);
+      } catch (error) {
+        console.error('Failed to save hamper:', error);
+        setError('Failed to save hamper');
+      }
     }
   };
 
-  const deleteHamper = (id) => {
-    setHampers(hampers.filter(hamper => hamper.id !== id));
-    setEditingHamper(null);
+  // Delete hamper (now uses API)
+  const deleteHamper = async (id) => {
+    try {
+      await hampersAPI.delete(id);
+      const updatedHampers = await hampersAPI.getAll();
+      setHampers(updatedHampers);
+    } catch (error) {
+      console.error('Failed to delete hamper:', error);
+      setError('Failed to delete hamper');
+    }
   };
 
   const getHamperRecommendations = (totalCost) => {
