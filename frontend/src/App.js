@@ -922,27 +922,27 @@ const App = () => {
                       <h3 className="text-xl font-bold text-gray-900 mb-6">Smart Pricing Recommendations</h3>
                       <div className="space-y-4">
                         {hamperRecommendations.map((rec) => (
-                          <div key={rec.margin} className={`bg-gradient-to-r p-4 rounded-lg border ${
+                          <div key={rec.discount} className={`bg-gradient-to-r p-4 rounded-lg border ${
                             rec.color === 'amber' ? 'from-amber-50 to-amber-100 border-amber-300' :
                             rec.color === 'green' ? 'from-green-50 to-green-100 border-green-300' :
                             rec.color === 'blue' ? 'from-blue-50 to-blue-100 border-blue-300' :
                             rec.color === 'purple' ? 'from-purple-50 to-purple-100 border-purple-300' :
-                            'from-pink-50 to-pink-100 border-pink-300'
+                            'from-red-50 to-red-100 border-red-300'
                           }`}>
                             <div className="flex justify-between items-center mb-2">
                               <span className="font-semibold text-lg">
-                                {rec.margin}% Margin - {rec.label}
+                                {rec.discount}% Discount - {rec.label}
                               </span>
                               <span className="text-xl font-bold">₹{rec.price.toFixed(0)}</span>
                             </div>
                             <div className="grid grid-cols-2 gap-4 text-sm">
                               <div>
-                                <div className="text-gray-600">Product Cost</div>
+                                <div className="text-gray-600">Original Price</div>
                                 <div className="font-semibold">₹{hamperCost.toFixed(0)}</div>
                               </div>
                               <div>
-                                <div className="text-gray-600">Max Discount</div>
-                                <div className="font-semibold text-red-600">{rec.maxDiscount}%</div>
+                                <div className="text-gray-600">You Save</div>
+                                <div className="font-semibold text-green-600">₹{rec.savings.toFixed(0)}</div>
                               </div>
                             </div>
                           </div>
