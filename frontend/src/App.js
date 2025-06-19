@@ -569,6 +569,7 @@ const App = () => {
             <div className="flex items-center">
               <div className="text-3xl font-bold text-gray-900">Nolita Cacao Calculator- TSL</div>
               <div className="ml-4 text-sm text-gray-600">Professional Cost & Pricing Calculator</div>
+              <div className="ml-4 text-xs text-red-600">DEPLOY TEST v2.0</div>
             </div>
           </div>
         </div>
