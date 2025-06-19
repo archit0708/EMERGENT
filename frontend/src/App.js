@@ -3,6 +3,11 @@ import './App.css';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('calculator');
+  
+  // Debug activeTab changes
+  useEffect(() => {
+    console.log('Active tab changed to:', activeTab);
+  }, [activeTab]);
   const [calculatorMode, setCalculatorMode] = useState('cost-to-price');
   const [products, setProducts] = useState([]);
   const [hampers, setHampers] = useState([]);
