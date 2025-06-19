@@ -32,7 +32,7 @@ const App = () => {
     setActiveTab(tabName);
   };
   
-  // Dynamic cost structure (now editable)
+  // Dynamic cost structure (now from API)
   const [costStructure, setCostStructure] = useState({
     labourPercent: 20,
     packagingAmount: 100,
@@ -42,7 +42,7 @@ const App = () => {
     gstPercent: 18
   });
 
-  // Dynamic product categories (now editable)
+  // Dynamic product categories (now from API)
   const [productCategories, setProductCategories] = useState([
     'LIQUOR CHOCOLATES',
     'BON BON',
@@ -61,72 +61,28 @@ const App = () => {
     'CHOCOLATE FLOWER BAR'
   ]);
 
-  // Hamper creation state
-  const [newHamper, setNewHamper] = useState({
-    occasionName: '',
-    category: 'Gold', // Gold, Platinum, Luxe
-    products: [],
-    finalPrice: '',
-    description: ''
-  });
-
-  const [selectedProductCategory, setSelectedProductCategory] = useState('');
-  const [selectedProduct, setSelectedProduct] = useState('');
-  const [productQuantity, setProductQuantity] = useState(1);
-
-  // Calculator inputs
-  const [calcInputs, setCalcInputs] = useState({
-    productName: '',
-    category: 'LIQUOR CHOCOLATES',
-    quantity: 6,
-    ingredientCost: '',
-    costPrice: '',
-    targetSellingPrice: '',
-    targetMargin: 75,
-    customProfitPercent: 75
-  });
-
-  const boxCategories = ['LIQUOR CHOCOLATES', 'GANACHE', 'BON BON', 'TRUFFLES'];
-  const quantityOptions = [6, 8, 12];
-  const hamperCategories = ['Gold', 'Platinum', 'Luxe'];
-
-  // Load saved data
+  // Load data from API on component mount
   useEffect(() => {
-    const savedProducts = localStorage.getItem('nolitaCacao_products_v1');
-    const savedHampers = localStorage.getItem('nolitaCacao_hampers_v1');
-    const savedCostStructure = localStorage.getItem('nolitaCacao_costStructure');
-    const savedCategories = localStorage.getItem('nolitaCacao_categories');
-    
-    if (savedProducts) {
-      setProducts(JSON.parse(savedProducts));
-    }
-    if (savedHampers) {
-      setHampers(JSON.parse(savedHampers));
-    }
-    if (savedCostStructure) {
-      setCostStructure(JSON.parse(savedCostStructure));
-    }
-    if (savedCategories) {
-      setProductCategories(JSON.parse(savedCategories));
-    }
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await initializeData();
+        
+        setCostStructure(data.costStructure);
+        setProductCategories(data.categories);
+        setProducts(data.products);
+        setHampers(data.hampers);
+      } catch (err) {
+        setError('Failed to load data from server. Please refresh the page.');
+        console.error('Data loading error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
   }, []);
-
-  // Save data
-  useEffect(() => {
-    localStorage.setItem('nolitaCacao_products_v1', JSON.stringify(products));
-  }, [products]);
-
-  useEffect(() => {
-    localStorage.setItem('nolitaCacao_hampers_v1', JSON.stringify(hampers));
-  }, [hampers]);
-
-  useEffect(() => {
-    localStorage.setItem('nolitaCacao_costStructure', JSON.stringify(costStructure));
-  }, [costStructure]);
-
-  useEffect(() => {
-    localStorage.setItem('nolitaCacao_categories', JSON.stringify(productCategories));
-  }, [productCategories]);
 
   // Update cost structure
   const updateCostStructure = (field, value) => {
