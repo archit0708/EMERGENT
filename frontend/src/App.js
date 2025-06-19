@@ -1562,7 +1562,7 @@ const App = () => {
         )}
 
         {/* Product Repository Tab */}
-        {activeTab === 'repository' && (
+        {activeTab === 'products' && (
           <div className="space-y-8">
             {/* Category-wise Product Repository */}
             {productCategories.map((category) => {
