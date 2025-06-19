@@ -261,41 +261,43 @@ const App = () => {
   };
 
   const getHamperRecommendations = (totalCost) => {
+    // Since individual products already have profit built in,
+    // show discount-based pricing recommendations for quantity discounts
     const recommendations = [
       { 
-        margin: 40, 
-        label: 'Competitive', 
-        price: totalCost / (1 - 0.40),
-        maxDiscount: 15,
-        color: 'blue' 
-      },
-      { 
-        margin: 50, 
-        label: 'Standard', 
-        price: totalCost / (1 - 0.50),
-        maxDiscount: 20,
+        discount: 5, 
+        label: 'Small Quantity (1-2 boxes)', 
+        price: totalCost * (1 - 0.05),
+        savings: totalCost * 0.05,
         color: 'green' 
       },
       { 
-        margin: 60, 
-        label: 'Recommended', 
-        price: totalCost / (1 - 0.60),
-        maxDiscount: 25,
-        color: 'amber' 
+        discount: 10, 
+        label: 'Medium Quantity (3-5 boxes)', 
+        price: totalCost * (1 - 0.10),
+        savings: totalCost * 0.10,
+        color: 'blue' 
       },
       { 
-        margin: 70, 
-        label: 'Premium', 
-        price: totalCost / (1 - 0.70),
-        maxDiscount: 30,
+        discount: 15, 
+        label: 'Large Quantity (6-10 boxes)', 
+        price: totalCost * (1 - 0.15),
+        savings: totalCost * 0.15,
         color: 'purple' 
       },
       { 
-        margin: 75, 
-        label: 'Luxury', 
-        price: totalCost / (1 - 0.75),
-        maxDiscount: 35,
-        color: 'pink' 
+        discount: 20, 
+        label: 'Bulk Order (10+ boxes)', 
+        price: totalCost * (1 - 0.20),
+        savings: totalCost * 0.20,
+        color: 'amber' 
+      },
+      { 
+        discount: 25, 
+        label: 'Corporate/Festival Order', 
+        price: totalCost * (1 - 0.25),
+        savings: totalCost * 0.25,
+        color: 'red' 
       }
     ];
     
