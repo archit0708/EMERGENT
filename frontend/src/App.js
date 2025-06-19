@@ -659,7 +659,9 @@ const App = () => {
           <button
             id="hamperTabButton"
             onClick={() => {
-              console.log('Hamper tab clicked');
+              console.log('Hamper tab clicked - setting activeTab to hampers');
+              document.getElementById('hamperTabButton').classList.add('bg-amber-600', 'text-white', 'shadow-lg');
+              document.getElementById('hamperTabButton').classList.remove('bg-white', 'text-gray-700', 'hover:bg-amber-100');
               setActiveTab('hampers');
             }}
             className={`px-6 py-3 rounded-lg font-semibold transition-all ${
