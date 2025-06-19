@@ -7,6 +7,10 @@ const App = () => {
   // Debug activeTab changes
   useEffect(() => {
     console.log('Active tab changed to:', activeTab);
+    // Force re-render when activeTab changes
+    if (activeTab === 'hampers') {
+      console.log('Hamper tab is now active');
+    }
   }, [activeTab]);
   const [calculatorMode, setCalculatorMode] = useState('cost-to-price');
   const [products, setProducts] = useState([]);
