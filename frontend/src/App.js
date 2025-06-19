@@ -643,7 +643,7 @@ const App = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex space-x-4 mb-8 flex-wrap">
           <button
-            onClick={() => setActiveTab('calculator')}
+            onClick={() => handleTabClick('calculator')}
             className={`px-6 py-3 rounded-lg font-semibold transition-all ${
               activeTab === 'calculator'
                 ? 'bg-amber-600 text-white shadow-lg'
@@ -653,7 +653,7 @@ const App = () => {
             Pricing Calculator
           </button>
           <button
-            onClick={() => setActiveTab('repository')}
+            onClick={() => handleTabClick('repository')}
             className={`px-6 py-3 rounded-lg font-semibold transition-all ${
               activeTab === 'repository'
                 ? 'bg-amber-600 text-white shadow-lg'
@@ -664,12 +664,7 @@ const App = () => {
           </button>
           <button
             id="hamperTabButton"
-            onClick={() => {
-              console.log('Hamper tab clicked - setting activeTab to hampers');
-              document.getElementById('hamperTabButton').classList.add('bg-amber-600', 'text-white', 'shadow-lg');
-              document.getElementById('hamperTabButton').classList.remove('bg-white', 'text-gray-700', 'hover:bg-amber-100');
-              setActiveTab('hampers');
-            }}
+            onClick={() => handleTabClick('hampers')}
             className={`px-6 py-3 rounded-lg font-semibold transition-all ${
               activeTab === 'hampers'
                 ? 'bg-amber-600 text-white shadow-lg'
@@ -679,7 +674,7 @@ const App = () => {
             Hamper Curation
           </button>
           <button
-            onClick={() => setActiveTab('categories')}
+            onClick={() => handleTabClick('categories')}
             className={`px-6 py-3 rounded-lg font-semibold transition-all ${
               activeTab === 'categories'
                 ? 'bg-amber-600 text-white shadow-lg'
@@ -689,7 +684,7 @@ const App = () => {
             Category Management
           </button>
           <button
-            onClick={() => setActiveTab('ratecard')}
+            onClick={() => handleTabClick('ratecard')}
             className={`px-6 py-3 rounded-lg font-semibold transition-all ${
               activeTab === 'ratecard'
                 ? 'bg-amber-600 text-white shadow-lg'
@@ -699,7 +694,7 @@ const App = () => {
             Rate Card
           </button>
           <button
-            onClick={() => setActiveTab('analysis')}
+            onClick={() => handleTabClick('analysis')}
             className={`px-6 py-3 rounded-lg font-semibold transition-all ${
               activeTab === 'analysis'
                 ? 'bg-amber-600 text-white shadow-lg'
