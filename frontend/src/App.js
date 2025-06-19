@@ -19,6 +19,7 @@ const App = () => {
   // Simple tab click handler
   const handleTabClick = (tabName) => {
     console.log('Tab clicked:', tabName);
+    console.log('DEPLOYMENT TEST: Tab click handler called at', new Date().toLocaleTimeString());
     setActiveTab(tabName);
   };
   
