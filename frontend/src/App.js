@@ -84,9 +84,46 @@ const App = () => {
     loadData();
   }, []);
 
-  // Update cost structure
-  const updateCostStructure = (field, value) => {
-    setCostStructure(prev => ({ ...prev, [field]: parseFloat(value) || 0 }));
+  // Hamper creation state
+  const [newHamper, setNewHamper] = useState({
+    occasionName: '',
+    category: 'Gold', // Gold, Platinum, Luxe
+    products: [],
+    finalPrice: '',
+    description: ''
+  });
+
+  const [selectedProductCategory, setSelectedProductCategory] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState('');
+  const [productQuantity, setProductQuantity] = useState(1);
+
+  // Calculator inputs
+  const [calcInputs, setCalcInputs] = useState({
+    productName: '',
+    category: 'LIQUOR CHOCOLATES',
+    quantity: 6,
+    ingredientCost: '',
+    costPrice: '',
+    targetSellingPrice: '',
+    targetMargin: 75,
+    customProfitPercent: 75
+  });
+
+  const boxCategories = ['LIQUOR CHOCOLATES', 'GANACHE', 'BON BON', 'TRUFFLES'];
+  const quantityOptions = [6, 8, 12];
+  const hamperCategories = ['Gold', 'Platinum', 'Luxe'];
+
+  // Update cost structure (now uses API)
+  const updateCostStructure = async (field, value) => {
+    const newCostStructure = { ...costStructure, [field]: parseFloat(value) || 0 };
+    setCostStructure(newCostStructure);
+    
+    try {
+      await costStructureAPI.update(newCostStructure);
+    } catch (error) {
+      console.error('Failed to update cost structure:', error);
+      setError('Failed to save cost structure changes');
+    }
   };
 
   // Category management functions
