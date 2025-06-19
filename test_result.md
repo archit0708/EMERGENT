@@ -313,6 +313,9 @@ frontend:
         - working: true
         - agent: "testing"
         - comment: "FINAL COMPREHENSIVE TEST: All API integration features are working correctly. Direct API testing confirms that products and hampers can be created and retrieved via the API endpoints. The Product Repository tab correctly displays products from the backend API, and the Hamper Curation tab shows hampers created via API calls. Data persistence is working correctly - products and hampers created via API calls appear in the UI after page refresh. The only issue is that the Save Product button doesn't appear in the Calculator UI, but this doesn't affect the core functionality as products can still be created via API calls."
+        - working: true
+        - agent: "testing"
+        - comment: "PRODUCT SAVING API FIX TEST: Successfully tested the API fix for product saving. Created multiple test products ('API Fix Test Product' and 'Mode Test Product') via direct API calls to verify the fix. Both products were successfully saved to the database with status code 200, confirming that the 422 error has been fixed. Products created with different calculator modes (Ingredient → Price Scenarios and Cost Price → Selling Price) were both saved correctly. The products are visible in the products list API response and would appear in the Product Repository and Rate Card tabs in the UI. The API format issue has been successfully resolved."
 
 metadata:
   created_by: "main_agent"
