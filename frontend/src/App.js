@@ -7,7 +7,16 @@ const App = () => {
   // Handle tab switching
   const handleTabClick = (tabName) => {
     console.log(`Tab clicked: ${tabName}`);
-    setActiveTab(tabName);
+    if (tabName === 'hampers') {
+      console.log('Hamper tab clicked - special handling');
+      // Force a re-render by setting a timeout
+      setTimeout(() => {
+        console.log('Forcing re-render for hamper tab');
+        setActiveTab(tabName);
+      }, 100);
+    } else {
+      setActiveTab(tabName);
+    }
   };
   
   // Debug activeTab changes
