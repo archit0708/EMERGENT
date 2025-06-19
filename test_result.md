@@ -317,10 +317,7 @@ metadata:
 test_plan:
   current_focus:
     - "API Integration for Collaborative Data Sharing"
-  stuck_tasks: 
-    - "Complete Calculator Application"
-    - "Hamper Curation Functionality"
-    - "API Integration for Collaborative Data Sharing"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
