@@ -126,39 +126,53 @@ const App = () => {
     }
   };
 
-  // Category management functions
-  const addCategory = () => {
+  // Category management functions (now use API)
+  const addCategory = async () => {
     if (newCategoryName.trim() && !productCategories.includes(newCategoryName.trim().toUpperCase())) {
-      setProductCategories([...productCategories, newCategoryName.trim().toUpperCase()]);
-      setNewCategoryName('');
+      try {
+        await categoriesAPI.add(newCategoryName.trim());
+        const updatedCategories = await categoriesAPI.getAll();
+        setProductCategories(updatedCategories);
+        setNewCategoryName('');
+      } catch (error) {
+        console.error('Failed to add category:', error);
+        setError('Failed to add category');
+      }
     }
   };
 
-  const updateCategory = (oldName, newName) => {
+  const updateCategory = async (oldName, newName) => {
     if (newName.trim() && newName.trim().toUpperCase() !== oldName) {
-      const updatedCategories = productCategories.map(cat => 
-        cat === oldName ? newName.trim().toUpperCase() : cat
-      );
-      setProductCategories(updatedCategories);
-      
-      // Update products with the old category
-      setProducts(products.map(product => 
-        product.category === oldName ? { ...product, category: newName.trim().toUpperCase() } : product
-      ));
-      
-      setEditingCategory(null);
+      try {
+        await categoriesAPI.update(oldName, newName.trim());
+        const [updatedCategories, updatedProducts] = await Promise.all([
+          categoriesAPI.getAll(),
+          productsAPI.getAll()
+        ]);
+        setProductCategories(updatedCategories);
+        setProducts(updatedProducts);
+        setEditingCategory(null);
+      } catch (error) {
+        console.error('Failed to update category:', error);
+        setError('Failed to update category');
+      }
     }
   };
 
-  const deleteCategory = (categoryName) => {
-    if (productCategories.length > 1) { // Keep at least one category
-      setProductCategories(productCategories.filter(cat => cat !== categoryName));
-      
-      // Remove products with this category or move them to first available category
-      const firstAvailableCategory = productCategories.find(cat => cat !== categoryName);
-      setProducts(products.map(product => 
-        product.category === categoryName ? { ...product, category: firstAvailableCategory } : product
-      ).filter(product => product.category !== categoryName || firstAvailableCategory));
+  const deleteCategory = async (categoryName) => {
+    if (productCategories.length > 1) {
+      try {
+        await categoriesAPI.delete(categoryName);
+        const [updatedCategories, updatedProducts] = await Promise.all([
+          categoriesAPI.getAll(),
+          productsAPI.getAll()
+        ]);
+        setProductCategories(updatedCategories);
+        setProducts(updatedProducts);
+      } catch (error) {
+        console.error('Failed to delete category:', error);
+        setError('Failed to delete category');
+      }
     }
   };
 
