@@ -4,6 +4,12 @@ import './App.css';
 const App = () => {
   const [activeTab, setActiveTab] = useState('calculator');
   
+  // Handle tab switching
+  const handleTabClick = (tabName) => {
+    console.log(`Tab clicked: ${tabName}`);
+    setActiveTab(tabName);
+  };
+  
   // Debug activeTab changes
   useEffect(() => {
     console.log('Active tab changed to:', activeTab);
