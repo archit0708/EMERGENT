@@ -167,9 +167,9 @@ backend:
 frontend:
   - task: "Complete Calculator Application"
     implemented: true
-    working: true
+    working: false
     file: "App.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -179,6 +179,20 @@ frontend:
         - working: true
         - agent: "testing"
         - comment: "Comprehensive testing completed. All major features are working correctly including application loading, navigation, cost structure settings, all 4 calculator modes, product repository, category management, hamper curation, rate card, and analysis dashboard."
+        - working: false
+        - agent: "testing"
+        - comment: "URGENT: Hamper Curation functionality is not working. While the Hamper Curation tab is visible in the navigation, clicking on it does not load the hamper interface. The application remains on the Calculator view instead of switching to the Hamper view. This is a critical issue as the hamper functionality is completely inaccessible to users."
+  - task: "Hamper Curation Functionality"
+    implemented: true
+    working: false
+    file: "App.js"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+        - agent: "testing"
+        - comment: "The Hamper Curation tab is visible in the UI navigation, but clicking on it does not change the content from the Calculator view. The tab switching functionality appears to be broken, making the entire hamper functionality inaccessible to users."
 
 metadata:
   created_by: "main_agent"
