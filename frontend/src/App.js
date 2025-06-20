@@ -223,7 +223,9 @@ const App = () => {
   };
 
   const calculateHamperCost = (hamperProducts) => {
-    return hamperProducts.reduce((total, product) => total + product.totalPrice, 0);
+    const cost = hamperProducts.reduce((total, product) => total + product.totalPrice, 0);
+    console.log('Hamper cost calculation:', hamperProducts.length, 'products, total cost:', cost);
+    return cost;
   };
 
   // Save hamper (now uses API)
