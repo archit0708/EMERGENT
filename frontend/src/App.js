@@ -494,7 +494,7 @@ const App = () => {
     setCalcInputs(prev => ({ ...prev, [field]: value }));
   };
 
-  // Save calculated product (now uses API) - Enhanced error handling
+  // Save calculated product (now uses API) - Always save complete breakdown
   const saveProduct = async (calculations) => {
     if (!calcInputs.productName || !calcInputs.productName.trim()) {
       setError('Please enter a product name');
@@ -502,23 +502,55 @@ const App = () => {
     }
 
     try {
+      // Calculate all cost components regardless of mode
+      const ingredientCost = calcInputs.ingredientCost ? parseFloat(calcInputs.ingredientCost) : 
+                           calcInputs.costPrice ? parseFloat(calcInputs.costPrice) : 
+                           calcInputs.targetSellingPrice ? parseFloat(calcInputs.targetSellingPrice) : 0;
+      
+      // Calculate complete cost breakdown
+      const labour = (ingredientCost * costStructure.labourPercent) / 100;
+      const packaging = costStructure.packagingAmount;
+      const manufacturing = (ingredientCost * costStructure.manufacturingPercent) / 100;
+      const marketing = (ingredientCost * costStructure.marketingPercent) / 100;
+      const delivery = costStructure.deliveryAmount;
+      const totalCostBeforeGST = ingredientCost + labour + packaging + manufacturing + marketing + delivery;
+      const gst = (totalCostBeforeGST * costStructure.gstPercent) / 100;
+      const totalCost = totalCostBeforeGST + gst;
+      
+      // Calculate selling price (use calculation result or estimate)
+      const sellingPrice = calculations?.finalSellingPrice || 
+                          calculations?.sellingPrice || 
+                          (totalCost * 1.75); // Default 75% margin
+      
       const product = {
         name: calcInputs.productName.trim(),
         category: calcInputs.category,
         quantity: calcInputs.quantity,
         calculatorMode: calculatorMode,
         costStructureSnapshot: { ...costStructure },
-        // Convert string inputs to numbers for API
-        ingredientCost: calcInputs.ingredientCost && calcInputs.ingredientCost.toString().trim() ? parseFloat(calcInputs.ingredientCost) : null,
-        costPrice: calcInputs.costPrice && calcInputs.costPrice.toString().trim() ? parseFloat(calcInputs.costPrice) : null,
-        targetSellingPrice: calcInputs.targetSellingPrice && calcInputs.targetSellingPrice.toString().trim() ? parseFloat(calcInputs.targetSellingPrice) : null,
+        // Input values
+        ingredientCost: ingredientCost,
+        costPrice: calcInputs.costPrice ? parseFloat(calcInputs.costPrice) : null,
+        targetSellingPrice: calcInputs.targetSellingPrice ? parseFloat(calcInputs.targetSellingPrice) : null,
         targetMargin: calcInputs.targetMargin ? parseFloat(calcInputs.targetMargin) : null,
         customProfitPercent: calcInputs.customProfitPercent ? parseFloat(calcInputs.customProfitPercent) : null,
+        // Complete cost breakdown - always calculated
+        totalCost: totalCost,
+        totalCostPrice: totalCostBeforeGST,
+        finalSellingPrice: sellingPrice,
+        labourCost: labour,
+        packagingCost: packaging,
+        manufacturingCost: manufacturing,
+        marketingCost: marketing,
+        deliveryCost: delivery,
+        gstAmount: gst,
         // Include calculation results if available
-        ...(calculations || {})
+        ...(calculations || {}),
+        // Calculate margin
+        actualMargin: sellingPrice > 0 ? ((sellingPrice - totalCost) / sellingPrice) * 100 : 0
       };
       
-      console.log('Saving product:', product);
+      console.log('Saving product with complete breakdown:', product);
       await productsAPI.create(product);
       
       // Refresh products list
@@ -540,7 +572,7 @@ const App = () => {
       // Clear any existing errors
       setError(null);
       
-      console.log('Product saved successfully');
+      console.log('Product saved successfully with complete breakdown');
     } catch (error) {
       console.error('Failed to save product:', error);
       setError(`Failed to save product: ${error.message || 'Unknown error'}`);
