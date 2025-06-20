@@ -1699,88 +1699,69 @@ const App = () => {
                             </div>
                           </div>
                           
-                          {/* Show different layouts based on calculator mode used */}
-                          {product.calculatorMode === 'cost-to-selling' || product.calculatorMode === 'cost-target-analysis' ? (
-                            // For cost price based products
+                          {/* Complete Component Breakdown - Always Show All Components */}
+                          <div className="space-y-4">
+                            {/* Basic Info */}
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                               <div>
                                 <div className="text-gray-600">Quantity</div>
                                 <div className="font-semibold">{boxCategories.includes(product.category) ? `Box of ${product.quantity}` : product.quantity}</div>
                               </div>
                               <div>
-                                <div className="text-gray-600">Total Cost Price</div>
-                                <div className="font-semibold">₹{product.totalCostPrice?.toFixed(0) || totalCost?.toFixed(0)}</div>
+                                <div className="text-gray-600">Calculator Mode</div>
+                                <div className="font-semibold text-blue-600">{product.calculatorMode?.replace('-', ' → ') || 'Standard'}</div>
                               </div>
                               <div>
-                                <div className="text-gray-600">Profit Margin</div>
-                                <div className="font-semibold">{displayMargin?.toFixed(0)}%</div>
+                                <div className="text-gray-600">Ingredient Cost</div>
+                                <div className="font-semibold">₹{(product.ingredientCost || 0).toFixed(0)}</div>
                               </div>
                               <div>
                                 <div className="text-gray-600 font-bold">Final Selling Price</div>
-                                <div className="font-bold text-green-600 text-lg">₹{displayPrice?.toFixed(0)}</div>
+                                <div className="font-bold text-green-600 text-lg">₹{(product.finalSellingPrice || 0).toFixed(0)}</div>
                               </div>
                             </div>
-                          ) : (
-                            // For ingredient cost based products
-                            <>
-                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+
+                            {/* Complete Cost Breakdown */}
+                            <div className="bg-gray-50 p-4 rounded-lg">
+                              <h5 className="font-semibold text-gray-800 mb-3">Complete Cost Breakdown</h5>
+                              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 text-sm">
                                 <div>
-                                  <div className="text-gray-600">Quantity</div>
-                                  <div className="font-semibold">{boxCategories.includes(product.category) ? `Box of ${product.quantity}` : product.quantity}</div>
-                                </div>
-                                <div>
-                                  <div className="text-gray-600">Ingredient Cost</div>
-                                  <div className="font-semibold">₹{ingredientCost?.toFixed(0)}</div>
-                                </div>
-                                <div>
-                                  <div className="text-gray-600">Total Cost</div>
-                                  <div className="font-semibold">₹{totalCost?.toFixed(0)}</div>
-                                </div>
-                                <div>
-                                  <div className="text-gray-600">Profit Margin</div>
-                                  <div className="font-semibold">{displayMargin?.toFixed(0)}%</div>
-                                </div>
-                              </div>
-                              
-                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mt-3">
-                                <div>
-                                  <div className="text-gray-600">Labour ({costStructure.labourPercent}%)</div>
-                                  <div className="font-semibold">₹{((ingredientCost * costStructure.labourPercent) / 100)?.toFixed(0)}</div>
+                                  <div className="text-gray-600">Labour ({product.costStructureSnapshot?.labourPercent || 20}%)</div>
+                                  <div className="font-semibold">₹{(product.labourCost || 0).toFixed(0)}</div>
                                 </div>
                                 <div>
                                   <div className="text-gray-600">Packaging</div>
-                                  <div className="font-semibold">₹{costStructure.packagingAmount}</div>
+                                  <div className="font-semibold">₹{(product.packagingCost || product.costStructureSnapshot?.packagingAmount || 0).toFixed(0)}</div>
                                 </div>
                                 <div>
-                                  <div className="text-gray-600">Manufacturing ({costStructure.manufacturingPercent}%)</div>
-                                  <div className="font-semibold">₹{((ingredientCost * costStructure.manufacturingPercent) / 100)?.toFixed(0)}</div>
+                                  <div className="text-gray-600">Manufacturing ({product.costStructureSnapshot?.manufacturingPercent || 20}%)</div>
+                                  <div className="font-semibold">₹{(product.manufacturingCost || 0).toFixed(0)}</div>
                                 </div>
                                 <div>
-                                  <div className="text-gray-600">Marketing ({costStructure.marketingPercent}%)</div>
-                                  <div className="font-semibold">₹{((ingredientCost * costStructure.marketingPercent) / 100)?.toFixed(0)}</div>
+                                  <div className="text-gray-600">Marketing ({product.costStructureSnapshot?.marketingPercent || 20}%)</div>
+                                  <div className="font-semibold">₹{(product.marketingCost || 0).toFixed(0)}</div>
                                 </div>
-                              </div>
-                              
-                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mt-3">
                                 <div>
                                   <div className="text-gray-600">Delivery</div>
-                                  <div className="font-semibold">₹{costStructure.deliveryAmount}</div>
+                                  <div className="font-semibold">₹{(product.deliveryCost || product.costStructureSnapshot?.deliveryAmount || 0).toFixed(0)}</div>
                                 </div>
                                 <div>
-                                  <div className="text-gray-600">Price before GST</div>
-                                  <div className="font-semibold">₹{(product.scenarios?.[2]?.sellingPriceBeforeGST || product.sellingPriceBeforeGST)?.toFixed(0)}</div>
-                                </div>
-                                <div>
-                                  <div className="text-gray-600">GST ({costStructure.gstPercent}%)</div>
-                                  <div className="font-semibold">₹{(product.scenarios?.[2]?.gstAmount || product.gstAmount)?.toFixed(0)}</div>
-                                </div>
-                                <div>
-                                  <div className="text-gray-600 font-bold">Final Selling Price</div>
-                                  <div className="font-bold text-green-600 text-lg">₹{displayPrice?.toFixed(0)}</div>
+                                  <div className="text-gray-600">GST ({product.costStructureSnapshot?.gstPercent || 18}%)</div>
+                                  <div className="font-semibold">₹{(product.gstAmount || 0).toFixed(0)}</div>
                                 </div>
                               </div>
-                            </>
-                          )}
+                              <div className="flex justify-between items-center mt-3 pt-3 border-t">
+                                <div>
+                                  <div className="text-gray-600">Total Cost</div>
+                                  <div className="font-bold text-blue-600">₹{(product.totalCost || 0).toFixed(0)}</div>
+                                </div>
+                                <div>
+                                  <div className="text-gray-600">Profit Margin</div>
+                                  <div className="font-bold text-amber-600">{(product.actualMargin || 0).toFixed(1)}%</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       );
                     })}
