@@ -1496,15 +1496,17 @@ const App = () => {
                   </div>
                 )}
 
-                {/* Save Product Button - Simplified condition */}
+                {/* Save Product Button - Always show when product name exists */}
                 {calcInputs.productName && calcInputs.productName.trim() && (
                   <button
-                    onClick={() => saveProduct(
-                      calculatorMode === 'cost-to-price' ? forwardCalc : 
-                      calculatorMode === 'cost-to-selling' ? costToSellingCalc :
-                      calculatorMode === 'cost-target-analysis' ? costTargetCalc :
-                      reverseCalc
-                    )}
+                    onClick={() => {
+                      const calculations = calculatorMode === 'cost-to-price' ? forwardCalc : 
+                                         calculatorMode === 'cost-to-selling' ? costToSellingCalc :
+                                         calculatorMode === 'cost-target-analysis' ? costTargetCalc :
+                                         reverseCalc;
+                      console.log('Saving product with calculations:', calculations);
+                      saveProduct(calculations || {});
+                    }}
                     className="w-full bg-amber-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-amber-700 transition-colors mt-6"
                   >
                     Save Product Configuration
