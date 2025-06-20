@@ -1550,12 +1550,14 @@ const App = () => {
         )}
 
         {/* Other tabs remain the same... */}
-        {/* Category Management Tab */}
+        {/* Category Management Tab - Enhanced with Products and Hampers */}
         {activeTab === 'categories' && (
           <div className="space-y-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-6">Category Management</h2>
+            
             {/* Add New Category */}
             <div className="bg-white rounded-xl shadow-lg p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Category Management</h2>
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">Add New Category</h3>
               <div className="flex gap-4 mb-6">
                 <input
                   type="text"
@@ -1573,9 +1575,9 @@ const App = () => {
               </div>
             </div>
 
-            {/* Existing Categories */}
+            {/* Product Categories */}
             <div className="bg-white rounded-xl shadow-lg p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-6">Existing Categories</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">Product Categories</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {productCategories.map((category) => (
                   <div key={category} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
@@ -1628,6 +1630,30 @@ const App = () => {
                         </div>
                       </div>
                     )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Hamper Categories */}
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">Hamper Categories</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {['Gold', 'Platinum', 'Luxe'].map((category) => (
+                  <div key={category} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-center">
+                      <h4 className="font-semibold text-gray-900">{category}</h4>
+                      <div className={`px-2 py-1 rounded text-xs font-medium ${
+                        category === 'Gold' ? 'bg-yellow-100 text-yellow-800' :
+                        category === 'Platinum' ? 'bg-gray-100 text-gray-800' :
+                        'bg-purple-100 text-purple-800'
+                      }`}>
+                        {category}
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-600 mt-2">
+                      Hampers: {hampers.filter(h => h.category === category).length}
+                    </div>
                   </div>
                 ))}
               </div>
