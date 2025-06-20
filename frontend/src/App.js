@@ -936,10 +936,16 @@ const App = () => {
                     </div>
                   )}
 
-                  {/* Save Button */}
-                  {newHamper.occasionName && newHamper.products.length > 0 && newHamper.finalPrice && (
+                  {/* Save Button - Simplified condition */}
+                  {newHamper.occasionName && newHamper.products.length > 0 && (
                     <button
-                      onClick={saveHamper}
+                      onClick={() => {
+                        const totalCost = calculateHamperCost(newHamper.products);
+                        const finalPrice = newHamper.finalPrice || totalCost;
+                        const profitMargin = newHamper.finalPrice ? 
+                          ((parseFloat(newHamper.finalPrice) - totalCost) / parseFloat(newHamper.finalPrice)) * 100 : 0;
+                        saveHamper(finalPrice, profitMargin);
+                      }}
                       className="w-full bg-amber-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-amber-700 transition-colors"
                     >
                       Save Hamper
