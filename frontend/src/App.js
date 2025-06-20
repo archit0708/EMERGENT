@@ -478,45 +478,56 @@ const App = () => {
     setCalcInputs(prev => ({ ...prev, [field]: value }));
   };
 
-  // Save calculated product (now uses API)
+  // Save calculated product (now uses API) - Enhanced error handling
   const saveProduct = async (calculations) => {
-    if (calcInputs.productName) {
+    if (!calcInputs.productName || !calcInputs.productName.trim()) {
+      setError('Please enter a product name');
+      return;
+    }
+
+    try {
       const product = {
-        name: calcInputs.productName,
+        name: calcInputs.productName.trim(),
         category: calcInputs.category,
         quantity: calcInputs.quantity,
         calculatorMode: calculatorMode,
         costStructureSnapshot: { ...costStructure },
         // Convert string inputs to numbers for API
-        ingredientCost: calcInputs.ingredientCost ? parseFloat(calcInputs.ingredientCost) : null,
-        costPrice: calcInputs.costPrice ? parseFloat(calcInputs.costPrice) : null,
-        targetSellingPrice: calcInputs.targetSellingPrice ? parseFloat(calcInputs.targetSellingPrice) : null,
+        ingredientCost: calcInputs.ingredientCost && calcInputs.ingredientCost.toString().trim() ? parseFloat(calcInputs.ingredientCost) : null,
+        costPrice: calcInputs.costPrice && calcInputs.costPrice.toString().trim() ? parseFloat(calcInputs.costPrice) : null,
+        targetSellingPrice: calcInputs.targetSellingPrice && calcInputs.targetSellingPrice.toString().trim() ? parseFloat(calcInputs.targetSellingPrice) : null,
         targetMargin: calcInputs.targetMargin ? parseFloat(calcInputs.targetMargin) : null,
         customProfitPercent: calcInputs.customProfitPercent ? parseFloat(calcInputs.customProfitPercent) : null,
-        // Include calculation results
-        ...calculations
-        // Remove savedAt - backend will generate it automatically
+        // Include calculation results if available
+        ...(calculations || {})
       };
       
-      try {
-        await productsAPI.create(product);
-        const updatedProducts = await productsAPI.getAll();
-        setProducts(updatedProducts);
-        
-        setCalcInputs({
-          productName: '',
-          category: productCategories[0] || '',
-          quantity: 6,
-          ingredientCost: '',
-          costPrice: '',
-          targetSellingPrice: '',
-          targetMargin: 75,
-          customProfitPercent: 75
-        });
-      } catch (error) {
-        console.error('Failed to save product:', error);
-        setError('Failed to save product');
-      }
+      console.log('Saving product:', product);
+      await productsAPI.create(product);
+      
+      // Refresh products list
+      const updatedProducts = await productsAPI.getAll();
+      setProducts(updatedProducts);
+      
+      // Clear form
+      setCalcInputs({
+        productName: '',
+        category: productCategories[0] || '',
+        quantity: 6,
+        ingredientCost: '',
+        costPrice: '',
+        targetSellingPrice: '',
+        targetMargin: 75,
+        customProfitPercent: 75
+      });
+      
+      // Clear any existing errors
+      setError(null);
+      
+      console.log('Product saved successfully');
+    } catch (error) {
+      console.error('Failed to save product:', error);
+      setError(`Failed to save product: ${error.message || 'Unknown error'}`);
     }
   };
 
