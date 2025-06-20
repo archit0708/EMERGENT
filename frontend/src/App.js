@@ -176,19 +176,27 @@ const App = () => {
     }
   };
 
-  // Hamper management functions
+  // Hamper management functions - Fixed product selection
   const addProductToHamper = () => {
     if (selectedProduct && productQuantity > 0) {
-      const product = products.find(p => p.id === parseInt(selectedProduct));
+      console.log('Adding product to hamper:', selectedProduct, productQuantity);
+      console.log('Available products:', products.length);
+      
+      const product = products.find(p => p.id === selectedProduct);
+      console.log('Found product:', product);
+      
       if (product) {
+        const unitPrice = product.finalSellingPrice || product.totalCost || 0;
         const hamperProduct = {
           id: product.id,
           name: product.name,
           category: product.category,
           quantity: productQuantity,
-          unitPrice: product.scenarios?.[2]?.finalSellingPrice || product.finalSellingPrice || product.targetFinalPrice || 0,
-          totalPrice: (product.scenarios?.[2]?.finalSellingPrice || product.finalSellingPrice || product.targetFinalPrice || 0) * productQuantity
+          unitPrice: unitPrice,
+          totalPrice: unitPrice * productQuantity
         };
+        
+        console.log('Creating hamper product:', hamperProduct);
         
         setNewHamper(prev => ({
           ...prev,
@@ -197,7 +205,13 @@ const App = () => {
         
         setSelectedProduct('');
         setProductQuantity(1);
+      } else {
+        console.error('Product not found for ID:', selectedProduct);
+        setError('Selected product not found');
       }
+    } else {
+      console.error('Invalid selection:', selectedProduct, productQuantity);
+      setError('Please select a product and valid quantity');
     }
   };
 
