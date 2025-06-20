@@ -729,12 +729,12 @@ const App = () => {
           <div className="mb-8">
             <div className="flex flex-wrap gap-2 bg-white rounded-lg p-2 shadow-md">
               {[
-                { id: 'calculator', label: 'Calculator', icon: '🧮' },
-                { id: 'products', label: 'Product Repository', icon: '📦' },
-                { id: 'hampers', label: 'Hamper Curation', icon: '🎁' },
-                { id: 'categories', label: 'Category Management', icon: '🏷️' },
-                { id: 'rate-card', label: 'Rate Card', icon: '📋' },
-                { id: 'analysis', label: 'Analysis', icon: '📊' }
+                { id: 'calculator', label: 'Calculator' },
+                { id: 'products', label: 'Product Repository' },
+                { id: 'hampers', label: 'Hamper Curation' },
+                { id: 'categories', label: 'Category Management' },
+                { id: 'rate-card', label: 'Rate Card' },
+                { id: 'analysis', label: 'Analysis' }
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -745,7 +745,6 @@ const App = () => {
                       : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
                   }`}
                 >
-                  <span className="text-lg">{tab.icon}</span>
                   {tab.label}
                 </button>
               ))}
