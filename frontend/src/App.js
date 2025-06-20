@@ -1773,38 +1773,79 @@ const App = () => {
           </div>
         )}
 
-        {/* Rate Card Tab - Simplified */}
+        {/* Rate Card Tab - Enhanced with Products and Hampers */}
         {activeTab === 'rate-card' && (
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Official Rate Card</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b-2 bg-gray-50">
-                    <th className="text-left py-4 px-6 font-bold text-lg">Category</th>
-                    <th className="text-left py-4 px-6 font-bold text-lg">Product Name</th>
-                    <th className="text-left py-4 px-6 font-bold text-lg">Selling Price</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {products.map((product) => {
-                    const displayPrice = product.scenarios?.[2]?.finalSellingPrice || product.finalSellingPrice || product.targetFinalPrice;
-                    
-                    return (
-                      <tr key={product.id} className="border-b hover:bg-gray-50">
-                        <td className="py-4 px-6 font-medium text-base">{product.category}</td>
-                        <td className="py-4 px-6 text-base">{product.name}</td>
-                        <td className="py-4 px-6 font-bold text-lg text-green-600">₹{displayPrice?.toFixed(0)}</td>
+          <div className="space-y-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-6">Official Rate Card</h2>
+            
+            {/* Products Section */}
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">Products</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b-2 bg-gray-50">
+                      <th className="text-left py-4 px-6 font-bold text-lg">Category</th>
+                      <th className="text-left py-4 px-6 font-bold text-lg">Product Name</th>
+                      <th className="text-left py-4 px-6 font-bold text-lg">Quantity/Pack</th>
+                      <th className="text-left py-4 px-6 font-bold text-lg">Selling Price</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {products.map((product) => {
+                      const displayPrice = product.scenarios?.[2]?.finalSellingPrice || product.finalSellingPrice || product.targetFinalPrice;
+                      const quantityDisplay = typeof product.quantity === 'number' ? 
+                        `Box of ${product.quantity}` : 
+                        product.quantity || 'Individual';
+                      return (
+                        <tr key={product.id} className="border-b hover:bg-gray-50">
+                          <td className="py-4 px-6 font-medium text-base">{product.category}</td>
+                          <td className="py-4 px-6 text-base">{product.name}</td>
+                          <td className="py-4 px-6 text-base text-blue-600">{quantityDisplay}</td>
+                          <td className="py-4 px-6 font-bold text-lg text-green-600">₹{displayPrice?.toFixed(0)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+                {products.length === 0 && (
+                  <div className="text-center text-gray-500 py-8">
+                    No products available. Create products first.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Hampers Section */}
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">Hampers</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b-2 bg-gray-50">
+                      <th className="text-left py-4 px-6 font-bold text-lg">Occasion</th>
+                      <th className="text-left py-4 px-6 font-bold text-lg">Category</th>
+                      <th className="text-left py-4 px-6 font-bold text-lg">Items Count</th>
+                      <th className="text-left py-4 px-6 font-bold text-lg">Final Price</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {hampers.map((hamper) => (
+                      <tr key={hamper.id} className="border-b hover:bg-gray-50">
+                        <td className="py-4 px-6 font-medium text-base">{hamper.occasionName}</td>
+                        <td className="py-4 px-6 text-base">{hamper.category}</td>
+                        <td className="py-4 px-6 text-base text-blue-600">{hamper.products?.length || 0} items</td>
+                        <td className="py-4 px-6 font-bold text-lg text-green-600">₹{hamper.finalPrice?.toFixed(0)}</td>
                       </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-              {products.length === 0 && (
-                <div className="text-center text-gray-500 py-8">
-                  No products available for rate card. Create products first.
-                </div>
-              )}
+                    ))}
+                  </tbody>
+                </table>
+                {hampers.length === 0 && (
+                  <div className="text-center text-gray-500 py-8">
+                    No hampers available. Create hampers first.
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
