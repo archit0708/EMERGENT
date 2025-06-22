@@ -1472,9 +1472,6 @@ const App = () => {
                             <div className="font-semibold text-green-600">₹{(costToSellingCalc.profit || 0).toFixed(0)}</div>
                           </div>
                         </div>
-                            </div>
-                          </div>
-                        ))}
                       </div>
                     )}
                   </div>
