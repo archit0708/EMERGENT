@@ -985,7 +985,7 @@ const App = () => {
                     <div className="border-t pt-6">
                       <div className="bg-amber-50 p-4 rounded-lg mb-4">
                         <div className="font-semibold text-amber-800">
-                          Total Product Cost: ₹{hamperCost.toFixed(0)}
+                          Total Product Cost: ₹{(hamperCost || 0).toFixed(0)}
                         </div>
                       </div>
                       <div>
