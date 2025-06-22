@@ -1457,15 +1457,21 @@ const App = () => {
                         ))}
                       </div>
                     )}
-                              </div>
-                              <div>
-                                <div className="text-gray-600">GST ({costStructure.gstPercent}%)</div>
-                                <div className="font-semibold">₹{scenario.gstAmount.toFixed(0)}</div>
-                              </div>
-                              <div>
-                                <div className="text-gray-600">Profit Amount</div>
-                                <div className="font-semibold text-green-600">₹{scenario.profitAmount.toFixed(0)}</div>
-                              </div>
+                    
+                    {/* Additional cost breakdown section - with null checks */}
+                    {costToSellingCalc && (
+                      <div className="bg-gray-50 p-4 rounded-lg mt-4">
+                        <h4 className="font-semibold text-gray-800 mb-3">Cost Breakdown</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                          <div>
+                            <div className="text-gray-600">GST ({costStructure.gstPercent}%)</div>
+                            <div className="font-semibold">₹{(costToSellingCalc.gstAmount || 0).toFixed(0)}</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-600">Profit Amount</div>
+                            <div className="font-semibold text-green-600">₹{(costToSellingCalc.profit || 0).toFixed(0)}</div>
+                          </div>
+                        </div>
                             </div>
                           </div>
                         ))}
