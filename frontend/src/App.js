@@ -1037,7 +1037,7 @@ const App = () => {
                               <span className="font-semibold text-lg">
                                 {rec.discount}% Discount - {rec.label}
                               </span>
-                              <span className="text-xl font-bold">₹{rec.price.toFixed(0)}</span>
+                              <span className="text-xl font-bold">₹{(rec.price || 0).toFixed(0)}</span>
                             </div>
                             <div className="grid grid-cols-2 gap-4 text-sm">
                               <div>
