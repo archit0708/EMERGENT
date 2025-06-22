@@ -320,172 +320,170 @@ const App = () => {
     return recommendations;
   };
 
-  // Core calculation engines (existing code)
+  // CORRECTED CALCULATION FUNCTIONS - Based on Fixed Cost Structure
+  
+  // Helper function to calculate all costs from ingredient cost
+  const calculateCostComponents = (ingredientCost) => {
+    const ingredient = parseFloat(ingredientCost) || 0;
+    const labour = ingredient * 0.20;        // 20% of ingredient cost
+    const manufacturing = ingredient * 0.20;  // 20% of ingredient cost  
+    const marketing = ingredient * 0.20;      // 20% of ingredient cost
+    const delivery = 100;                     // Fixed ₹100
+    const packaging = 100;                    // Fixed ₹100
+    const totalCost = ingredient + labour + manufacturing + marketing + delivery + packaging;
+    
+    return {
+      ingredientCost: ingredient,
+      labourCost: labour,
+      manufacturingCost: manufacturing,
+      marketingCost: marketing,
+      deliveryCost: delivery,
+      packagingCost: packaging,
+      totalCost: totalCost
+    };
+  };
+
+  // 1. INGREDIENT → PRICE SCENARIOS (Forward calculation)
   const calculatePricing = (inputs) => {
-    const ingredientCost = parseFloat(inputs.ingredientCost) || 0;
+    if (!inputs.ingredientCost) return null;
     
-    const labour = (ingredientCost * costStructure.labourPercent) / 100;
-    const packaging = costStructure.packagingAmount;
-    const manufacturing = (ingredientCost * costStructure.manufacturingPercent) / 100;
-    const marketing = (ingredientCost * costStructure.marketingPercent) / 100;
-    const delivery = costStructure.deliveryAmount;
+    const costs = calculateCostComponents(inputs.ingredientCost);
+    const targetSellingPrice = inputs.targetSellingPrice ? parseFloat(inputs.targetSellingPrice) : null;
     
-    const totalCost = ingredientCost + labour + packaging + manufacturing + marketing + delivery;
+    // If target selling price is provided, calculate profit margin
+    if (targetSellingPrice) {
+      const priceBeforeGST = targetSellingPrice / 1.18;
+      const profit = priceBeforeGST - costs.totalCost;
+      const profitMargin = (profit / targetSellingPrice) * 100;
+      
+      return {
+        ...costs,
+        targetSellingPrice: targetSellingPrice,
+        priceBeforeGST: priceBeforeGST,
+        profit: profit,
+        profitMargin: profitMargin,
+        gstAmount: targetSellingPrice - priceBeforeGST,
+        finalSellingPrice: targetSellingPrice
+      };
+    }
     
+    // Default scenarios with different profit margins
     const scenarios = [60, 70, 75, 80, 85].map(margin => {
-      const profitAmount = (totalCost * margin) / 100;
-      const sellingPriceBeforeGST = totalCost + profitAmount;
-      const gstAmount = (sellingPriceBeforeGST * costStructure.gstPercent) / 100;
-      const finalSellingPrice = sellingPriceBeforeGST + gstAmount;
+      const sellingPrice = costs.totalCost / (1 - margin/100);
+      const priceBeforeGST = sellingPrice / 1.18;
+      const profit = priceBeforeGST - costs.totalCost;
+      const gstAmount = sellingPrice - priceBeforeGST;
       
       return {
-        margin,
-        profitAmount,
-        sellingPriceBeforeGST,
-        gstAmount,
-        finalSellingPrice
+        margin: margin,
+        finalSellingPrice: sellingPrice,
+        priceBeforeGST: priceBeforeGST,
+        profit: profit,
+        gstAmount: gstAmount,
+        totalCost: costs.totalCost
       };
     });
     
     return {
-      ingredientCost,
-      labour,
-      packaging,
-      manufacturing,
-      marketing,
-      delivery,
-      totalCost,
-      scenarios
+      ...costs,
+      scenarios: scenarios,
+      finalSellingPrice: scenarios[2].finalSellingPrice, // 75% margin as default
+      priceBeforeGST: scenarios[2].priceBeforeGST,
+      profit: scenarios[2].profit,
+      profitMargin: 75,
+      gstAmount: scenarios[2].gstAmount
     };
   };
 
+  // 2. COST PRICE → SELLING PRICE  
   const calculateCostToSelling = (inputs) => {
-    const totalCostPrice = parseFloat(inputs.costPrice) || 0;
-    const customProfit = inputs.customProfitPercent || 75;
+    if (!inputs.costPrice) return null;
     
-    const profitAmount = (totalCostPrice * customProfit) / 100;
-    const sellingPriceBeforeGST = totalCostPrice + profitAmount;
-    const gstAmount = (sellingPriceBeforeGST * costStructure.gstPercent) / 100;
-    const finalSellingPrice = sellingPriceBeforeGST + gstAmount;
+    const totalCost = parseFloat(inputs.costPrice);
+    const profitPercent = inputs.customProfitPercent || 75;
     
-    const recommendations = [
-      { margin: 50, label: 'Basic', color: 'gray' },
-      { margin: 60, label: 'Competitive', color: 'blue' },
-      { margin: 70, label: 'Standard', color: 'green' },
-      { margin: 75, label: 'Recommended', color: 'amber' },
-      { margin: 80, label: 'Premium', color: 'purple' },
-      { margin: 85, label: 'Luxury', color: 'pink' }
-    ].map(rec => {
-      const recProfitAmount = (totalCostPrice * rec.margin) / 100;
-      const recSellingPriceBeforeGST = totalCostPrice + recProfitAmount;
-      const recGstAmount = (recSellingPriceBeforeGST * costStructure.gstPercent) / 100;
-      const recFinalSellingPrice = recSellingPriceBeforeGST + recGstAmount;
-      
-      return {
-        ...rec,
-        profitAmount: recProfitAmount,
-        sellingPriceBeforeGST: recSellingPriceBeforeGST,
-        gstAmount: recGstAmount,
-        finalSellingPrice: recFinalSellingPrice
-      };
-    });
+    // Calculate selling price with profit margin
+    const sellingPrice = totalCost / (1 - profitPercent/100);
+    const priceBeforeGST = sellingPrice / 1.18;
+    const profit = priceBeforeGST - totalCost;
+    const gstAmount = sellingPrice - priceBeforeGST;
+    
+    // Reverse calculate ingredient cost from total cost
+    // Total cost = ingredient × 1.6 + 200
+    // ingredient = (total cost - 200) / 1.6
+    const ingredientCost = Math.max(0, (totalCost - 200) / 1.6);
+    const costs = calculateCostComponents(ingredientCost);
     
     return {
-      totalCostPrice,
-      customProfit,
-      profitAmount,
-      sellingPriceBeforeGST,
-      gstAmount,
-      finalSellingPrice,
-      recommendations
+      ...costs,
+      totalCost: totalCost,
+      finalSellingPrice: sellingPrice,
+      priceBeforeGST: priceBeforeGST,
+      profit: profit,
+      profitMargin: profitPercent,
+      gstAmount: gstAmount
     };
   };
 
+  // 3. COST + TARGET ANALYSIS
   const calculateCostTargetAnalysis = (inputs) => {
-    const totalCostPrice = parseFloat(inputs.costPrice) || 0;
-    const targetFinalPrice = parseFloat(inputs.targetSellingPrice) || 0;
+    if (!inputs.costPrice || !inputs.targetSellingPrice) return null;
     
-    if (totalCostPrice === 0 || targetFinalPrice === 0) {
-      return null;
-    }
+    const totalCost = parseFloat(inputs.costPrice);
+    const targetPrice = parseFloat(inputs.targetSellingPrice);
+    const priceBeforeGST = targetPrice / 1.18;
+    const profit = priceBeforeGST - totalCost;
+    const actualMargin = (profit / targetPrice) * 100;
+    const gstAmount = targetPrice - priceBeforeGST;
     
-    const targetPriceBeforeGST = targetFinalPrice / (1 + costStructure.gstPercent / 100);
-    const gstAmount = targetFinalPrice - targetPriceBeforeGST;
-    
-    const profitAmount = targetPriceBeforeGST - totalCostPrice;
-    const actualMargin = (profitAmount / totalCostPrice) * 100;
-    
-    let analysis = '';
-    let analysisColor = '';
-    
-    if (actualMargin < 0) {
-      analysis = 'LOSS - Target price too low';
-      analysisColor = 'red';
-    } else if (actualMargin < 30) {
-      analysis = 'Very Low Margin - Not sustainable';
-      analysisColor = 'red';
-    } else if (actualMargin < 50) {
-      analysis = 'Low Margin - Consider increasing price';
-      analysisColor = 'orange';
-    } else if (actualMargin < 70) {
-      analysis = 'Good Margin - Competitive pricing';
-      analysisColor = 'green';
-    } else if (actualMargin < 85) {
-      analysis = 'Excellent Margin - Premium positioning';
-      analysisColor = 'blue';
-    } else {
-      analysis = 'Luxury Margin - High-end market';
-      analysisColor = 'purple';
-    }
+    // Reverse calculate ingredient cost
+    const ingredientCost = Math.max(0, (totalCost - 200) / 1.6);
+    const costs = calculateCostComponents(ingredientCost);
     
     return {
-      totalCostPrice,
-      targetFinalPrice,
-      targetPriceBeforeGST,
-      gstAmount,
-      profitAmount,
-      actualMargin,
-      analysis,
-      analysisColor
+      ...costs,
+      totalCost: totalCost,
+      targetSellingPrice: targetPrice,
+      priceBeforeGST: priceBeforeGST,
+      profit: profit,
+      actualMargin: actualMargin,
+      gstAmount: gstAmount,
+      finalSellingPrice: targetPrice,
+      feasible: actualMargin > 0
     };
   };
 
+  // 4. TARGET PRICE → MAX COST (Reverse calculation)
   const calculateReversePricing = (inputs) => {
-    const targetFinalPrice = parseFloat(inputs.targetSellingPrice) || 0;
-    const targetMargin = inputs.targetMargin;
+    if (!inputs.targetSellingPrice || !inputs.targetMargin) return null;
     
-    const sellingPriceBeforeGST = targetFinalPrice / (1 + costStructure.gstPercent / 100);
-    const gstAmount = targetFinalPrice - sellingPriceBeforeGST;
+    const targetPrice = parseFloat(inputs.targetSellingPrice);
+    const targetMargin = parseFloat(inputs.targetMargin);
     
-    const requiredTotalCost = sellingPriceBeforeGST / (1 + targetMargin / 100);
-    const profitAmount = sellingPriceBeforeGST - requiredTotalCost;
+    // Calculate maximum allowable total cost
+    const priceBeforeGST = targetPrice / 1.18;
+    const maxTotalCost = priceBeforeGST * (1 - targetMargin/100);
+    const profit = priceBeforeGST - maxTotalCost;
+    const gstAmount = targetPrice - priceBeforeGST;
     
-    const fixedAmounts = costStructure.packagingAmount + costStructure.deliveryAmount;
-    const variablePercent = costStructure.labourPercent + costStructure.manufacturingPercent + costStructure.marketingPercent;
-    
-    const maxIngredientCost = (requiredTotalCost - fixedAmounts) / (1 + variablePercent / 100);
-    
-    const labour = (maxIngredientCost * costStructure.labourPercent) / 100;
-    const packaging = costStructure.packagingAmount;
-    const manufacturing = (maxIngredientCost * costStructure.manufacturingPercent) / 100;
-    const marketing = (maxIngredientCost * costStructure.marketingPercent) / 100;
-    const delivery = costStructure.deliveryAmount;
-    
-    const calculatedTotalCost = maxIngredientCost + labour + packaging + manufacturing + marketing + delivery;
+    // Calculate maximum ingredient cost
+    // maxTotalCost = maxIngredient × 1.6 + 200
+    // maxIngredient = (maxTotalCost - 200) / 1.6
+    const maxIngredientCost = Math.max(0, (maxTotalCost - 200) / 1.6);
+    const costs = calculateCostComponents(maxIngredientCost);
     
     return {
-      targetFinalPrice,
-      sellingPriceBeforeGST,
-      gstAmount,
-      requiredTotalCost: calculatedTotalCost,
-      maxIngredientCost,
-      labour,
-      packaging,
-      manufacturing,
-      marketing,
-      delivery,
-      profitAmount,
-      actualMargin: (profitAmount / sellingPriceBeforeGST) * 100
+      ...costs,
+      maxIngredientCost: maxIngredientCost,
+      maxTotalCost: maxTotalCost,
+      targetSellingPrice: targetPrice,
+      priceBeforeGST: priceBeforeGST,
+      profit: profit,
+      targetMargin: targetMargin,
+      actualMargin: targetMargin,
+      gstAmount: gstAmount,
+      finalSellingPrice: targetPrice,
+      feasible: maxIngredientCost > 0
     };
   };
 
