@@ -374,9 +374,9 @@ metadata:
 
 test_plan:
   current_focus: 
-    - "Cost Structure Update"
     - "Calculation Engine Functionality"
-  stuck_tasks: []
+  stuck_tasks: 
+    - "Calculation Engine Functionality"
   test_all: false
   test_priority: "high_first"
 
