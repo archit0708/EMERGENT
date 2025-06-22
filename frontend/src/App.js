@@ -1474,32 +1474,56 @@ const App = () => {
                   </div>
                 ) : calculatorMode === 'cost-to-selling' ? (
                   <div className="space-y-6">
-                    {/* Custom Margin Result */}
-                    {calcInputs.costPrice && (
-                      <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-300">
-                        <div className="flex justify-between items-center mb-3">
-                          <span className="font-semibold text-lg">Your {costToSellingCalc.customProfit}% Margin</span>
-                          <span className="text-3xl font-bold text-purple-600">₹{costToSellingCalc.finalSellingPrice.toFixed(0)}</span>
-                        </div>
-                        <div className="grid grid-cols-3 gap-4 text-sm">
-                          <div>
-                            <div className="text-gray-600">Total Cost</div>
-                            <div className="font-semibold">₹{costToSellingCalc.totalCostPrice.toFixed(0)}</div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Cost Price (₹)</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={calcInputs.costPrice}
+                          onChange={(e) => updateCalcInputs('costPrice', e.target.value)}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-600 focus:border-transparent"
+                          placeholder="400"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Desired Profit Margin (%)</label>
+                        <input
+                          type="number"
+                          step="1"
+                          value={calcInputs.customProfitPercent}
+                          onChange={(e) => updateCalcInputs('customProfitPercent', e.target.value)}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-600 focus:border-transparent"
+                          placeholder="75"
+                        />
+                      </div>
+                    </div>
+
+                    {costToSellingCalc && (
+                      <div className="space-y-4">
+                        <div className="bg-gray-50 p-4 rounded-lg">
+                          <h4 className="font-semibold text-gray-800 mb-3">Complete Cost Breakdown</h4>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                            <div>Ingredient Cost: ₹{(costToSellingCalc.ingredientCost || 0).toFixed(0)}</div>
+                            <div>Labour (20%): ₹{(costToSellingCalc.labourCost || 0).toFixed(0)}</div>
+                            <div>Manufacturing (20%): ₹{(costToSellingCalc.manufacturingCost || 0).toFixed(0)}</div>
+                            <div>Marketing (20%): ₹{(costToSellingCalc.marketingCost || 0).toFixed(0)}</div>
+                            <div>Packaging: ₹{(costToSellingCalc.packagingCost || 0).toFixed(0)}</div>
+                            <div>Delivery: ₹{(costToSellingCalc.deliveryCost || 0).toFixed(0)}</div>
                           </div>
-                          <div>
-                            <div className="text-gray-600">Profit Amount</div>
-                            <div className="font-semibold text-purple-600">₹{costToSellingCalc.profitAmount.toFixed(0)}</div>
-                          </div>
-                          <div>
-                            <div className="text-gray-600">Price before GST</div>
-                            <div className="font-semibold">₹{costToSellingCalc.sellingPriceBeforeGST.toFixed(0)}</div>
-                          </div>
-                          <div>
-                            <div className="text-gray-600">GST ({costStructure.gstPercent}%)</div>
-                            <div className="font-semibold">₹{costToSellingCalc.gstAmount.toFixed(0)}</div>
-                          </div>
-                          <div className="font-bold text-purple-700 text-center col-span-2">
-                            Final Selling Price: ₹{costToSellingCalc.finalSellingPrice.toFixed(0)}
+                          <div className="border-t mt-3 pt-3 grid grid-cols-3 gap-4">
+                            <div>
+                              <div className="text-gray-600">Total Cost</div>
+                              <div className="font-bold text-blue-600">₹{(costToSellingCalc.totalCost || 0).toFixed(0)}</div>
+                            </div>
+                            <div>
+                              <div className="text-gray-600">Profit</div>
+                              <div className="font-bold text-green-600">₹{(costToSellingCalc.profit || 0).toFixed(0)}</div>
+                            </div>
+                            <div>
+                              <div className="text-gray-600">Final Selling Price</div>
+                              <div className="font-bold text-amber-600 text-xl">₹{(costToSellingCalc.finalSellingPrice || 0).toFixed(0)}</div>
+                            </div>
                           </div>
                         </div>
                       </div>
