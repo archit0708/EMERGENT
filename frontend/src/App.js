@@ -1431,7 +1431,7 @@ const App = () => {
                           }`}>
                             <div className="flex justify-between items-center mb-2">
                               <span className="font-semibold">
-                                {scenario.margin || 0}% Margin {scenario.margin === 75 ? '(Recommended)' : ''}
+                                {scenario.margin || 0}% Profit on Cost {scenario.margin === 75 ? '(Recommended)' : ''}
                               </span>
                               <span className="text-xl font-bold text-green-600">₹{(scenario.finalSellingPrice || 0).toFixed(0)}</span>
                             </div>
