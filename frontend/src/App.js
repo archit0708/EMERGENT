@@ -962,7 +962,7 @@ const App = () => {
                             </div>
                           </div>
                           <div className="flex items-center space-x-4">
-                            <span className="font-semibold text-green-600">₹{product.totalPrice.toFixed(0)}</span>
+                            <span className="font-semibold text-green-600">₹{(product.totalPrice || 0).toFixed(0)}</span>
                             <button
                               onClick={() => removeProductFromHamper(index)}
                               className="text-red-500 hover:text-red-700 text-sm"
