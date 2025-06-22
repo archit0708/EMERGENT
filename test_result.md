@@ -324,11 +324,11 @@ frontend:
         - comment: "PRODUCT SAVING API FIX TEST: Successfully tested the API fix for product saving. Created multiple test products ('API Fix Test Product' and 'Mode Test Product') via direct API calls to verify the fix. Both products were successfully saved to the database with status code 200, confirming that the 422 error has been fixed. Products created with different calculator modes (Ingredient → Price Scenarios and Cost Price → Selling Price) were both saved correctly. The products are visible in the products list API response and would appear in the Product Repository and Rate Card tabs in the UI. The API format issue has been successfully resolved."
   - task: "Calculation Engine Functionality"
     implemented: true
-    working: true
+    working: false
     file: "App.js"
     stuck_count: 1
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         - working: false
         - agent: "testing"
@@ -339,6 +339,9 @@ frontend:
         - working: true
         - agent: "testing"
         - comment: "JAVASCRIPT ERROR FIX VERIFIED: Fixed the syntax error in the App.js file that was causing the application to fail to compile. The application now loads correctly without any JavaScript errors. No 'TypeError: Cannot read properties of undefined (reading 'toFixed')' errors were detected during testing. The null checks with '|| 0' are working correctly, preventing any JavaScript errors related to undefined values. The application is now stable and doesn't crash when using the calculator functionality."
+        - working: false
+        - agent: "testing"
+        - comment: "COST STRUCTURE UPDATE VERIFICATION: Testing the updated cost structure shows that only the Packaging cost has been updated to ₹80, but the Delivery cost is still showing ₹100 instead of the required ₹80. The code in App.js has been correctly updated (both in the calculateCostComponents function and the costStructureSnapshot), but the UI is not reflecting these changes. This appears to be an issue with the cost structure settings not being properly loaded or updated in the UI."
 
 metadata:
   created_by: "main_agent"
