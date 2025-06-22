@@ -1383,19 +1383,19 @@ const App = () => {
                 {calculatorMode === 'cost-to-price' ? (
                   <div className="space-y-6">
                     {/* Cost Breakdown */}
-                    {calcInputs.ingredientCost && forwardCalc && (
+                    {forwardCalc && (
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <h4 className="font-semibold text-gray-800 mb-3">Cost Breakdown</h4>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
-                          <div>Ingredient Cost: ₹{forwardCalc.ingredientCost.toFixed(0)}</div>
-                          <div>Labour (20%): ₹{forwardCalc.labourCost.toFixed(0)}</div>
-                          <div>Manufacturing (20%): ₹{forwardCalc.manufacturingCost.toFixed(0)}</div>
-                          <div>Marketing (20%): ₹{forwardCalc.marketingCost.toFixed(0)}</div>
-                          <div>Packaging: ₹{forwardCalc.packagingCost.toFixed(0)}</div>
-                          <div>Delivery: ₹{forwardCalc.deliveryCost.toFixed(0)}</div>
+                          <div>Ingredient Cost: ₹{(forwardCalc.ingredientCost || 0).toFixed(0)}</div>
+                          <div>Labour (20%): ₹{(forwardCalc.labourCost || 0).toFixed(0)}</div>
+                          <div>Manufacturing (20%): ₹{(forwardCalc.manufacturingCost || 0).toFixed(0)}</div>
+                          <div>Marketing (20%): ₹{(forwardCalc.marketingCost || 0).toFixed(0)}</div>
+                          <div>Packaging: ₹{(forwardCalc.packagingCost || 0).toFixed(0)}</div>
+                          <div>Delivery: ₹{(forwardCalc.deliveryCost || 0).toFixed(0)}</div>
                         </div>
                         <div className="border-t mt-3 pt-3">
-                          <div className="font-bold text-blue-600">Total Cost: ₹{forwardCalc.totalCost.toFixed(0)}</div>
+                          <div className="font-bold text-blue-600">Total Cost: ₹{(forwardCalc.totalCost || 0).toFixed(0)}</div>
                         </div>
                       </div>
                     )}
