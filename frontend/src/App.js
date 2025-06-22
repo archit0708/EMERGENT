@@ -1401,7 +1401,7 @@ const App = () => {
                     )}
 
                     {/* Target Price Analysis (if provided) */}
-                    {forwardCalc.targetSellingPrice && (
+                    {forwardCalc && forwardCalc.targetSellingPrice && (
                       <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                         <h4 className="font-semibold text-green-800 mb-3">Target Price Analysis</h4>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
