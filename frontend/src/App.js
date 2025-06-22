@@ -1956,7 +1956,7 @@ const App = () => {
                         <td className="py-4 px-6 font-medium text-base">{hamper.occasionName}</td>
                         <td className="py-4 px-6 text-base">{hamper.category}</td>
                         <td className="py-4 px-6 text-base text-blue-600">{hamper.products?.length || 0} items</td>
-                        <td className="py-4 px-6 font-bold text-lg text-green-600">₹{hamper.finalPrice?.toFixed(0)}</td>
+                        <td className="py-4 px-6 font-bold text-lg text-green-600">₹{(hamper.finalPrice || 0).toFixed(0)}</td>
                       </tr>
                     ))}
                   </tbody>
