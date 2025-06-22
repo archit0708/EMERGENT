@@ -2051,7 +2051,7 @@ const App = () => {
                   </div>
                   <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg">
                     <div className="text-2xl font-bold text-green-600">
-                      ₹{(hampers.reduce((sum, h) => sum + h.finalPrice, 0) / hampers.length).toFixed(0)}
+                      ₹{hampers.length > 0 ? (hampers.reduce((sum, h) => sum + (h.finalPrice || 0), 0) / hampers.length).toFixed(0) : '0'}
                     </div>
                     <div className="text-green-700">Avg Hamper Price</div>
                   </div>
