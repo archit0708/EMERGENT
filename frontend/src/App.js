@@ -1345,17 +1345,17 @@ const App = () => {
                     {/* Cost Breakdown */}
                     {calcInputs.ingredientCost && (
                       <div className="bg-gray-50 p-4 rounded-lg">
-                        <h4 className="font-semibold text-gray-900 mb-3">Cost Breakdown</h4>
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                          <div>Ingredient: ₹{forwardCalc.ingredientCost.toFixed(0)}</div>
-                          <div>Labour ({costStructure.labourPercent}%): ₹{forwardCalc.labour.toFixed(0)}</div>
-                          <div>Packaging: ₹{forwardCalc.packaging.toFixed(0)}</div>
-                          <div>Manufacturing ({costStructure.manufacturingPercent}%): ₹{forwardCalc.manufacturing.toFixed(0)}</div>
-                          <div>Marketing ({costStructure.marketingPercent}%): ₹{forwardCalc.marketing.toFixed(0)}</div>
-                          <div>Delivery: ₹{forwardCalc.delivery.toFixed(0)}</div>
-                          <div className="font-bold text-lg text-amber-700 col-span-2 border-t pt-2">
-                            Total Cost: ₹{forwardCalc.totalCost.toFixed(0)}
-                          </div>
+                        <h4 className="font-semibold text-gray-800 mb-3">Cost Breakdown</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                          <div>Ingredient Cost: ₹{forwardCalc.ingredientCost.toFixed(0)}</div>
+                          <div>Labour (20%): ₹{forwardCalc.labourCost.toFixed(0)}</div>
+                          <div>Manufacturing (20%): ₹{forwardCalc.manufacturingCost.toFixed(0)}</div>
+                          <div>Marketing (20%): ₹{forwardCalc.marketingCost.toFixed(0)}</div>
+                          <div>Packaging: ₹{forwardCalc.packagingCost.toFixed(0)}</div>
+                          <div>Delivery: ₹{forwardCalc.deliveryCost.toFixed(0)}</div>
+                        </div>
+                        <div className="border-t mt-3 pt-3">
+                          <div className="font-bold text-blue-600">Total Cost: ₹{forwardCalc.totalCost.toFixed(0)}</div>
                         </div>
                       </div>
                     )}
