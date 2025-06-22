@@ -701,12 +701,12 @@ const App = () => {
     };
   };
 
-  // Get calculations for display
-  const forwardCalc = calculatePricing(calcInputs);
-  const costToSellingCalc = calculatorMode === 'cost-to-selling' ? calculateCostToSelling(calcInputs) : null;
-  const costTargetCalc = calculatorMode === 'cost-target-analysis' ? calculateCostTargetAnalysis(calcInputs) : null;
-  const reverseCalc = calculatorMode === 'price-to-cost' ? calculateReversePricing(calcInputs) : null;
-  const editPreview = calculateEditPreview(editingProduct);
+  // Get calculations for display - with null checks
+  const forwardCalc = calcInputs ? calculatePricing(calcInputs) : null;
+  const costToSellingCalc = calculatorMode === 'cost-to-selling' && calcInputs ? calculateCostToSelling(calcInputs) : null;
+  const costTargetCalc = calculatorMode === 'cost-target-analysis' && calcInputs ? calculateCostTargetAnalysis(calcInputs) : null;
+  const reverseCalc = calculatorMode === 'price-to-cost' && calcInputs ? calculateReversePricing(calcInputs) : null;
+  const editPreview = editingProduct ? calculateEditPreview(editingProduct) : null;
 
   // Get filtered products for hamper creation
   const getProductsByCategory = (category) => {
