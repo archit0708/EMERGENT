@@ -1118,9 +1118,9 @@ const App = () => {
                                   </button>
                                 </div>
                                 <div className="text-sm text-gray-600 space-y-1">
-                                  <div>Cost: ₹{hamper.totalCost.toFixed(0)}</div>
-                                  <div>Price: ₹{hamper.finalPrice.toFixed(0)}</div>
-                                  <div>Margin: {hamper.profitMargin.toFixed(1)}%</div>
+                                  <div>Cost: ₹{(hamper.totalCost || 0).toFixed(0)}</div>
+                                  <div>Price: ₹{(hamper.finalPrice || 0).toFixed(0)}</div>
+                                  <div>Margin: {(hamper.profitMargin || 0).toFixed(1)}%</div>
                                   <div className="text-xs">
                                     {hamper.products.map(p => p.name).join(', ')}
                                   </div>
