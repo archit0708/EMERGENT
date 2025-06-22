@@ -1414,7 +1414,7 @@ const App = () => {
                             <div className="font-semibold">₹{(forwardCalc.profit || 0).toFixed(0)}</div>
                           </div>
                           <div>
-                            <div className="text-green-600">Profit Margin</div>
+                            <div className="text-green-600">Profit Margin (on cost)</div>
                             <div className="font-bold text-green-700 text-lg">{(forwardCalc.profitMargin || 0).toFixed(1)}%</div>
                           </div>
                         </div>
