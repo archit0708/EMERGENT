@@ -2063,7 +2063,7 @@ const App = () => {
                   </div>
                   <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg">
                     <div className="text-2xl font-bold text-purple-600">
-                      ₹{(hampers.reduce((sum, h) => sum + h.totalCost, 0) / hampers.length).toFixed(0)}
+                      ₹{hampers.length > 0 ? (hampers.reduce((sum, h) => sum + (h.totalCost || 0), 0) / hampers.length).toFixed(0) : '0'}
                     </div>
                     <div className="text-purple-700">Avg Cost</div>
                   </div>
