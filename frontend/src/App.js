@@ -466,10 +466,10 @@ const App = () => {
     const profit = priceBeforeGST - maxTotalCost;
     const gstAmount = targetPrice - priceBeforeGST;
     
-    // Calculate maximum ingredient cost
-    // maxTotalCost = maxIngredient × 1.6 + 200
-    // maxIngredient = (maxTotalCost - 200) / 1.6
-    const maxIngredientCost = Math.max(0, (maxTotalCost - 200) / 1.6);
+    // Calculate maximum ingredient cost (updated formula)
+    // maxTotalCost = maxIngredient × 1.6 + 160
+    // maxIngredient = (maxTotalCost - 160) / 1.6
+    const maxIngredientCost = Math.max(0, (maxTotalCost - 160) / 1.6);
     const costs = calculateCostComponents(maxIngredientCost);
     
     return {
