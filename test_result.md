@@ -324,11 +324,11 @@ frontend:
         - comment: "PRODUCT SAVING API FIX TEST: Successfully tested the API fix for product saving. Created multiple test products ('API Fix Test Product' and 'Mode Test Product') via direct API calls to verify the fix. Both products were successfully saved to the database with status code 200, confirming that the 422 error has been fixed. Products created with different calculator modes (Ingredient → Price Scenarios and Cost Price → Selling Price) were both saved correctly. The products are visible in the products list API response and would appear in the Product Repository and Rate Card tabs in the UI. The API format issue has been successfully resolved."
   - task: "Calculation Engine Functionality"
     implemented: true
-    working: false
+    working: true
     file: "App.js"
     stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: false
         - agent: "testing"
@@ -342,6 +342,9 @@ frontend:
         - working: false
         - agent: "testing"
         - comment: "COST STRUCTURE UPDATE VERIFICATION: Testing the updated cost structure shows that only the Packaging cost has been updated to ₹80, but the Delivery cost is still showing ₹100 instead of the required ₹80. The code in App.js has been correctly updated (both in the calculateCostComponents function and the costStructureSnapshot), but the UI is not reflecting these changes. This appears to be an issue with the cost structure settings not being properly loaded or updated in the UI."
+        - working: true
+        - agent: "testing"
+        - comment: "CALCULATION ENGINE WITH UPDATED COST STRUCTURE VERIFIED: The calculation engine is now working correctly with the updated cost structure. Both Packaging and Delivery amounts are set to ₹80 in the UI, and the calculations are using these values correctly. For an ingredient cost of ₹100, the total cost is correctly calculated as ₹320 (100×1.6+160), confirming that the formula 'Ingredient cost × 1.6 + ₹160' is being applied correctly. The issue was resolved by updating the backend API's cost structure values."
   - task: "Cost Structure Update"
     implemented: true
     working: true
