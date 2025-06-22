@@ -436,8 +436,8 @@ const App = () => {
     const actualMargin = (profit / targetPrice) * 100;
     const gstAmount = targetPrice - priceBeforeGST;
     
-    // Reverse calculate ingredient cost
-    const ingredientCost = Math.max(0, (totalCost - 200) / 1.6);
+    // Reverse calculate ingredient cost (updated formula)
+    const ingredientCost = Math.max(0, (totalCost - 160) / 1.6);
     const costs = calculateCostComponents(ingredientCost);
     
     return {
