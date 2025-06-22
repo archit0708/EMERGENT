@@ -1061,7 +1061,7 @@ const App = () => {
                             <div>Cost: ₹{(hamperCost || 0).toFixed(0)}</div>
                             <div>Profit: ₹{((parseFloat(newHamper.finalPrice) || 0) - (hamperCost || 0)).toFixed(0)}</div>
                             <div className="font-semibold">
-                              Margin: {(((parseFloat(newHamper.finalPrice) - hamperCost) / parseFloat(newHamper.finalPrice)) * 100).toFixed(1)}%
+                              Margin: {(((parseFloat(newHamper.finalPrice) || 0) - (hamperCost || 0)) / (parseFloat(newHamper.finalPrice) || 1) * 100).toFixed(1)}%
                             </div>
                           </div>
                         </div>
