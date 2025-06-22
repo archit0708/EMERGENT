@@ -1042,7 +1042,7 @@ const App = () => {
                             <div className="grid grid-cols-2 gap-4 text-sm">
                               <div>
                                 <div className="text-gray-600">Original Price</div>
-                                <div className="font-semibold">₹{hamperCost.toFixed(0)}</div>
+                                <div className="font-semibold">₹{(hamperCost || 0).toFixed(0)}</div>
                               </div>
                               <div>
                                 <div className="text-gray-600">You Save</div>
