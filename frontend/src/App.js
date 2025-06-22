@@ -1046,7 +1046,7 @@ const App = () => {
                               </div>
                               <div>
                                 <div className="text-gray-600">You Save</div>
-                                <div className="font-semibold text-green-600">₹{rec.savings.toFixed(0)}</div>
+                                <div className="font-semibold text-green-600">₹{(rec.savings || 0).toFixed(0)}</div>
                               </div>
                             </div>
                           </div>
