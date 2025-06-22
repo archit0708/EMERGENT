@@ -1923,7 +1923,7 @@ const App = () => {
                           <td className="py-4 px-6 font-medium text-base">{product.category}</td>
                           <td className="py-4 px-6 text-base">{product.name}</td>
                           <td className="py-4 px-6 text-base text-blue-600">{quantityDisplay}</td>
-                          <td className="py-4 px-6 font-bold text-lg text-green-600">₹{displayPrice?.toFixed(0)}</td>
+                          <td className="py-4 px-6 font-bold text-lg text-green-600">₹{(displayPrice || 0).toFixed(0)}</td>
                         </tr>
                       );
                     })}
