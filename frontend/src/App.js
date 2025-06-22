@@ -2057,7 +2057,7 @@ const App = () => {
                   </div>
                   <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg">
                     <div className="text-2xl font-bold text-blue-600">
-                      {(hampers.reduce((sum, h) => sum + h.profitMargin, 0) / hampers.length).toFixed(1)}%
+                      {hampers.length > 0 ? (hampers.reduce((sum, h) => sum + (h.profitMargin || 0), 0) / hampers.length).toFixed(1) : '0'}%
                     </div>
                     <div className="text-blue-700">Avg Margin</div>
                   </div>
