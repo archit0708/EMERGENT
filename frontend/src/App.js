@@ -1426,7 +1426,7 @@ const App = () => {
                     )}
 
                     {/* Default Pricing Scenarios (if no target price) */}
-                    {!forwardCalc.targetSellingPrice && forwardCalc.scenarios && (
+                    {forwardCalc && !forwardCalc.targetSellingPrice && forwardCalc.scenarios && (
                       <div className="space-y-3">
                         <h4 className="font-semibold text-gray-900">Smart Pricing Recommendations</h4>
                         {forwardCalc.scenarios.map((scenario, index) => (
