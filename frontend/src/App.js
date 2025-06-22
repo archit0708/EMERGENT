@@ -1057,9 +1057,9 @@ const App = () => {
                         <div className="mt-6 p-4 bg-gray-50 rounded-lg">
                           <h4 className="font-semibold text-gray-900 mb-2">Your Pricing Analysis</h4>
                           <div className="text-sm space-y-1">
-                            <div>Final Price: ₹{parseFloat(newHamper.finalPrice).toFixed(0)}</div>
-                            <div>Cost: ₹{hamperCost.toFixed(0)}</div>
-                            <div>Profit: ₹{(parseFloat(newHamper.finalPrice) - hamperCost).toFixed(0)}</div>
+                            <div>Final Price: ₹{(parseFloat(newHamper.finalPrice) || 0).toFixed(0)}</div>
+                            <div>Cost: ₹{(hamperCost || 0).toFixed(0)}</div>
+                            <div>Profit: ₹{((parseFloat(newHamper.finalPrice) || 0) - (hamperCost || 0)).toFixed(0)}</div>
                             <div className="font-semibold">
                               Margin: {(((parseFloat(newHamper.finalPrice) - hamperCost) / parseFloat(newHamper.finalPrice)) * 100).toFixed(1)}%
                             </div>
