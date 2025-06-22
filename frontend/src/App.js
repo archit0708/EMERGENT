@@ -1360,8 +1360,33 @@ const App = () => {
                       </div>
                     )}
 
-                    {/* Pricing Scenarios */}
-                    {calcInputs.ingredientCost && (
+                    {/* Target Price Analysis (if provided) */}
+                    {forwardCalc.targetSellingPrice && (
+                      <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <h4 className="font-semibold text-green-800 mb-3">Target Price Analysis</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                          <div>
+                            <div className="text-green-600">Target Selling Price</div>
+                            <div className="font-bold text-lg">₹{forwardCalc.targetSellingPrice.toFixed(0)}</div>
+                          </div>
+                          <div>
+                            <div className="text-green-600">Price before GST</div>
+                            <div className="font-semibold">₹{forwardCalc.priceBeforeGST.toFixed(0)}</div>
+                          </div>
+                          <div>
+                            <div className="text-green-600">Profit Amount</div>
+                            <div className="font-semibold">₹{forwardCalc.profit.toFixed(0)}</div>
+                          </div>
+                          <div>
+                            <div className="text-green-600">Profit Margin</div>
+                            <div className="font-bold text-green-700 text-lg">{forwardCalc.profitMargin.toFixed(1)}%</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Default Pricing Scenarios (if no target price) */}
+                    {!forwardCalc.targetSellingPrice && forwardCalc.scenarios && (
                       <div className="space-y-3">
                         <h4 className="font-semibold text-gray-900">Smart Pricing Recommendations</h4>
                         {forwardCalc.scenarios.map((scenario, index) => (
