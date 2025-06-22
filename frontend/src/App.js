@@ -1383,7 +1383,7 @@ const App = () => {
                 {calculatorMode === 'cost-to-price' ? (
                   <div className="space-y-6">
                     {/* Cost Breakdown */}
-                    {calcInputs.ingredientCost && (
+                    {calcInputs.ingredientCost && forwardCalc && (
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <h4 className="font-semibold text-gray-800 mb-3">Cost Breakdown</h4>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
