@@ -1228,16 +1228,30 @@ const App = () => {
                   </div>
 
                   {calculatorMode === 'cost-to-price' ? (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Ingredient Cost (₹)</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={calcInputs.ingredientCost}
-                        onChange={(e) => updateCalcInputs('ingredientCost', e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-600 focus:border-transparent"
-                        placeholder="180"
-                      />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Ingredient Cost (₹)</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={calcInputs.ingredientCost}
+                          onChange={(e) => updateCalcInputs('ingredientCost', e.target.value)}
+                          placeholder="Enter ingredient cost"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-600 focus:border-transparent"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Target Selling Price (₹) - Optional</label>
+                        <input
+                          type="number"
+                          value={calcInputs.targetSellingPrice}
+                          onChange={(e) => updateCalcInputs('targetSellingPrice', e.target.value)}
+                          placeholder="Enter target selling price (optional)"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-600 focus:border-transparent"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">If provided, will calculate profit margin for this target price</p>
+                      </div>
                     </div>
                   ) : calculatorMode === 'cost-to-selling' ? (
                     <div className="space-y-4">
