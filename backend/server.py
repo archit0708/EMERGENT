@@ -30,10 +30,10 @@ api_router = APIRouter(prefix="/api")
 class CostStructure(BaseModel):
     id: str = Field(default="default")
     labourPercent: float = 20
-    packagingAmount: float = 100
+    packagingAmount: float = 80    # Updated from 100
     manufacturingPercent: float = 20
     marketingPercent: float = 20
-    deliveryAmount: float = 100
+    deliveryAmount: float = 80     # Updated from 100
     gstPercent: float = 18
     updatedAt: datetime = Field(default_factory=datetime.utcnow)
 
