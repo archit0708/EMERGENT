@@ -500,52 +500,92 @@ const App = () => {
     }
 
     try {
-      // Calculate all cost components regardless of mode
-      const ingredientCost = calcInputs.ingredientCost ? parseFloat(calcInputs.ingredientCost) : 
-                           calcInputs.costPrice ? parseFloat(calcInputs.costPrice) : 
-                           calcInputs.targetSellingPrice ? parseFloat(calcInputs.targetSellingPrice) : 0;
+      // Use the correct calculation data based on calculator mode
+      let calculationData = {};
       
-      // Calculate complete cost breakdown
-      const labour = (ingredientCost * costStructure.labourPercent) / 100;
-      const packaging = costStructure.packagingAmount;
-      const manufacturing = (ingredientCost * costStructure.manufacturingPercent) / 100;
-      const marketing = (ingredientCost * costStructure.marketingPercent) / 100;
-      const delivery = costStructure.deliveryAmount;
-      const totalCostBeforeGST = ingredientCost + labour + packaging + manufacturing + marketing + delivery;
-      const gst = (totalCostBeforeGST * costStructure.gstPercent) / 100;
-      const totalCost = totalCostBeforeGST + gst;
-      
-      // Calculate selling price (use calculation result or estimate)
-      const sellingPrice = calculations?.finalSellingPrice || 
-                          calculations?.sellingPrice || 
-                          (totalCost * 1.75); // Default 75% margin
-      
+      if (calculatorMode === 'cost-to-price' && forwardCalc) {
+        calculationData = {
+          ingredientCost: forwardCalc.ingredientCost,
+          labourCost: forwardCalc.labourCost,
+          manufacturingCost: forwardCalc.manufacturingCost,
+          marketingCost: forwardCalc.marketingCost,
+          packagingCost: forwardCalc.packagingCost,
+          deliveryCost: forwardCalc.deliveryCost,
+          totalCost: forwardCalc.totalCost,
+          finalSellingPrice: forwardCalc.finalSellingPrice,
+          priceBeforeGST: forwardCalc.priceBeforeGST,
+          gstAmount: forwardCalc.gstAmount,
+          profit: forwardCalc.profit,
+          actualMargin: forwardCalc.profitMargin || forwardCalc.actualMargin
+        };
+      } else if (calculatorMode === 'cost-to-selling' && costToSellingCalc) {
+        calculationData = {
+          ingredientCost: costToSellingCalc.ingredientCost,
+          labourCost: costToSellingCalc.labourCost,
+          manufacturingCost: costToSellingCalc.manufacturingCost,
+          marketingCost: costToSellingCalc.marketingCost,
+          packagingCost: costToSellingCalc.packagingCost,
+          deliveryCost: costToSellingCalc.deliveryCost,
+          totalCost: costToSellingCalc.totalCost,
+          finalSellingPrice: costToSellingCalc.finalSellingPrice,
+          priceBeforeGST: costToSellingCalc.priceBeforeGST,
+          gstAmount: costToSellingCalc.gstAmount,
+          profit: costToSellingCalc.profit,
+          actualMargin: costToSellingCalc.profitMargin
+        };
+      } else if (calculatorMode === 'cost-target-analysis' && costTargetCalc) {
+        calculationData = {
+          ingredientCost: costTargetCalc.ingredientCost,
+          labourCost: costTargetCalc.labourCost,
+          manufacturingCost: costTargetCalc.manufacturingCost,
+          marketingCost: costTargetCalc.marketingCost,
+          packagingCost: costTargetCalc.packagingCost,
+          deliveryCost: costTargetCalc.deliveryCost,
+          totalCost: costTargetCalc.totalCost,
+          finalSellingPrice: costTargetCalc.finalSellingPrice,
+          priceBeforeGST: costTargetCalc.priceBeforeGST,
+          gstAmount: costTargetCalc.gstAmount,
+          profit: costTargetCalc.profit,
+          actualMargin: costTargetCalc.actualMargin
+        };
+      } else if (calculatorMode === 'price-to-cost' && reverseCalc) {
+        calculationData = {
+          ingredientCost: reverseCalc.ingredientCost,
+          labourCost: reverseCalc.labourCost,
+          manufacturingCost: reverseCalc.manufacturingCost,
+          marketingCost: reverseCalc.marketingCost,
+          packagingCost: reverseCalc.packagingCost,
+          deliveryCost: reverseCalc.deliveryCost,
+          totalCost: reverseCalc.maxTotalCost,
+          finalSellingPrice: reverseCalc.finalSellingPrice,
+          priceBeforeGST: reverseCalc.priceBeforeGST,
+          gstAmount: reverseCalc.gstAmount,
+          profit: reverseCalc.profit,
+          actualMargin: reverseCalc.actualMargin
+        };
+      }
+
       const product = {
         name: calcInputs.productName.trim(),
         category: calcInputs.category,
         quantity: calcInputs.quantity,
         calculatorMode: calculatorMode,
-        costStructureSnapshot: { ...costStructure },
+        costStructureSnapshot: { 
+          labourPercent: 20,
+          packagingAmount: 100,
+          manufacturingPercent: 20,
+          marketingPercent: 20,
+          deliveryAmount: 100,
+          gstPercent: 18
+        },
         // Input values
-        ingredientCost: ingredientCost,
+        ingredientCost: calcInputs.ingredientCost ? parseFloat(calcInputs.ingredientCost) : null,
         costPrice: calcInputs.costPrice ? parseFloat(calcInputs.costPrice) : null,
         targetSellingPrice: calcInputs.targetSellingPrice ? parseFloat(calcInputs.targetSellingPrice) : null,
         targetMargin: calcInputs.targetMargin ? parseFloat(calcInputs.targetMargin) : null,
         customProfitPercent: calcInputs.customProfitPercent ? parseFloat(calcInputs.customProfitPercent) : null,
-        // Complete cost breakdown - always calculated
-        totalCost: totalCost,
-        totalCostPrice: totalCostBeforeGST,
-        finalSellingPrice: sellingPrice,
-        labourCost: labour,
-        packagingCost: packaging,
-        manufacturingCost: manufacturing,
-        marketingCost: marketing,
-        deliveryCost: delivery,
-        gstAmount: gst,
-        // Include calculation results if available
-        ...(calculations || {}),
-        // Calculate margin
-        actualMargin: sellingPrice > 0 ? ((sellingPrice - totalCost) / sellingPrice) * 100 : 0
+        // Complete calculation results
+        ...calculationData
       };
       
       console.log('Saving product with complete breakdown:', product);
