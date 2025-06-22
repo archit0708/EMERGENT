@@ -344,15 +344,18 @@ frontend:
         - comment: "COST STRUCTURE UPDATE VERIFICATION: Testing the updated cost structure shows that only the Packaging cost has been updated to ₹80, but the Delivery cost is still showing ₹100 instead of the required ₹80. The code in App.js has been correctly updated (both in the calculateCostComponents function and the costStructureSnapshot), but the UI is not reflecting these changes. This appears to be an issue with the cost structure settings not being properly loaded or updated in the UI."
   - task: "Cost Structure Update"
     implemented: true
-    working: false
+    working: true
     file: "App.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: false
         - agent: "testing"
         - comment: "CRITICAL COST UPDATE VERIFICATION: Testing the updated cost structure shows mixed results. The Packaging cost has been correctly updated to ₹80 in the UI, but the Delivery cost is still showing ₹100 instead of the required ₹80. The code in App.js has been correctly updated (both in the calculateCostComponents function and the costStructureSnapshot), but the UI is not reflecting all changes. This discrepancy affects all calculations and pricing scenarios. The total cost formula should be 'Ingredient cost × 1.6 + ₹160' but with the current UI settings it's effectively 'Ingredient cost × 1.6 + ₹180' which is incorrect."
+        - working: true
+        - agent: "testing"
+        - comment: "COST STRUCTURE UPDATE FIXED: The cost structure has been successfully updated. Both Packaging and Delivery amounts are now correctly set to ₹80 in the UI. The backend API was updated to use the correct values, and the frontend now displays these values correctly. Created a test product with ₹100 ingredient cost, which correctly shows a total cost of ₹320 (100×1.6+160), confirming that the calculation is using the updated cost structure. The total cost formula is now correctly implemented as 'Ingredient cost × 1.6 + ₹160'."
 
 metadata:
   created_by: "main_agent"
