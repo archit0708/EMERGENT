@@ -324,11 +324,11 @@ frontend:
         - comment: "PRODUCT SAVING API FIX TEST: Successfully tested the API fix for product saving. Created multiple test products ('API Fix Test Product' and 'Mode Test Product') via direct API calls to verify the fix. Both products were successfully saved to the database with status code 200, confirming that the 422 error has been fixed. Products created with different calculator modes (Ingredient → Price Scenarios and Cost Price → Selling Price) were both saved correctly. The products are visible in the products list API response and would appear in the Product Repository and Rate Card tabs in the UI. The API format issue has been successfully resolved."
   - task: "Calculation Engine Functionality"
     implemented: true
-    working: true
+    working: false
     file: "App.js"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         - working: false
         - agent: "testing"
@@ -345,6 +345,9 @@ frontend:
         - working: true
         - agent: "testing"
         - comment: "CALCULATION ENGINE WITH UPDATED COST STRUCTURE VERIFIED: The calculation engine is now working correctly with the updated cost structure. Both Packaging and Delivery amounts are set to ₹80 in the UI, and the calculations are using these values correctly. For an ingredient cost of ₹100, the total cost is correctly calculated as ₹320 (100×1.6+160), confirming that the formula 'Ingredient cost × 1.6 + ₹160' is being applied correctly. The issue was resolved by updating the backend API's cost structure values."
+        - working: false
+        - agent: "testing"
+        - comment: "CRITICAL CALCULATION ENGINE ISSUE RECURRENCE: Testing the deployed application at https://cfc593e8-afc2-4477-a5b1-d21c4cbc9ec6.preview.emergentagent.com shows that the calculation engine is not functioning properly. When entering ingredient cost in the 'Ingredient → Price Scenarios' mode, the cost breakdown and pricing scenarios sections do not appear. This affects all calculator modes and prevents users from seeing the results of their calculations. The cost structure settings are correctly displayed with Labour at 20%, Manufacturing at 20%, Marketing at 20%, Packaging at ₹80, Delivery at ₹80, and GST at 18%, but the calculation results are not being rendered in the UI. This is a critical issue that needs to be fixed before the client presentation."
   - task: "Cost Structure Update"
     implemented: true
     working: true
