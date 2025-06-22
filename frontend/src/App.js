@@ -958,7 +958,7 @@ const App = () => {
                           <div className="flex-1">
                             <div className="font-medium text-gray-900">{product.name}</div>
                             <div className="text-sm text-gray-600">
-                              {product.category} - Qty: {product.quantity} - ₹{product.unitPrice.toFixed(0)} each
+                              {product.category} - Qty: {product.quantity} - ₹{(product.unitPrice || 0).toFixed(0)} each
                             </div>
                           </div>
                           <div className="flex items-center space-x-4">
