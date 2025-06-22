@@ -35,10 +35,10 @@ const App = () => {
   // Dynamic cost structure (now from API)
   const [costStructure, setCostStructure] = useState({
     labourPercent: 20,
-    packagingAmount: 100,
+    packagingAmount: 80,      // Updated from 100
     manufacturingPercent: 20,
     marketingPercent: 20,
-    deliveryAmount: 100,
+    deliveryAmount: 80,       // Updated from 100
     gstPercent: 18
   });
 
