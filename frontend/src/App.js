@@ -409,9 +409,9 @@ const App = () => {
     const gstAmount = sellingPrice - priceBeforeGST;
     
     // Reverse calculate ingredient cost from total cost
-    // Total cost = ingredient × 1.6 + 200
-    // ingredient = (total cost - 200) / 1.6
-    const ingredientCost = Math.max(0, (totalCost - 200) / 1.6);
+    // Total cost = ingredient × 1.6 + 160 (updated from 200)
+    // ingredient = (total cost - 160) / 1.6
+    const ingredientCost = Math.max(0, (totalCost - 160) / 1.6);
     const costs = calculateCostComponents(ingredientCost);
     
     return {
