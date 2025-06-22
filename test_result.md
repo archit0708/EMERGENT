@@ -362,6 +362,9 @@ frontend:
         - working: true
         - agent: "testing"
         - comment: "COST STRUCTURE UPDATE FIXED: The cost structure has been successfully updated. Both Packaging and Delivery amounts are now correctly set to ₹80 in the UI. The backend API was updated to use the correct values, and the frontend now displays these values correctly. Created a test product with ₹100 ingredient cost, which correctly shows a total cost of ₹320 (100×1.6+160), confirming that the calculation is using the updated cost structure. The total cost formula is now correctly implemented as 'Ingredient cost × 1.6 + ₹160'."
+        - working: true
+        - agent: "testing"
+        - comment: "COST STRUCTURE VERIFICATION: The cost structure settings are correctly displayed in the UI with Labour at 20%, Manufacturing at 20%, Marketing at 20%, Packaging at ₹80, Delivery at ₹80, and GST at 18%. The backend API is also correctly configured with these values. However, there is an issue with the calculation engine not displaying the calculation results in the UI, which prevents verification of whether the calculations are using these values correctly. This is a separate issue from the cost structure update itself, which has been successfully implemented."
 
 metadata:
   created_by: "main_agent"
