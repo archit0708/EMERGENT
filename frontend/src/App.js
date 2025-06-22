@@ -1430,19 +1430,33 @@ const App = () => {
                       <div className="space-y-3">
                         <h4 className="font-semibold text-gray-900">Smart Pricing Recommendations</h4>
                         {forwardCalc.scenarios.map((scenario, index) => (
-                          <div key={scenario.margin} className={`bg-gradient-to-r p-4 rounded-lg border ${
-                            index === 2 ? 'from-green-50 to-green-100 border-green-300' : 'from-blue-50 to-blue-100 border-blue-300'
+                          <div key={scenario.margin || index} className={`p-4 rounded-lg border ${
+                            scenario.margin === 75 ? 'bg-amber-50 border-amber-300' : 'bg-gray-50 border-gray-200'
                           }`}>
                             <div className="flex justify-between items-center mb-2">
-                              <span className="font-semibold text-lg">
-                                {scenario.margin}% Margin {index === 2 ? '(RECOMMENDED)' : ''}
+                              <span className="font-semibold">
+                                {scenario.margin || 0}% Margin {scenario.margin === 75 ? '(Recommended)' : ''}
                               </span>
-                              <span className="text-2xl font-bold text-green-600">₹{scenario.finalSellingPrice.toFixed(0)}</span>
+                              <span className="text-xl font-bold text-green-600">₹{(scenario.finalSellingPrice || 0).toFixed(0)}</span>
                             </div>
                             <div className="grid grid-cols-3 gap-4 text-sm">
                               <div>
                                 <div className="text-gray-600">Price before GST</div>
-                                <div className="font-semibold">₹{scenario.sellingPriceBeforeGST.toFixed(0)}</div>
+                                <div className="font-semibold">₹{(scenario.priceBeforeGST || 0).toFixed(0)}</div>
+                              </div>
+                              <div>
+                                <div className="text-gray-600">Profit</div>
+                                <div className="font-semibold">₹{(scenario.profit || 0).toFixed(0)}</div>
+                              </div>
+                              <div>
+                                <div className="text-gray-600">GST (18%)</div>
+                                <div className="font-semibold">₹{(scenario.gstAmount || 0).toFixed(0)}</div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                               </div>
                               <div>
                                 <div className="text-gray-600">GST ({costStructure.gstPercent}%)</div>
