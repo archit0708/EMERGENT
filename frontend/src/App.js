@@ -320,7 +320,7 @@ const App = () => {
     return recommendations;
   };
 
-  // CORRECTED CALCULATION FUNCTIONS - Based on Fixed Cost Structure
+  // UPDATED CALCULATION FUNCTIONS - Delivery & Packaging now ₹80 each
   
   // Helper function to calculate all costs from ingredient cost
   const calculateCostComponents = (ingredientCost) => {
@@ -328,8 +328,8 @@ const App = () => {
     const labour = ingredient * 0.20;        // 20% of ingredient cost
     const manufacturing = ingredient * 0.20;  // 20% of ingredient cost  
     const marketing = ingredient * 0.20;      // 20% of ingredient cost
-    const delivery = 100;                     // Fixed ₹100
-    const packaging = 100;                    // Fixed ₹100
+    const delivery = 80;                      // Fixed ₹80 (updated from ₹100)
+    const packaging = 80;                     // Fixed ₹80 (updated from ₹100)
     const totalCost = ingredient + labour + manufacturing + marketing + delivery + packaging;
     
     return {
