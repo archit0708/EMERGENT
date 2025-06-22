@@ -1407,19 +1407,19 @@ const App = () => {
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                           <div>
                             <div className="text-green-600">Target Selling Price</div>
-                            <div className="font-bold text-lg">₹{forwardCalc.targetSellingPrice.toFixed(0)}</div>
+                            <div className="font-bold text-lg">₹{(forwardCalc.targetSellingPrice || 0).toFixed(0)}</div>
                           </div>
                           <div>
                             <div className="text-green-600">Price before GST</div>
-                            <div className="font-semibold">₹{forwardCalc.priceBeforeGST.toFixed(0)}</div>
+                            <div className="font-semibold">₹{(forwardCalc.priceBeforeGST || 0).toFixed(0)}</div>
                           </div>
                           <div>
                             <div className="text-green-600">Profit Amount</div>
-                            <div className="font-semibold">₹{forwardCalc.profit.toFixed(0)}</div>
+                            <div className="font-semibold">₹{(forwardCalc.profit || 0).toFixed(0)}</div>
                           </div>
                           <div>
                             <div className="text-green-600">Profit Margin</div>
-                            <div className="font-bold text-green-700 text-lg">{forwardCalc.profitMargin.toFixed(1)}%</div>
+                            <div className="font-bold text-green-700 text-lg">{(forwardCalc.profitMargin || 0).toFixed(1)}%</div>
                           </div>
                         </div>
                       </div>
