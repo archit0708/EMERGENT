@@ -904,6 +904,11 @@ def run_all_tests():
         ("Product Update", test_update_product),
         ("Product Deletion", test_delete_product),
         
+        # Online Menu Products API Tests
+        ("Online Menu Product Creation (Profit Margin)", test_create_online_menu_profit_margin_product),
+        ("Online Menu Product Creation (Price Analysis)", test_create_online_menu_price_analysis_product),
+        ("Online Menu Products Retrieval", test_get_online_menu_products),
+        
         # Hampers API Tests
         ("Hampers Retrieval", test_get_hampers),
         ("Hamper Creation", test_create_hamper),
