@@ -111,6 +111,15 @@ const App = () => {
     customProfitPercent: 75
   });
 
+  // Online Menu inputs
+  const [onlineMenuInputs, setOnlineMenuInputs] = useState({
+    categoryName: '',
+    productName: '',
+    ingredientCost: '',
+    desiredProfitMargin: 75,
+    targetSellingPrice: ''
+  });
+
   const boxCategories = ['LIQUOR CHOCOLATES', 'GANACHE', 'BON BON', 'TRUFFLES'];
   const quantityOptions = [6, 8, 12];
   const hamperCategories = ['Gold', 'Platinum', 'Luxe'];
