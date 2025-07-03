@@ -660,14 +660,7 @@ const App = () => {
         category: calcInputs.category,
         quantity: calcInputs.quantity,
         calculatorMode: calculatorMode,
-        costStructureSnapshot: { 
-          labourPercent: 20,
-          packagingAmount: 80,        // Updated from 100
-          manufacturingPercent: 20,
-          marketingPercent: 20,
-          deliveryAmount: 80,         // Updated from 100
-          gstPercent: 18
-        },
+        costStructureSnapshot: costStructure, // Use actual current cost structure
         // Input values
         ingredientCost: calcInputs.ingredientCost ? parseFloat(calcInputs.ingredientCost) : null,
         costPrice: calcInputs.costPrice ? parseFloat(calcInputs.costPrice) : null,
