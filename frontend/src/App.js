@@ -2033,33 +2033,33 @@ const App = () => {
                 ) : (
                   // Reverse calculation results
                   <div className="space-y-6">
-                    {calcInputs.targetSellingPrice && (
+                    {calcInputs.targetSellingPrice && reverseCalc && (
                       <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg border">
                         <h4 className="font-semibold text-gray-900 mb-3">Target Price Breakdown</h4> 
                         <div className="grid grid-cols-2 gap-2 text-sm mb-4">
-                          <div>Final Selling Price: ₹{reverseCalc.targetFinalPrice.toFixed(0)}</div>  
-                          <div>Price before GST: ₹{reverseCalc.sellingPriceBeforeGST.toFixed(0)}</div>
-                          <div>GST ({costStructure.gstPercent}%): ₹{reverseCalc.gstAmount.toFixed(0)}</div>
-                          <div>Profit Amount: ₹{reverseCalc.profitAmount.toFixed(0)}</div>
+                          <div>Final Selling Price: ₹{(reverseCalc.finalSellingPrice || 0).toFixed(0)}</div>  
+                          <div>Price before GST: ₹{(reverseCalc.priceBeforeGST || 0).toFixed(0)}</div>
+                          <div>GST ({costStructure.gstPercent}%): ₹{(reverseCalc.gstAmount || 0).toFixed(0)}</div>
+                          <div>Profit Amount: ₹{(reverseCalc.profit || 0).toFixed(0)}</div>
                           <div className="font-bold col-span-2 border-t pt-2">
-                            Required Total Cost: ₹{reverseCalc.requiredTotalCost.toFixed(0)}
+                            Required Total Cost: ₹{(reverseCalc.maxTotalCost || 0).toFixed(0)}
                           </div>
                         </div>
                       </div>
                     )}
 
-                    {calcInputs.targetSellingPrice && (
+                    {calcInputs.targetSellingPrice && reverseCalc && (
                       <div className="bg-yellow-50 p-4 rounded-lg border">
                         <h4 className="font-semibold text-gray-900 mb-3">Maximum Allowable Costs</h4>
                         <div className="grid grid-cols-2 gap-2 text-sm">
-                          <div>Max Ingredient Cost: ₹{reverseCalc.maxIngredientCost.toFixed(0)}</div>
-                          <div>Labour ({costStructure.labourPercent}%): ₹{reverseCalc.labour.toFixed(0)}</div>
-                          <div>Packaging: ₹{reverseCalc.packaging.toFixed(0)}</div>
-                          <div>Manufacturing ({costStructure.manufacturingPercent}%): ₹{reverseCalc.manufacturing.toFixed(0)}</div>
-                          <div>Marketing ({costStructure.marketingPercent}%): ₹{reverseCalc.marketing.toFixed(0)}</div>
-                          <div>Delivery: ₹{reverseCalc.delivery.toFixed(0)}</div>
+                          <div>Max Ingredient Cost: ₹{(reverseCalc.maxIngredientCost || 0).toFixed(0)}</div>
+                          <div>Labour ({costStructure.labourPercent}%): ₹{(reverseCalc.labourCost || 0).toFixed(0)}</div>
+                          <div>Packaging: ₹{(reverseCalc.packagingCost || 0).toFixed(0)}</div>
+                          <div>Manufacturing ({costStructure.manufacturingPercent}%): ₹{(reverseCalc.manufacturingCost || 0).toFixed(0)}</div>
+                          <div>Marketing ({costStructure.marketingPercent}%): ₹{(reverseCalc.marketingCost || 0).toFixed(0)}</div>
+                          <div>Delivery: ₹{(reverseCalc.deliveryCost || 0).toFixed(0)}</div>
                           <div className="font-bold text-amber-700 col-span-2 border-t pt-2">
-                            Actual Margin: {reverseCalc.actualMargin.toFixed(1)}%
+                            Actual Margin: {(reverseCalc.actualMargin || 0).toFixed(1)}%
                           </div>
                         </div>
                       </div>
