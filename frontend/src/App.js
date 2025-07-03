@@ -494,9 +494,88 @@ const App = () => {
     };
   };
 
-  // Update calculator inputs
-  const updateCalcInputs = (field, value) => {
-    setCalcInputs(prev => ({ ...prev, [field]: value }));
+  // Update online menu inputs
+  const updateOnlineMenuInputs = (field, value) => {
+    setOnlineMenuInputs(prev => ({ ...prev, [field]: value }));
+  };
+
+  // ONLINE MENU CALCULATION FUNCTIONS - Zomato & Swiggy
+  
+  // Helper function for online menu cost calculation
+  const calculateOnlineMenuCosts = (ingredientCost) => {
+    const ingredient = parseFloat(ingredientCost) || 0;
+    const labour = ingredient * 0.20;        // 20% of ingredient cost
+    const manufacturing = ingredient * 0.20;  // 20% of ingredient cost  
+    const marketing = ingredient * 0.20;      // 20% of ingredient cost
+    const packaging = ingredient * 0.30;      // 30% of ingredient cost (increased for delivery)
+    // No delivery cost for online platforms
+    const totalCost = ingredient + labour + manufacturing + marketing + packaging;
+    
+    return {
+      ingredientCost: ingredient,
+      labourCost: labour,
+      manufacturingCost: manufacturing,
+      marketingCost: marketing,
+      packagingCost: packaging,
+      totalCost: totalCost
+    };
+  };
+
+  // SCENARIO 1: Profit Margin → Online Selling Price
+  const onlineMenuProfitCalc = useMemo(() => {
+    if (!onlineMenuInputs.ingredientCost || !onlineMenuInputs.desiredProfitMargin) return null;
+    
+    const costs = calculateOnlineMenuCosts(onlineMenuInputs.ingredientCost);
+    const profitMargin = parseFloat(onlineMenuInputs.desiredProfitMargin);
+    
+    // Calculate profit based on cost
+    const profit = costs.totalCost * (profitMargin / 100);
+    
+    // Calculate selling price before platform commission
+    const revenueNeeded = costs.totalCost + profit;
+    
+    // Calculate online selling price (accounting for 25% platform commission)
+    // revenueNeeded = onlineSellingPrice × (1 - 0.25)
+    // onlineSellingPrice = revenueNeeded ÷ 0.75
+    const onlineSellingPrice = revenueNeeded / 0.75;
+    const platformCommission = onlineSellingPrice * 0.25;
+    const netRevenue = onlineSellingPrice - platformCommission;
+    
+    return {
+      ...costs,
+      profit: profit,
+      profitMargin: profitMargin,
+      netRevenue: netRevenue,
+      platformCommission: platformCommission,
+      onlineSellingPrice: onlineSellingPrice
+    };
+  }, [onlineMenuInputs.ingredientCost, onlineMenuInputs.desiredProfitMargin]);
+
+  // SCENARIO 2: Target Selling Price → Profit Analysis
+  const onlineMenuPriceAnalysis = useMemo(() => {
+    if (!onlineMenuInputs.ingredientCost || !onlineMenuInputs.targetSellingPrice) return null;
+    
+    const costs = calculateOnlineMenuCosts(onlineMenuInputs.ingredientCost);
+    const targetPrice = parseFloat(onlineMenuInputs.targetSellingPrice);
+    
+    // Calculate platform commission and net revenue
+    const platformCommission = targetPrice * 0.25;
+    const netRevenue = targetPrice - platformCommission;
+    
+    // Calculate profit and margin
+    const profit = netRevenue - costs.totalCost;
+    const profitMargin = targetPrice > 0 ? (profit / targetPrice) * 100 : 0;
+    
+    return {
+      ...costs,
+      targetSellingPrice: targetPrice,
+      platformCommission: platformCommission,
+      netRevenue: netRevenue,
+      profit: profit,
+      profitMargin: profitMargin,
+      feasible: profit > 0
+    };
+  }, [onlineMenuInputs.ingredientCost, onlineMenuInputs.targetSellingPrice]);
   };
 
   // Save calculated product (now uses API) - Always save complete breakdown
