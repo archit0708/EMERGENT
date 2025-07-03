@@ -578,6 +578,163 @@ def test_delete_hamper():
         print(f"❌ Hamper Deletion: FAILED - {str(e)}")
         return False
 
+# ==================== ONLINE MENU PRODUCTS API TESTS ====================
+
+def test_create_online_menu_profit_margin_product():
+    """Test creating an online menu product with profit margin mode"""
+    print("\n=== Testing Online Menu Product Creation (Profit Margin Mode) ===")
+    try:
+        # Get cost structure for product creation
+        cost_structure = test_get_cost_structure()
+        if not cost_structure:
+            print("❌ Online Menu Product Creation: FAILED - Could not retrieve cost structure")
+            return False
+        
+        # Create a new online menu product with profit margin mode
+        product_name = f"Online Menu Test (Profit Margin) {uuid.uuid4().hex[:8]}"
+        
+        # Create online menu specific cost structure
+        online_cost_structure = cost_structure.copy()
+        online_cost_structure["labourPercent"] = 20
+        online_cost_structure["manufacturingPercent"] = 20
+        online_cost_structure["marketingPercent"] = 20
+        online_cost_structure["packagingAmount"] = 30  # 30% of ingredient cost
+        
+        payload = {
+            "name": product_name,
+            "category": "Online Menu",
+            "quantity": "Online Platform",
+            "calculatorMode": "online-menu-profit-margin",
+            "costStructureSnapshot": online_cost_structure,
+            "ingredientCost": 200.0,
+            "platformCommission": 25.0,  # 25% of selling price
+            "targetMargin": 30.0,
+            "totalCost": 320.0,  # Ingredient cost × 1.6 + packaging
+            "finalSellingPrice": 600.0,
+            "netRevenue": 450.0,  # After platform commission
+            "actualMargin": 28.75
+        }
+        
+        response = requests.post(f"{API_BASE_URL}/products", json=payload)
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {response.json()}")
+        
+        assert response.status_code == 200, f"Expected status code 200, got {response.status_code}"
+        assert "id" in response.json(), "Response missing 'id' field"
+        assert response.json()["name"] == product_name, "Product name in response doesn't match request"
+        assert response.json()["category"] == "Online Menu", "Category in response doesn't match request"
+        assert response.json()["calculatorMode"] == "online-menu-profit-margin", "Calculator mode in response doesn't match request"
+        assert "platformCommission" in response.json()["costStructureSnapshot"], "Platform commission not saved in cost structure snapshot"
+        
+        print("✅ Online Menu Product Creation (Profit Margin Mode): PASSED")
+        return response.json()
+    except Exception as e:
+        print(f"❌ Online Menu Product Creation (Profit Margin Mode): FAILED - {str(e)}")
+        return None
+
+def test_create_online_menu_price_analysis_product():
+    """Test creating an online menu product with price analysis mode"""
+    print("\n=== Testing Online Menu Product Creation (Price Analysis Mode) ===")
+    try:
+        # Get cost structure for product creation
+        cost_structure = test_get_cost_structure()
+        if not cost_structure:
+            print("❌ Online Menu Product Creation: FAILED - Could not retrieve cost structure")
+            return False
+        
+        # Create a new online menu product with price analysis mode
+        product_name = f"Online Menu Test (Price Analysis) {uuid.uuid4().hex[:8]}"
+        
+        # Create online menu specific cost structure
+        online_cost_structure = cost_structure.copy()
+        online_cost_structure["labourPercent"] = 20
+        online_cost_structure["manufacturingPercent"] = 20
+        online_cost_structure["marketingPercent"] = 20
+        online_cost_structure["packagingAmount"] = 30  # 30% of ingredient cost
+        
+        payload = {
+            "name": product_name,
+            "category": "Online Menu",
+            "quantity": "Online Platform",
+            "calculatorMode": "online-menu-price-analysis",
+            "costStructureSnapshot": online_cost_structure,
+            "ingredientCost": 180.0,
+            "platformCommission": 25.0,  # 25% of selling price
+            "targetSellingPrice": 550.0,
+            "totalCost": 288.0,  # Ingredient cost × 1.6 + packaging
+            "finalSellingPrice": 550.0,
+            "netRevenue": 412.5,  # After platform commission
+            "actualMargin": 30.25
+        }
+        
+        response = requests.post(f"{API_BASE_URL}/products", json=payload)
+        print(f"Status Code: {response.status_code}")
+        print(f"Response: {response.json()}")
+        
+        assert response.status_code == 200, f"Expected status code 200, got {response.status_code}"
+        assert "id" in response.json(), "Response missing 'id' field"
+        assert response.json()["name"] == product_name, "Product name in response doesn't match request"
+        assert response.json()["category"] == "Online Menu", "Category in response doesn't match request"
+        assert response.json()["calculatorMode"] == "online-menu-price-analysis", "Calculator mode in response doesn't match request"
+        assert "platformCommission" in response.json()["costStructureSnapshot"], "Platform commission not saved in cost structure snapshot"
+        
+        print("✅ Online Menu Product Creation (Price Analysis Mode): PASSED")
+        return response.json()
+    except Exception as e:
+        print(f"❌ Online Menu Product Creation (Price Analysis Mode): FAILED - {str(e)}")
+        return None
+
+def test_get_online_menu_products():
+    """Test retrieving online menu products by filtering"""
+    print("\n=== Testing Online Menu Products Retrieval ===")
+    try:
+        # First create online menu products if they don't exist
+        profit_margin_product = test_create_online_menu_profit_margin_product()
+        price_analysis_product = test_create_online_menu_price_analysis_product()
+        
+        if not profit_margin_product or not price_analysis_product:
+            print("⚠️ Online Menu Products Retrieval: WARNING - Could not create test products, but will continue with test")
+        
+        # Get all products
+        all_products = test_get_products()
+        if not all_products:
+            print("❌ Online Menu Products Retrieval: FAILED - Could not retrieve products")
+            return False
+        
+        # Filter online menu products
+        online_menu_products = [p for p in all_products if p["calculatorMode"].startswith("online-menu")]
+        profit_margin_products = [p for p in all_products if p["calculatorMode"] == "online-menu-profit-margin"]
+        price_analysis_products = [p for p in all_products if p["calculatorMode"] == "online-menu-price-analysis"]
+        
+        print(f"Found {len(online_menu_products)} online menu products")
+        print(f"Found {len(profit_margin_products)} profit margin mode products")
+        print(f"Found {len(price_analysis_products)} price analysis mode products")
+        
+        assert len(online_menu_products) > 0, "No online menu products found"
+        
+        # Verify at least one product of each type exists
+        if profit_margin_product:
+            found_profit_margin = False
+            for p in online_menu_products:
+                if p["id"] == profit_margin_product["id"]:
+                    found_profit_margin = True
+                    break
+            assert found_profit_margin, "Created profit margin product not found in retrieved list"
+        
+        if price_analysis_product:
+            found_price_analysis = False
+            for p in online_menu_products:
+                if p["id"] == price_analysis_product["id"]:
+                    found_price_analysis = True
+                    break
+            assert found_price_analysis, "Created price analysis product not found in retrieved list"
+        
+        print("✅ Online Menu Products Retrieval: PASSED")
+        return online_menu_products
+    except Exception as e:
+        print(f"❌ Online Menu Products Retrieval: FAILED - {str(e)}")
+        return None
+
 # ==================== COMPREHENSIVE DATA PERSISTENCE TEST ====================
 
 def test_comprehensive_data_persistence():
@@ -618,7 +775,34 @@ def test_comprehensive_data_persistence():
         product = product_response.json()
         print(f"Created product: {product['name']} with ID: {product['id']}")
         
-        # 4. Create a hamper with that product
+        # 4. Create an online menu product
+        online_menu_payload = {
+            "name": f"Online Menu Persistence Test {uuid.uuid4().hex[:8]}",
+            "category": "Online Menu",
+            "quantity": "Online Platform",
+            "calculatorMode": "online-menu-profit-margin",
+            "costStructureSnapshot": {
+                **test_get_cost_structure(),
+                "platformCommission": 25.0
+            },
+            "ingredientCost": 200.0,
+            "platformCommission": 25.0,
+            "targetMargin": 30.0,
+            "totalCost": 320.0,
+            "finalSellingPrice": 600.0,
+            "netRevenue": 450.0,
+            "actualMargin": 28.75
+        }
+        
+        online_product_response = requests.post(f"{API_BASE_URL}/products", json=online_menu_payload)
+        if online_product_response.status_code != 200:
+            print(f"❌ Comprehensive Data Persistence: FAILED - Online menu product creation failed with status {online_product_response.status_code}")
+            return False
+        
+        online_product = online_product_response.json()
+        print(f"Created online menu product: {online_product['name']} with ID: {online_product['id']}")
+        
+        # 5. Create a hamper with that product
         hamper_products = [
             {
                 "id": product["id"],
@@ -648,10 +832,10 @@ def test_comprehensive_data_persistence():
         hamper = hamper_response.json()
         print(f"Created hamper: {hamper['occasionName']} with ID: {hamper['id']}")
         
-        # 5. Wait to ensure data is persisted
+        # 6. Wait to ensure data is persisted
         time.sleep(2)
         
-        # 6. Verify all data persists
+        # 7. Verify all data persists
         # Check cost structure
         cost_structure = test_get_cost_structure()
         if not cost_structure or cost_structure["labourPercent"] != 25.5:
@@ -668,6 +852,17 @@ def test_comprehensive_data_persistence():
         product_verification = requests.get(f"{API_BASE_URL}/products/{product['id']}")
         if product_verification.status_code != 200:
             print(f"❌ Comprehensive Data Persistence: FAILED - Product did not persist, status {product_verification.status_code}")
+            return False
+        
+        # Check online menu product
+        online_product_verification = requests.get(f"{API_BASE_URL}/products/{online_product['id']}")
+        if online_product_verification.status_code != 200:
+            print(f"❌ Comprehensive Data Persistence: FAILED - Online menu product did not persist, status {online_product_verification.status_code}")
+            return False
+        
+        # Verify online menu product has correct calculator mode
+        if online_product_verification.json()["calculatorMode"] != "online-menu-profit-margin":
+            print(f"❌ Comprehensive Data Persistence: FAILED - Online menu product has incorrect calculator mode")
             return False
         
         # Check hamper
