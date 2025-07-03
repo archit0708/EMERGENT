@@ -768,12 +768,36 @@ const App = () => {
   };
 
   // Update existing product with new calculations (now uses API)
-  const updateProductFromEdit = async (id, newInputs) => {
+  const updateProductFromEdit = async (id, editedProduct) => {
     try {
-      const newCalc = calculateCostToSelling(newInputs);
+      // Calculate the cost breakdown based on the ingredient cost and current cost structure
+      const ingredientCost = editedProduct.ingredientCost || 0;
+      const labourCost = (ingredientCost * costStructure.labourPercent) / 100;
+      const manufacturingCost = (ingredientCost * costStructure.manufacturingPercent) / 100;
+      const marketingCost = (ingredientCost * costStructure.marketingPercent) / 100;
+      const packagingCost = costStructure.packagingAmount;
+      const deliveryCost = costStructure.deliveryAmount;
+      
+      const totalCost = ingredientCost + labourCost + manufacturingCost + marketingCost + packagingCost + deliveryCost;
+      const priceBeforeGST = totalCost / (1 - (editedProduct.targetMargin || 75) / 100);
+      const gstAmount = (priceBeforeGST * costStructure.gstPercent) / 100;
+      const finalSellingPrice = priceBeforeGST + gstAmount;
+      const profit = priceBeforeGST - totalCost;
+      const actualMargin = (profit / priceBeforeGST) * 100;
+
       const updatedProductData = {
-        ...newInputs,
-        ...newCalc,
+        ...editedProduct,
+        // Calculated cost breakdown
+        labourCost: labourCost,
+        manufacturingCost: manufacturingCost,
+        marketingCost: marketingCost,
+        packagingCost: packagingCost,
+        deliveryCost: deliveryCost,
+        gstAmount: gstAmount,
+        totalCost: totalCost,
+        finalSellingPrice: finalSellingPrice,
+        profit: profit,
+        actualMargin: actualMargin,
         costStructureSnapshot: { ...costStructure },
         updatedAt: new Date().toLocaleDateString()
       };
@@ -781,9 +805,10 @@ const App = () => {
       await productsAPI.update(id, updatedProductData);
       const updatedProducts = await productsAPI.getAll();
       setProducts(updatedProducts);
+      setEditingProduct(null);
     } catch (error) {
       console.error('Failed to update product:', error);
-      setError('Failed to update product');
+      setError(`Failed to update product: ${error.message || 'Unknown error'}`);
     }
   };
 
