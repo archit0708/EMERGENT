@@ -404,7 +404,6 @@ metadata:
 
 test_plan:
   current_focus: 
-    - "Online Menu Pricing API Support"
     - "Online Menu Pricing Frontend Implementation"
   stuck_tasks: 
     - "Calculation Engine Functionality"
