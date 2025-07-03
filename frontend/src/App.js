@@ -944,6 +944,228 @@ const App = () => {
             </div>
           </div>
 
+        {/* Online Menu Pricing Tab - NEW MODULE */}
+        {activeTab === 'online-menu' && (
+          <div className="space-y-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-6">Online Menu Pricing (Zomato & Swiggy)</h2>
+            
+            {/* Mode Selection */}
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Calculation Mode</h3>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setOnlineMenuMode('profit-margin')}
+                  className={`px-6 py-3 rounded-lg font-semibold transition-all duration-200 ${
+                    onlineMenuMode === 'profit-margin'
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Profit Margin → Online Price
+                </button>
+                <button
+                  onClick={() => setOnlineMenuMode('price-analysis')}
+                  className={`px-6 py-3 rounded-lg font-semibold transition-all duration-200 ${
+                    onlineMenuMode === 'price-analysis'
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Target Price → Profit Analysis
+                </button>
+              </div>
+            </div>
+
+            {/* Basic Information */}
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Product Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Category Name</label>
+                  <input
+                    type="text"
+                    value={onlineMenuInputs.categoryName}
+                    onChange={(e) => updateOnlineMenuInputs('categoryName', e.target.value)}
+                    placeholder="e.g., Desserts, Main Course"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
+                  <input
+                    type="text"
+                    value={onlineMenuInputs.productName}
+                    onChange={(e) => updateOnlineMenuInputs('productName', e.target.value)}
+                    placeholder="e.g., Chocolate Truffle Cake"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Ingredient Cost (₹)</label>
+                  <input
+                    type="number"
+                    value={onlineMenuInputs.ingredientCost}
+                    onChange={(e) => updateOnlineMenuInputs('ingredientCost', e.target.value)}
+                    placeholder="Enter ingredient cost"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Scenario-specific inputs and results */}
+            {onlineMenuMode === 'profit-margin' ? (
+              <div className="space-y-6">
+                {/* Profit Margin Input */}
+                <div className="bg-white rounded-xl shadow-lg p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">Scenario 1: Profit Margin → Online Price</h3>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Desired Profit Margin (%)</label>
+                    <input
+                      type="number"
+                      value={onlineMenuInputs.desiredProfitMargin}
+                      onChange={(e) => updateOnlineMenuInputs('desiredProfitMargin', e.target.value)}
+                      placeholder="75"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                {/* Results for Profit Margin Mode */}
+                {onlineMenuProfitCalc && (
+                  <div className="space-y-6">
+                    {/* Cost Breakdown */}
+                    <div className="bg-gray-50 p-6 rounded-lg">
+                      <h4 className="font-semibold text-gray-800 mb-3">Cost Breakdown (Online Menu)</h4>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                        <div>Ingredient Cost: ₹{(onlineMenuProfitCalc.ingredientCost || 0).toFixed(0)}</div>
+                        <div>Labour (20%): ₹{(onlineMenuProfitCalc.labourCost || 0).toFixed(0)}</div>
+                        <div>Manufacturing (20%): ₹{(onlineMenuProfitCalc.manufacturingCost || 0).toFixed(0)}</div>
+                        <div>Marketing (20%): ₹{(onlineMenuProfitCalc.marketingCost || 0).toFixed(0)}</div>
+                        <div>Packaging (30%): ₹{(onlineMenuProfitCalc.packagingCost || 0).toFixed(0)}</div>
+                        <div className="font-bold text-blue-600">Total Cost: ₹{(onlineMenuProfitCalc.totalCost || 0).toFixed(0)}</div>
+                      </div>
+                    </div>
+
+                    {/* Final Results */}
+                    <div className="bg-green-50 p-6 rounded-lg border border-green-200">
+                      <h4 className="font-semibold text-green-800 mb-3">Online Platform Pricing</h4>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                          <div className="text-green-600">Profit Amount</div>
+                          <div className="font-bold text-lg">₹{(onlineMenuProfitCalc.profit || 0).toFixed(0)}</div>
+                        </div>
+                        <div>
+                          <div className="text-green-600">Platform Commission (25%)</div>
+                          <div className="font-semibold">₹{(onlineMenuProfitCalc.platformCommission || 0).toFixed(0)}</div>
+                        </div>
+                        <div>
+                          <div className="text-green-600">Net Revenue</div>
+                          <div className="font-semibold">₹{(onlineMenuProfitCalc.netRevenue || 0).toFixed(0)}</div>
+                        </div>
+                        <div>
+                          <div className="text-green-600 font-bold">Online Selling Price</div>
+                          <div className="font-bold text-green-700 text-xl">₹{(onlineMenuProfitCalc.onlineSellingPrice || 0).toFixed(0)}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Target Price Input */}
+                <div className="bg-white rounded-xl shadow-lg p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">Scenario 2: Target Price → Profit Analysis</h3>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Target Online Selling Price (₹)</label>
+                    <input
+                      type="number"
+                      value={onlineMenuInputs.targetSellingPrice}
+                      onChange={(e) => updateOnlineMenuInputs('targetSellingPrice', e.target.value)}
+                      placeholder="Enter target online price"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                {/* Results for Price Analysis Mode */}
+                {onlineMenuPriceAnalysis && (
+                  <div className="space-y-6">
+                    {/* Cost Breakdown */}
+                    <div className="bg-gray-50 p-6 rounded-lg">
+                      <h4 className="font-semibold text-gray-800 mb-3">Cost Breakdown (Online Menu)</h4>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                        <div>Ingredient Cost: ₹{(onlineMenuPriceAnalysis.ingredientCost || 0).toFixed(0)}</div>
+                        <div>Labour (20%): ₹{(onlineMenuPriceAnalysis.labourCost || 0).toFixed(0)}</div>
+                        <div>Manufacturing (20%): ₹{(onlineMenuPriceAnalysis.manufacturingCost || 0).toFixed(0)}</div>
+                        <div>Marketing (20%): ₹{(onlineMenuPriceAnalysis.marketingCost || 0).toFixed(0)}</div>
+                        <div>Packaging (30%): ₹{(onlineMenuPriceAnalysis.packagingCost || 0).toFixed(0)}</div>
+                        <div className="font-bold text-blue-600">Total Cost: ₹{(onlineMenuPriceAnalysis.totalCost || 0).toFixed(0)}</div>
+                      </div>
+                    </div>
+
+                    {/* Analysis Results */}
+                    <div className={`p-6 rounded-lg border ${
+                      onlineMenuPriceAnalysis.feasible ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
+                    }`}>
+                      <h4 className={`font-semibold mb-3 ${
+                        onlineMenuPriceAnalysis.feasible ? 'text-green-800' : 'text-red-800'
+                      }`}>
+                        Profitability Analysis
+                      </h4>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                          <div className="text-gray-600">Target Price</div>
+                          <div className="font-bold text-lg">₹{(onlineMenuPriceAnalysis.targetSellingPrice || 0).toFixed(0)}</div>
+                        </div>
+                        <div>
+                          <div className="text-gray-600">Platform Commission (25%)</div>
+                          <div className="font-semibold">₹{(onlineMenuPriceAnalysis.platformCommission || 0).toFixed(0)}</div>
+                        </div>
+                        <div>
+                          <div className="text-gray-600">Net Revenue</div>
+                          <div className="font-semibold">₹{(onlineMenuPriceAnalysis.netRevenue || 0).toFixed(0)}</div>
+                        </div>
+                        <div>
+                          <div className="text-gray-600">Profit Margin</div>
+                          <div className={`font-bold text-lg ${
+                            onlineMenuPriceAnalysis.feasible ? 'text-green-700' : 'text-red-700'
+                          }`}>
+                            {(onlineMenuPriceAnalysis.profitMargin || 0).toFixed(1)}%
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-4 text-sm">
+                        <div className={onlineMenuPriceAnalysis.feasible ? 'text-green-700' : 'text-red-700'}>
+                          {onlineMenuPriceAnalysis.feasible ? '✅ Profitable pricing' : '❌ Loss-making pricing - increase target price'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Save Product Button */}
+            {onlineMenuInputs.productName && onlineMenuInputs.productName.trim() && (
+              <button
+                onClick={() => {
+                  console.log('Save online menu product:', {
+                    mode: onlineMenuMode,
+                    inputs: onlineMenuInputs,
+                    calculations: onlineMenuMode === 'profit-margin' ? onlineMenuProfitCalc : onlineMenuPriceAnalysis
+                  });
+                  // TODO: Implement save functionality
+                }}
+                className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors mt-6"
+              >
+                Save Online Menu Product
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Hampers Tab */}
         {activeTab === 'hampers' && (
           <div className="space-y-8" id="hamperContent">
