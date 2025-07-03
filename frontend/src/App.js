@@ -1219,22 +1219,13 @@ const App = () => {
             {/* Save Product Button */}
             {onlineMenuInputs.productName && onlineMenuInputs.productName.trim() && (
               <button
-                onClick={() => {
-                  console.log('Save online menu product:', {
-                    mode: onlineMenuMode,
-                    inputs: onlineMenuInputs,
-                    calculations: onlineMenuMode === 'profit-margin' ? onlineMenuProfitCalc : onlineMenuPriceAnalysis
-                  });
-                  // TODO: Implement save functionality
-                }}
+                onClick={saveOnlineMenuProduct}
                 className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors mt-6"
               >
                 Save Online Menu Product
               </button>
             )}
           </div>
-        )}
-
         )}
 
         {/* Hampers Tab */}
