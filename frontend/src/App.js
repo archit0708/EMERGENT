@@ -2354,6 +2354,7 @@ const App = () => {
                       <th className="text-left py-4 px-6 font-bold text-lg">Product Name</th>
                       <th className="text-left py-4 px-6 font-bold text-lg">Quantity/Pack</th>
                       <th className="text-left py-4 px-6 font-bold text-lg">Selling Price</th>
+                      <th className="text-left py-4 px-6 font-bold text-lg">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -2368,6 +2369,15 @@ const App = () => {
                           <td className="py-4 px-6 text-base">{product.name}</td>
                           <td className="py-4 px-6 text-base text-blue-600">{quantityDisplay}</td>
                           <td className="py-4 px-6 font-bold text-lg text-green-600">₹{(displayPrice || 0).toFixed(0)}</td>
+                          <td className="py-4 px-6">
+                            <button
+                              onClick={() => deleteProduct(product.id)}
+                              className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
+                              title="Delete Product"
+                            >
+                              Delete
+                            </button>
+                          </td>
                         </tr>
                       );
                     })}
@@ -2392,6 +2402,7 @@ const App = () => {
                       <th className="text-left py-4 px-6 font-bold text-lg">Category</th>
                       <th className="text-left py-4 px-6 font-bold text-lg">Items Count</th>
                       <th className="text-left py-4 px-6 font-bold text-lg">Final Price</th>
+                      <th className="text-left py-4 px-6 font-bold text-lg">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -2401,6 +2412,15 @@ const App = () => {
                         <td className="py-4 px-6 text-base">{hamper.category}</td>
                         <td className="py-4 px-6 text-base text-blue-600">{hamper.products?.length || 0} items</td>
                         <td className="py-4 px-6 font-bold text-lg text-green-600">₹{(hamper.finalPrice || 0).toFixed(0)}</td>
+                        <td className="py-4 px-6">
+                          <button
+                            onClick={() => deleteHamper(hamper.id)}
+                            className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
+                            title="Delete Hamper"
+                          >
+                            Delete
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
