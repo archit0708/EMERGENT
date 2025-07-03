@@ -825,18 +825,6 @@ const App = () => {
     }
   };
 
-  // Delete hamper (now uses API)
-  const deleteHamper = async (id) => {
-    try {
-      await hampersAPI.delete(id);
-      const updatedHampers = await hampersAPI.getAll();
-      setHampers(updatedHampers);
-    } catch (error) {
-      console.error('Failed to delete hamper:', error);
-      setError('Failed to delete hamper');
-    }
-  };
-
   // Start editing product
   const startEditingProduct = (product) => {
     setEditingProduct({
