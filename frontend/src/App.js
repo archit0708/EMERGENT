@@ -707,6 +707,80 @@ const App = () => {
     }
   };
 
+  // Save online menu product (uses API)
+  const saveOnlineMenuProduct = async () => {
+    if (!onlineMenuInputs.productName || !onlineMenuInputs.productName.trim()) {
+      setError('Please enter a product name');
+      return;
+    }
+
+    try {
+      setError(null);
+      const calculations = onlineMenuMode === 'profit-margin' ? onlineMenuProfitCalc : onlineMenuPriceAnalysis;
+      
+      if (!calculations) {
+        setError('Please complete all required fields');
+        return;
+      }
+
+      const onlineMenuProduct = {
+        name: onlineMenuInputs.productName,
+        category: onlineMenuInputs.categoryName || 'Online Menu',
+        quantity: 'Online Platform',
+        calculatorMode: `online-menu-${onlineMenuMode}`,
+        costStructureSnapshot: {
+          type: 'online-menu',
+          labourPercent: 20,
+          manufacturingPercent: 20,
+          marketingPercent: 20,
+          packagingPercent: 30,
+          platformCommission: 25
+        },
+        // Core calculation data
+        ingredientCost: calculations.ingredientCost,
+        labourCost: calculations.labourCost,
+        manufacturingCost: calculations.manufacturingCost,
+        marketingCost: calculations.marketingCost,
+        packagingCost: calculations.packagingCost,
+        totalCost: calculations.totalCost,
+        finalSellingPrice: calculations.onlineSellingPrice || calculations.targetSellingPrice,
+        platformCommission: calculations.platformCommission,
+        netRevenue: calculations.netRevenue,
+        profit: calculations.profit,
+        actualMargin: calculations.profitMargin,
+        // Online menu specific data
+        onlineMenuMode: onlineMenuMode,
+        desiredProfitMargin: onlineMenuInputs.desiredProfitMargin,
+        targetSellingPrice: onlineMenuInputs.targetSellingPrice,
+        feasible: calculations.feasible !== false
+      };
+
+      await productsAPI.create(onlineMenuProduct);
+      
+      // Update products list
+      const updatedProducts = await productsAPI.getAll();
+      setProducts(updatedProducts);
+      
+      // Update online menu products list
+      const onlineMenuProducts = updatedProducts.filter(p => p.calculatorMode?.startsWith('online-menu'));
+      setOnlineMenuProducts(onlineMenuProducts);
+      
+      // Clear form
+      setOnlineMenuInputs({
+        categoryName: '',
+        productName: '',
+        ingredientCost: '',
+        desiredProfitMargin: 75,
+        targetSellingPrice: ''
+      });
+      
+      console.log('Online menu product saved successfully');
+    } catch (error) {
+      console.error('Failed to save online menu product:', error);
+      setError(`Failed to save online menu product: ${error.message || 'Unknown error'}`);
+    }
+  };
+
   // Update existing product with new calculations (now uses API)
   const updateProductFromEdit = async (id, newInputs) => {
     try {
