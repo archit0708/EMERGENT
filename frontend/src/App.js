@@ -586,7 +586,6 @@ const App = () => {
       feasible: profit > 0
     };
   }, [onlineMenuInputs.ingredientCost, onlineMenuInputs.targetSellingPrice]);
-  };
 
   // Save calculated product (now uses API) - Always save complete breakdown
   const saveProduct = async (calculations) => {
