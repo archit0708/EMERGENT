@@ -56,6 +56,19 @@ class Product(BaseModel):
     scenarios: Optional[List[Dict[str, Any]]] = None
     actualMargin: Optional[float] = None
     maxIngredientCost: Optional[float] = None
+    # Individual cost components - NOW INCLUDED
+    labourCost: Optional[float] = None
+    manufacturingCost: Optional[float] = None
+    marketingCost: Optional[float] = None
+    packagingCost: Optional[float] = None
+    deliveryCost: Optional[float] = None
+    gstAmount: Optional[float] = None
+    platformCommission: Optional[float] = None
+    netRevenue: Optional[float] = None
+    profit: Optional[float] = None
+    onlineMenuMode: Optional[str] = None
+    desiredProfitMargin: Optional[float] = None
+    feasible: Optional[bool] = None
     # Additional fields
     savedAt: str = Field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d"))
     updatedAt: Optional[str] = None
