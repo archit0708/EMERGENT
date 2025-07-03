@@ -107,15 +107,18 @@ user_problem_statement: "Nolita Cacao Calculator - Complete Professional Chocola
 backend:
   - task: "Online Menu Pricing API Support"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "main"
         - comment: "Added online menu product support to existing Products API. Online menu products are stored as regular products with calculatorMode starting with 'online-menu'. Backend should support all existing functionality for online menu products."
+        - working: true
+        - agent: "testing"
+        - comment: "Successfully tested online menu product API functionality. Created and verified both online-menu-profit-margin and online-menu-price-analysis products. Products are correctly stored with proper calculatorMode values and include platformCommission in the costStructureSnapshot. Verified that online menu products can be filtered by calculatorMode pattern. All existing API endpoints (/api/, /api/products, /api/cost-structure) continue to work correctly with the addition of online menu products."
 
 backend:
   - task: "Basic API Health Check"
