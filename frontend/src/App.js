@@ -593,63 +593,56 @@ const App = () => {
       // Use the correct calculation data based on calculator mode
       let calculationData = {};
       
-      if (calculatorMode === 'cost-to-price' && forwardCalc) {
+      if (calculatorMode === 'ingredient-to-price' && forwardCalc) {
         calculationData = {
-          ingredientCost: forwardCalc.ingredientCost,
           labourCost: forwardCalc.labourCost,
           manufacturingCost: forwardCalc.manufacturingCost,
           marketingCost: forwardCalc.marketingCost,
           packagingCost: forwardCalc.packagingCost,
           deliveryCost: forwardCalc.deliveryCost,
-          totalCost: forwardCalc.totalCost,
-          finalSellingPrice: forwardCalc.finalSellingPrice,
-          priceBeforeGST: forwardCalc.priceBeforeGST,
           gstAmount: forwardCalc.gstAmount,
-          profit: forwardCalc.profit,
-          actualMargin: forwardCalc.profitMargin || forwardCalc.actualMargin
+          totalCost: forwardCalc.totalCost,
+          totalCostPrice: forwardCalc.totalCostPrice,
+          finalSellingPrice: forwardCalc.finalSellingPrice,
+          scenarios: forwardCalc.scenarios,
+          actualMargin: forwardCalc.scenarios?.[2]?.margin || 0
         };
       } else if (calculatorMode === 'cost-to-selling' && costToSellingCalc) {
         calculationData = {
-          ingredientCost: costToSellingCalc.ingredientCost,
           labourCost: costToSellingCalc.labourCost,
           manufacturingCost: costToSellingCalc.manufacturingCost,
           marketingCost: costToSellingCalc.marketingCost,
           packagingCost: costToSellingCalc.packagingCost,
           deliveryCost: costToSellingCalc.deliveryCost,
+          gstAmount: costToSellingCalc.gstAmount,
           totalCost: costToSellingCalc.totalCost,
           finalSellingPrice: costToSellingCalc.finalSellingPrice,
-          priceBeforeGST: costToSellingCalc.priceBeforeGST,
-          gstAmount: costToSellingCalc.gstAmount,
-          profit: costToSellingCalc.profit,
-          actualMargin: costToSellingCalc.profitMargin
+          actualMargin: costToSellingCalc.actualMargin
         };
       } else if (calculatorMode === 'cost-target-analysis' && costTargetCalc) {
         calculationData = {
-          ingredientCost: costTargetCalc.ingredientCost,
           labourCost: costTargetCalc.labourCost,
           manufacturingCost: costTargetCalc.manufacturingCost,
           marketingCost: costTargetCalc.marketingCost,
           packagingCost: costTargetCalc.packagingCost,
           deliveryCost: costTargetCalc.deliveryCost,
+          gstAmount: costTargetCalc.gstAmount,
           totalCost: costTargetCalc.totalCost,
           finalSellingPrice: costTargetCalc.finalSellingPrice,
-          priceBeforeGST: costTargetCalc.priceBeforeGST,
-          gstAmount: costTargetCalc.gstAmount,
           profit: costTargetCalc.profit,
           actualMargin: costTargetCalc.actualMargin
         };
       } else if (calculatorMode === 'price-to-cost' && reverseCalc) {
         calculationData = {
-          ingredientCost: reverseCalc.ingredientCost,
+          ingredientCost: reverseCalc.maxIngredientCost, // This is the key calculated value
           labourCost: reverseCalc.labourCost,
           manufacturingCost: reverseCalc.manufacturingCost,
           marketingCost: reverseCalc.marketingCost,
           packagingCost: reverseCalc.packagingCost,
           deliveryCost: reverseCalc.deliveryCost,
+          gstAmount: reverseCalc.gstAmount,
           totalCost: reverseCalc.maxTotalCost,
           finalSellingPrice: reverseCalc.finalSellingPrice,
-          priceBeforeGST: reverseCalc.priceBeforeGST,
-          gstAmount: reverseCalc.gstAmount,
           profit: reverseCalc.profit,
           actualMargin: reverseCalc.actualMargin
         };
