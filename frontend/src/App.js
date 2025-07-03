@@ -895,71 +895,107 @@ const App = () => {
         </div>
       </div>
 
-      {/* Editable Cost Structure Display */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="font-semibold text-amber-800">Cost Structure Settings</h3>
-            <span className="text-xs text-amber-600">Changes apply to all new calculations</span>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-4 text-sm">
-            <div>
-              <label className="block text-xs text-amber-700">Labour (%)</label>
-              <input
-                type="number"
-                value={costStructure.labourPercent}
-                onChange={(e) => updateCostStructure('labourPercent', e.target.value)}
-                className="w-full px-2 py-1 text-xs border border-amber-300 rounded focus:ring-1 focus:ring-amber-500"
-              />
+      {/* Editable Cost Structure Display - Only show for Calculator tab */}
+      {activeTab === 'calculator' && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="font-semibold text-amber-800">Cost Structure Settings</h3>
+              <span className="text-xs text-amber-600">Changes apply to all new calculations</span>
             </div>
-            <div>
-              <label className="block text-xs text-amber-700">Packaging (₹)</label>
-              <input
-                type="number"
-                value={costStructure.packagingAmount}
-                onChange={(e) => updateCostStructure('packagingAmount', e.target.value)}
-                className="w-full px-2 py-1 text-xs border border-amber-300 rounded focus:ring-1 focus:ring-amber-500"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-amber-700">Manufacturing (%)</label>
-              <input
-                type="number"
-                value={costStructure.manufacturingPercent}
-                onChange={(e) => updateCostStructure('manufacturingPercent', e.target.value)}
-                className="w-full px-2 py-1 text-xs border border-amber-300 rounded focus:ring-1 focus:ring-amber-500"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-amber-700">Marketing (%)</label>
-              <input
-                type="number"
-                value={costStructure.marketingPercent}
-                onChange={(e) => updateCostStructure('marketingPercent', e.target.value)}
-                className="w-full px-2 py-1 text-xs border border-amber-300 rounded focus:ring-1 focus:ring-amber-500"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-amber-700">Delivery (₹)</label>
-              <input
-                type="number"
-                value={costStructure.deliveryAmount}
-                onChange={(e) => updateCostStructure('deliveryAmount', e.target.value)}
-                className="w-full px-2 py-1 text-xs border border-amber-300 rounded focus:ring-1 focus:ring-amber-500"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-amber-700">GST (%)</label>
-              <input
-                type="number"
-                value={costStructure.gstPercent}
-                onChange={(e) => updateCostStructure('gstPercent', e.target.value)}
-                className="w-full px-2 py-1 text-xs border border-amber-300 rounded focus:ring-1 focus:ring-amber-500"
-              />
+            <div className="grid grid-cols-2 md:grid-cols-6 gap-4 text-sm">
+              <div>
+                <label className="block text-xs text-amber-700">Labour (%)</label>
+                <input
+                  type="number"
+                  value={costStructure.labourPercent}
+                  onChange={(e) => updateCostStructure('labourPercent', e.target.value)}
+                  className="w-full px-2 py-1 text-xs border border-amber-300 rounded focus:ring-1 focus:ring-amber-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-amber-700">Packaging (₹)</label>
+                <input
+                  type="number"
+                  value={costStructure.packagingAmount}
+                  onChange={(e) => updateCostStructure('packagingAmount', e.target.value)}
+                  className="w-full px-2 py-1 text-xs border border-amber-300 rounded focus:ring-1 focus:ring-amber-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-amber-700">Manufacturing (%)</label>
+                <input
+                  type="number"
+                  value={costStructure.manufacturingPercent}
+                  onChange={(e) => updateCostStructure('manufacturingPercent', e.target.value)}
+                  className="w-full px-2 py-1 text-xs border border-amber-300 rounded focus:ring-1 focus:ring-amber-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-amber-700">Marketing (%)</label>
+                <input
+                  type="number"
+                  value={costStructure.marketingPercent}
+                  onChange={(e) => updateCostStructure('marketingPercent', e.target.value)}
+                  className="w-full px-2 py-1 text-xs border border-amber-300 rounded focus:ring-1 focus:ring-amber-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-amber-700">Delivery (₹)</label>
+                <input
+                  type="number"
+                  value={costStructure.deliveryAmount}
+                  onChange={(e) => updateCostStructure('deliveryAmount', e.target.value)}
+                  className="w-full px-2 py-1 text-xs border border-amber-300 rounded focus:ring-1 focus:ring-amber-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-amber-700">GST (%)</label>
+                <input
+                  type="number"
+                  value={costStructure.gstPercent}
+                  onChange={(e) => updateCostStructure('gstPercent', e.target.value)}
+                  className="w-full px-2 py-1 text-xs border border-amber-300 rounded focus:ring-1 focus:ring-amber-500"
+                />
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Online Menu Cost Structure Display - Only show for Online Menu tab */}
+      {activeTab === 'online-menu' && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="font-semibold text-blue-800">Online Menu Cost Structure</h3>
+              <span className="text-xs text-blue-600">Fixed structure for online platforms</span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
+              <div>
+                <label className="block text-xs text-blue-700">Labour</label>
+                <div className="px-2 py-1 text-xs bg-blue-100 rounded">20% of ingredient</div>
+              </div>
+              <div>
+                <label className="block text-xs text-blue-700">Manufacturing</label>
+                <div className="px-2 py-1 text-xs bg-blue-100 rounded">20% of ingredient</div>
+              </div>
+              <div>
+                <label className="block text-xs text-blue-700">Marketing</label>
+                <div className="px-2 py-1 text-xs bg-blue-100 rounded">20% of ingredient</div>
+              </div>
+              <div>
+                <label className="block text-xs text-blue-700">Packaging</label>
+                <div className="px-2 py-1 text-xs bg-blue-100 rounded">30% of ingredient</div>
+              </div>
+              <div>
+                <label className="block text-xs text-blue-700">Platform Commission</label>
+                <div className="px-2 py-1 text-xs bg-blue-100 rounded">25% of selling price</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Loading State */}
       {loading && (
