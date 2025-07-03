@@ -118,7 +118,7 @@ backend:
         - comment: "Added online menu product support to existing Products API. Online menu products are stored as regular products with calculatorMode starting with 'online-menu'. Backend should support all existing functionality for online menu products."
         - working: true
         - agent: "testing"
-        - comment: "Successfully tested online menu product API functionality. Created and verified both online-menu-profit-margin and online-menu-price-analysis products. Products are correctly stored with proper calculatorMode values and include platformCommission in the costStructureSnapshot. Verified that online menu products can be filtered by calculatorMode pattern. All existing API endpoints (/api/, /api/products, /api/cost-structure) continue to work correctly with the addition of online menu products."
+        - comment: "Successfully tested backend API for online menu products. All tests passed: 1) Created online menu products with both profit-margin and price-analysis modes, 2) Verified products are properly stored with correct calculatorMode and platformCommission, 3) Confirmed filtering works by calculatorMode pattern, 4) Data persistence works correctly for online menu products. Backend fully supports online menu functionality."
 
 backend:
   - task: "Basic API Health Check"
