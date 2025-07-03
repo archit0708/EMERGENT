@@ -7,7 +7,7 @@ from datetime import datetime
 import random
 
 # Get the backend URL from the frontend .env file
-BACKEND_URL = "https://cfc593e8-afc2-4477-a5b1-d21c4cbc9ec6.preview.emergentagent.com"
+BACKEND_URL = "https://023bf178-5281-4668-811e-640ed8057122.preview.emergentagent.com"
 API_BASE_URL = f"{BACKEND_URL}/api"
 
 def test_api_health():
