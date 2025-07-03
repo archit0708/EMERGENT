@@ -823,6 +823,7 @@ const App = () => {
             <div className="flex flex-wrap gap-2 bg-white rounded-lg p-2 shadow-md">
               {[
                 { id: 'calculator', label: 'Calculator' },
+                { id: 'online-menu', label: 'Online Menu Pricing' },
                 { id: 'products', label: 'Product Repository' },
                 { id: 'hampers', label: 'Hamper Curation' },
                 { id: 'categories', label: 'Category Management' },
