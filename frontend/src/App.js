@@ -2203,8 +2203,8 @@ const App = () => {
         {/* Product Repository Tab */}
         {activeTab === 'products' && (
           <div className="space-y-8">
-            {/* Category-wise Product Repository */}
-            {productCategories.map((category) => {
+            {/* Category-wise Product Repository - Show ALL categories with products */}
+            {[...new Set(products.map(p => p.category))].sort().map((category) => {
               const categoryProducts = products.filter(p => p.category === category);
               if (categoryProducts.length === 0) return null;
               
@@ -2289,6 +2289,25 @@ const App = () => {
                                   <div className="font-semibold">₹{(product.gstAmount || 0).toFixed(0)}</div>
                                 </div>
                               </div>
+                              {/* Online Menu specific fields */}
+                              {product.calculatorMode?.startsWith('online-menu') && (
+                                <div className="mt-3 pt-3 border-t">
+                                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                                    <div>
+                                      <div className="text-blue-600">Platform Commission (25%)</div>
+                                      <div className="font-semibold">₹{(product.platformCommission || 0).toFixed(0)}</div>
+                                    </div>
+                                    <div>
+                                      <div className="text-blue-600">Net Revenue</div>
+                                      <div className="font-semibold">₹{(product.netRevenue || 0).toFixed(0)}</div>
+                                    </div>
+                                    <div>
+                                      <div className="text-blue-600">Net Profit</div>
+                                      <div className="font-semibold text-green-600">₹{(product.profit || 0).toFixed(0)}</div>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
                               <div className="flex justify-between items-center mt-3 pt-3 border-t">
                                 <div>
                                   <div className="text-gray-600">Total Cost</div>
