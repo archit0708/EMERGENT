@@ -102,7 +102,20 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Nolita Cacao Calculator - Complete Professional Chocolate Manufacturing Cost & Pricing Calculator with comprehensive features including 4 calculation modes, hamper curation, product repository, category management, and analytics dashboard"
+user_problem_statement: "Nolita Cacao Calculator - Complete Professional Chocolate Manufacturing Cost & Pricing Calculator with comprehensive features including 4 calculation modes, hamper curation, product repository, category management, analytics dashboard, and NEW Online Menu Pricing module for Zomato & Swiggy platforms"
+
+backend:
+  - task: "Online Menu Pricing API Support"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Added online menu product support to existing Products API. Online menu products are stored as regular products with calculatorMode starting with 'online-menu'. Backend should support all existing functionality for online menu products."
 
 backend:
   - task: "Basic API Health Check"
