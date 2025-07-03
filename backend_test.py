@@ -599,6 +599,7 @@ def test_create_online_menu_profit_margin_product():
         online_cost_structure["manufacturingPercent"] = 20
         online_cost_structure["marketingPercent"] = 20
         online_cost_structure["packagingAmount"] = 30  # 30% of ingredient cost
+        online_cost_structure["platformCommission"] = 25.0  # Add platform commission to cost structure
         
         payload = {
             "name": product_name,
@@ -651,6 +652,7 @@ def test_create_online_menu_price_analysis_product():
         online_cost_structure["manufacturingPercent"] = 20
         online_cost_structure["marketingPercent"] = 20
         online_cost_structure["packagingAmount"] = 30  # 30% of ingredient cost
+        online_cost_structure["platformCommission"] = 25.0  # Add platform commission to cost structure
         
         payload = {
             "name": product_name,
