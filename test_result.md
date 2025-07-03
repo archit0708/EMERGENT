@@ -236,6 +236,17 @@ backend:
         - comment: "Comprehensive data persistence test passed successfully. Created and verified persistence of cost structure settings, categories, products, and hampers. All data is correctly stored in MongoDB and retrievable across requests."
 
 frontend:
+  - task: "Online Menu Pricing Frontend Implementation"
+    implemented: true
+    working: "NA"
+    file: "App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Implemented complete Online Menu Pricing module with two calculation modes: 1) Profit Margin → Online Price, 2) Target Price → Profit Analysis. Fixed duplicate code sections, added proper calculation functions using useMemo, implemented saveOnlineMenuProduct function with API integration. Online menu uses specific cost structure: Labour 20%, Manufacturing 20%, Marketing 20%, Packaging 30% of ingredient cost, Platform Commission 25% of selling price."
   - task: "Complete Calculator Application"
     implemented: true
     working: true
