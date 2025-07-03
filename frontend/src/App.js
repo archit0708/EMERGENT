@@ -499,11 +499,6 @@ const App = () => {
     setCalcInputs(prev => ({ ...prev, [field]: value }));
   };
 
-  // Update calculator inputs
-  const updateCalcInputs = (field, value) => {
-    setCalcInputs(prev => ({ ...prev, [field]: value }));
-  };
-
   // Update online menu inputs
   const updateOnlineMenuInputs = (field, value) => {
     setOnlineMenuInputs(prev => ({ ...prev, [field]: value }));
