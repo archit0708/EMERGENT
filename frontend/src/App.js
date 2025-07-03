@@ -2450,133 +2450,162 @@ const App = () => {
         {/* Analysis Tab */}
         {activeTab === 'analysis' && (
           <div className="space-y-8">
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="bg-white rounded-xl shadow-lg p-6">
-                <div className="text-3xl font-bold text-amber-600">{products.length}</div>
-                <div className="text-gray-600">Total Products</div>
-              </div>
-              <div className="bg-white rounded-xl shadow-lg p-6">
-                <div className="text-3xl font-bold text-green-600">
-                  ₹{products.length > 0 
-                    ? (products.reduce((sum, product) => 
-                        sum + (product.scenarios?.[2]?.finalSellingPrice || product.finalSellingPrice || product.targetFinalPrice || 0), 0) / products.length).toFixed(0)
-                    : '0'}
-                </div>
-                <div className="text-gray-600">Avg Selling Price</div>
-              </div>
-              <div className="bg-white rounded-xl shadow-lg p-6">
-                <div className="text-3xl font-bold text-blue-600">
-                  {products.length > 0 
-                    ? (products.reduce((sum, product) => 
-                        sum + (product.scenarios?.[2]?.margin || product.customProfit || product.actualMargin || 0), 0) / products.length).toFixed(0)
-                    : 0}%
-                </div>
-                <div className="text-gray-600">Avg Profit Margin</div>
-              </div>
-              <div className="bg-white rounded-xl shadow-lg p-6">
-                <div className="text-3xl font-bold text-purple-600">
-                  ₹{products.length > 0 
-                    ? (products.reduce((sum, product) => 
-                        sum + (product.totalCost || product.totalCostPrice || product.requiredTotalCost || 0), 0) / products.length).toFixed(0)
-                    : '0'}
-                </div>
-                <div className="text-gray-600">Avg Total Cost</div>
-              </div>
+            {/* Website Products Analysis */}
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Website Products Analysis</h2>
+              {(() => {
+                const websiteProducts = products.filter(p => !p.calculatorMode?.startsWith('online-menu'));
+                return (
+                  <>
+                    {/* Summary Cards for Website Products */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                      <div className="bg-gradient-to-r from-amber-50 to-amber-100 rounded-xl p-6">
+                        <div className="text-3xl font-bold text-amber-600">{websiteProducts.length}</div>
+                        <div className="text-amber-700">Website Products</div>
+                      </div>
+                      <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-6">
+                        <div className="text-3xl font-bold text-green-600">
+                          ₹{websiteProducts.length > 0 
+                            ? (websiteProducts.reduce((sum, product) => 
+                                sum + (product.scenarios?.[2]?.finalSellingPrice || product.finalSellingPrice || product.targetFinalPrice || 0), 0) / websiteProducts.length).toFixed(0)
+                            : '0'}
+                        </div>
+                        <div className="text-green-700">Avg Selling Price</div>
+                      </div>
+                      <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6">
+                        <div className="text-3xl font-bold text-blue-600">
+                          {websiteProducts.length > 0 
+                            ? (websiteProducts.reduce((sum, product) => 
+                                sum + (product.scenarios?.[2]?.margin || product.customProfit || product.actualMargin || 0), 0) / websiteProducts.length).toFixed(0)
+                            : 0}%
+                        </div>
+                        <div className="text-blue-700">Avg Profit Margin</div>
+                      </div>
+                      <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl p-6">
+                        <div className="text-3xl font-bold text-purple-600">
+                          ₹{websiteProducts.length > 0 
+                            ? (websiteProducts.reduce((sum, product) => 
+                                sum + (product.totalCost || product.totalCostPrice || product.requiredTotalCost || 0), 0) / websiteProducts.length).toFixed(0)
+                            : '0'}
+                        </div>
+                        <div className="text-purple-700">Avg Total Cost</div>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
 
-            {/* Category Analysis */}
+            {/* Online Menu Products Analysis */}
             <div className="bg-white rounded-xl shadow-lg p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Category Performance Analysis</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {productCategories.map((category) => {
-                  const categoryProducts = products.filter(p => p.category === category);
-                  const avgPrice = categoryProducts.length > 0 
-                    ? categoryProducts.reduce((sum, p) => 
-                        sum + (p.scenarios?.[2]?.finalSellingPrice || p.finalSellingPrice || p.targetFinalPrice || 0), 0) / categoryProducts.length
-                    : 0;
-                  const avgMargin = categoryProducts.length > 0 
-                    ? categoryProducts.reduce((sum, p) => 
-                        sum + (p.scenarios?.[2]?.margin || p.customProfit || p.actualMargin || 0), 0) / categoryProducts.length
-                    : 0;
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Online Menu Products Analysis</h2>
+              {(() => {
+                const onlineProducts = products.filter(p => p.calculatorMode?.startsWith('online-menu'));
+                return (
+                  <>
+                    {/* Summary Cards for Online Menu Products */}
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-6">
+                      <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6">
+                        <div className="text-3xl font-bold text-blue-600">{onlineProducts.length}</div>
+                        <div className="text-blue-700">Online Menu Products</div>
+                      </div>
+                      <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-6">
+                        <div className="text-3xl font-bold text-green-600">
+                          ₹{onlineProducts.length > 0 
+                            ? (onlineProducts.reduce((sum, product) => sum + (product.finalSellingPrice || 0), 0) / onlineProducts.length).toFixed(0)
+                            : '0'}
+                        </div>
+                        <div className="text-green-700">Avg Online Price</div>
+                      </div>
+                      <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-xl p-6">
+                        <div className="text-3xl font-bold text-yellow-600">
+                          ₹{onlineProducts.length > 0 
+                            ? (onlineProducts.reduce((sum, product) => sum + (product.platformCommission || 0), 0) / onlineProducts.length).toFixed(0)
+                            : '0'}
+                        </div>
+                        <div className="text-yellow-700">Avg Platform Commission</div>
+                      </div>
+                      <div className="bg-gradient-to-r from-indigo-50 to-indigo-100 rounded-xl p-6">
+                        <div className="text-3xl font-bold text-indigo-600">
+                          ₹{onlineProducts.length > 0 
+                            ? (onlineProducts.reduce((sum, product) => sum + (product.netRevenue || 0), 0) / onlineProducts.length).toFixed(0)
+                            : '0'}
+                        </div>
+                        <div className="text-indigo-700">Avg Net Revenue</div>
+                      </div>
+                      <div className="bg-gradient-to-r from-teal-50 to-teal-100 rounded-xl p-6">
+                        <div className="text-3xl font-bold text-teal-600">
+                          {onlineProducts.length > 0 
+                            ? (onlineProducts.reduce((sum, product) => sum + (product.actualMargin || 0), 0) / onlineProducts.length).toFixed(1)
+                            : '0'}%
+                        </div>
+                        <div className="text-teal-700">Avg Profit Margin</div>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+
+            {/* Hamper Analysis */}
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Hamper Analysis</h2>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-xl p-6">
+                  <div className="text-3xl font-bold text-yellow-600">{hampers.length}</div>
+                  <div className="text-yellow-700">Total Hampers</div>
+                </div>
+                <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-6">
+                  <div className="text-3xl font-bold text-green-600">
+                    ₹{hampers.length > 0 ? (hampers.reduce((sum, h) => sum + (h.finalPrice || 0), 0) / hampers.length).toFixed(0) : '0'}
+                  </div>
+                  <div className="text-green-700">Avg Hamper Price</div>
+                </div>
+                <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-6">
+                  <div className="text-3xl font-bold text-blue-600">
+                    {hampers.length > 0 ? (hampers.reduce((sum, h) => sum + (h.profitMargin || 0), 0) / hampers.length).toFixed(1) : '0'}%
+                  </div>
+                  <div className="text-blue-700">Avg Margin</div>
+                </div>
+                <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl p-6">
+                  <div className="text-3xl font-bold text-purple-600">
+                    ₹{hampers.length > 0 ? (hampers.reduce((sum, h) => sum + (h.totalCost || 0), 0) / hampers.length).toFixed(0) : '0'}
+                  </div>
+                  <div className="text-purple-700">Avg Cost</div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {hamperCategories.map((category) => {
+                  const categoryHampers = hampers.filter(h => h.category === category);
+                  if (categoryHampers.length === 0) return null;
                   
-                  if (categoryProducts.length === 0) return null;
+                  const avgPrice = categoryHampers.reduce((sum, h) => sum + h.finalPrice, 0) / categoryHampers.length;
+                  const avgMargin = categoryHampers.reduce((sum, h) => sum + h.profitMargin, 0) / categoryHampers.length;
                   
                   return (
-                    <div key={category} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
-                      <h3 className="font-semibold text-gray-900 mb-2">{category}</h3>
+                    <div key={category} className={`p-4 rounded-lg border-2 ${
+                      category === 'Gold' ? 'border-yellow-300 bg-yellow-50' :
+                      category === 'Platinum' ? 'border-gray-300 bg-gray-50' :
+                      'border-purple-300 bg-purple-50'
+                    }`}>
+                      <h3 className={`font-semibold mb-2 ${
+                        category === 'Gold' ? 'text-yellow-700' :
+                        category === 'Platinum' ? 'text-gray-700' :
+                        'text-purple-700'
+                      }`}>
+                        {category} Hampers
+                      </h3>
                       <div className="space-y-1 text-sm">
-                        <div>Products: {categoryProducts.length}</div>
+                        <div>Count: {categoryHampers.length}</div>
                         <div>Avg Price: ₹{avgPrice.toFixed(0)}</div>
-                        <div>Avg Margin: {avgMargin.toFixed(0)}%</div>
+                        <div>Avg Margin: {avgMargin.toFixed(1)}%</div>
                       </div>
                     </div>
                   );
                 })}
               </div>
             </div>
-
-            {/* Hamper Analysis */}
-            {hampers.length > 0 && (
-              <div className="bg-white rounded-xl shadow-lg p-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Hamper Analysis</h2>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                  <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 p-4 rounded-lg">
-                    <div className="text-2xl font-bold text-yellow-600">{hampers.length}</div>
-                    <div className="text-yellow-700">Total Hampers</div>
-                  </div>
-                  <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600">
-                      ₹{hampers.length > 0 ? (hampers.reduce((sum, h) => sum + (h.finalPrice || 0), 0) / hampers.length).toFixed(0) : '0'}
-                    </div>
-                    <div className="text-green-700">Avg Hamper Price</div>
-                  </div>
-                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-600">
-                      {hampers.length > 0 ? (hampers.reduce((sum, h) => sum + (h.profitMargin || 0), 0) / hampers.length).toFixed(1) : '0'}%
-                    </div>
-                    <div className="text-blue-700">Avg Margin</div>
-                  </div>
-                  <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg">
-                    <div className="text-2xl font-bold text-purple-600">
-                      ₹{hampers.length > 0 ? (hampers.reduce((sum, h) => sum + (h.totalCost || 0), 0) / hampers.length).toFixed(0) : '0'}
-                    </div>
-                    <div className="text-purple-700">Avg Cost</div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {hamperCategories.map((category) => {
-                    const categoryHampers = hampers.filter(h => h.category === category);
-                    if (categoryHampers.length === 0) return null;
-                    
-                    const avgPrice = categoryHampers.reduce((sum, h) => sum + h.finalPrice, 0) / categoryHampers.length;
-                    const avgMargin = categoryHampers.reduce((sum, h) => sum + h.profitMargin, 0) / categoryHampers.length;
-                    
-                    return (
-                      <div key={category} className={`p-4 rounded-lg border-2 ${
-                        category === 'Gold' ? 'border-yellow-300 bg-yellow-50' :
-                        category === 'Platinum' ? 'border-gray-300 bg-gray-50' :
-                        'border-purple-300 bg-purple-50'
-                      }`}>
-                        <h3 className={`font-semibold mb-2 ${
-                          category === 'Gold' ? 'text-yellow-700' :
-                          category === 'Platinum' ? 'text-gray-700' :
-                          'text-purple-700'
-                        }`}>
-                          {category} Hampers
-                        </h3>
-                        <div className="space-y-1 text-sm">
-                          <div>Count: {categoryHampers.length}</div>
-                          <div>Avg Price: ₹{avgPrice.toFixed(0)}</div>
-                          <div>Avg Margin: {avgMargin.toFixed(1)}%</div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
           </div>
         )}
       </div>
