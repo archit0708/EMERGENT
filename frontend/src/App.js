@@ -11,7 +11,9 @@ import {
 const App = () => {
   const [activeTab, setActiveTab] = useState('calculator');
   const [calculatorMode, setCalculatorMode] = useState('cost-to-price');
+  const [onlineMenuMode, setOnlineMenuMode] = useState('profit-margin'); // New state for online menu
   const [products, setProducts] = useState([]);
+  const [onlineMenuProducts, setOnlineMenuProducts] = useState([]); // New state for online menu products
   const [hampers, setHampers] = useState([]);
   const [editingProduct, setEditingProduct] = useState(null);
   const [editingCategory, setEditingCategory] = useState(null);
