@@ -851,14 +851,32 @@ const App = () => {
       name: product.name,
       category: product.category,
       quantity: product.quantity,
+      calculatorMode: product.calculatorMode || 'ingredient-to-price',
       ingredientCost: product.ingredientCost || product.maxIngredientCost || '',
-      costPrice: product.totalCostPrice || '',
-      customProfitPercent: product.customProfit || 75,
-      labourPercent: costStructure.labourPercent,
-      packagingAmount: costStructure.packagingAmount,
-      manufacturingPercent: costStructure.manufacturingPercent,
-      marketingPercent: costStructure.marketingPercent,
-      deliveryAmount: costStructure.deliveryAmount
+      costPrice: product.costPrice || product.totalCostPrice || '',
+      targetSellingPrice: product.targetSellingPrice || '',
+      targetMargin: product.targetMargin || 75,
+      customProfitPercent: product.customProfitPercent || product.customProfit || 75,
+      // Include existing calculated values
+      labourCost: product.labourCost,
+      manufacturingCost: product.manufacturingCost,
+      marketingCost: product.marketingCost,
+      packagingCost: product.packagingCost,
+      deliveryCost: product.deliveryCost,
+      gstAmount: product.gstAmount,
+      totalCost: product.totalCost,
+      totalCostPrice: product.totalCostPrice,
+      finalSellingPrice: product.finalSellingPrice,
+      scenarios: product.scenarios,
+      actualMargin: product.actualMargin,
+      maxIngredientCost: product.maxIngredientCost,
+      // Online menu fields
+      platformCommission: product.platformCommission,
+      netRevenue: product.netRevenue,
+      profit: product.profit,
+      onlineMenuMode: product.onlineMenuMode,
+      desiredProfitMargin: product.desiredProfitMargin,
+      feasible: product.feasible
     });
   };
 
