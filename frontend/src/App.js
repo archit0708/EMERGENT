@@ -1340,6 +1340,75 @@ const App = () => {
                 Save Online Menu Product
               </button>
             )}
+
+            {/* Saved Online Menu Products Display */}
+            {(() => {
+              const onlineMenuProducts = products.filter(p => p.calculatorMode?.startsWith('online-menu'));
+              if (onlineMenuProducts.length === 0) return null;
+              
+              return (
+                <div className="bg-white rounded-xl shadow-lg p-6 mt-8">
+                  <h3 className="text-xl font-bold text-gray-900 mb-6">Saved Online Menu Products</h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    {onlineMenuProducts.map((product) => (
+                      <div key={product.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div className="flex justify-between items-start mb-3">
+                          <h4 className="font-semibold text-gray-900">{product.name}</h4>
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => startEditingProduct(product)}
+                              className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => deleteProduct(product.id)}
+                              className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                          <div>
+                            <div className="text-gray-600">Category</div>
+                            <div className="font-semibold">{product.category}</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-600">Mode</div>
+                            <div className="font-semibold text-blue-600">{product.onlineMenuMode || 'profit-margin'}</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-600">Online Price</div>
+                            <div className="font-bold text-green-600">₹{(product.finalSellingPrice || 0).toFixed(0)}</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-600">Platform Commission</div>
+                            <div className="font-semibold text-red-600">₹{(product.platformCommission || 0).toFixed(0)}</div>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-blue-50 p-3 rounded-lg mt-3">
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                            <div>Ingredient: ₹{(product.ingredientCost || 0).toFixed(0)}</div>
+                            <div>Labour: ₹{(product.labourCost || 0).toFixed(0)}</div>
+                            <div>Manufacturing: ₹{(product.manufacturingCost || 0).toFixed(0)}</div>
+                            <div>Marketing: ₹{(product.marketingCost || 0).toFixed(0)}</div>
+                            <div>Packaging: ₹{(product.packagingCost || 0).toFixed(0)}</div>
+                            <div>Net Revenue: ₹{(product.netRevenue || 0).toFixed(0)}</div>
+                          </div>
+                          <div className="flex justify-between items-center mt-2 pt-2 border-t border-blue-200">
+                            <span className="text-blue-600 font-semibold">Total Cost: ₹{(product.totalCost || 0).toFixed(0)}</span>
+                            <span className="text-green-600 font-semibold">Profit: ₹{(product.profit || 0).toFixed(0)} ({(product.actualMargin || 0).toFixed(1)}%)</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         )}
 
