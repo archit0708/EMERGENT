@@ -785,8 +785,19 @@ const App = () => {
       const profit = priceBeforeGST - totalCost;
       const actualMargin = (profit / priceBeforeGST) * 100;
 
+      // Only include fields that are in ProductCreate schema
       const updatedProductData = {
-        ...editedProduct,
+        name: editedProduct.name,
+        category: editedProduct.category,
+        quantity: editedProduct.quantity,
+        calculatorMode: editedProduct.calculatorMode,
+        costStructureSnapshot: { ...costStructure },
+        // Input values
+        ingredientCost: editedProduct.ingredientCost,
+        costPrice: editedProduct.costPrice,
+        targetSellingPrice: editedProduct.targetSellingPrice,
+        targetMargin: editedProduct.targetMargin,
+        customProfitPercent: editedProduct.customProfitPercent,
         // Calculated cost breakdown
         labourCost: labourCost,
         manufacturingCost: manufacturingCost,
@@ -795,13 +806,21 @@ const App = () => {
         deliveryCost: deliveryCost,
         gstAmount: gstAmount,
         totalCost: totalCost,
+        totalCostPrice: editedProduct.totalCostPrice,
         finalSellingPrice: finalSellingPrice,
-        profit: profit,
+        scenarios: editedProduct.scenarios,
         actualMargin: actualMargin,
-        costStructureSnapshot: { ...costStructure },
-        updatedAt: new Date().toLocaleDateString()
+        maxIngredientCost: editedProduct.maxIngredientCost,
+        // Online menu fields
+        platformCommission: editedProduct.platformCommission,
+        netRevenue: editedProduct.netRevenue,
+        profit: profit,
+        onlineMenuMode: editedProduct.onlineMenuMode,
+        desiredProfitMargin: editedProduct.desiredProfitMargin,
+        feasible: editedProduct.feasible
       };
       
+      console.log('Updating product with data:', updatedProductData);
       await productsAPI.update(id, updatedProductData);
       const updatedProducts = await productsAPI.getAll();
       setProducts(updatedProducts);
