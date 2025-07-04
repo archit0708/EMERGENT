@@ -556,28 +556,29 @@ const App = () => {
     if (!onlineMenuInputs.ingredientCost || !onlineMenuInputs.desiredProfitMargin) return null;
     
     const costs = calculateOnlineMenuCosts(onlineMenuInputs.ingredientCost);
-    const profitMargin = parseFloat(onlineMenuInputs.desiredProfitMargin);
+    const profitMargin = parseFloat(onlineMenuInputs.desiredProfitMargin) || 30;
     
-    // Calculate profit based on cost
-    const profit = costs.totalCost * (profitMargin / 100);
+    // Calculate required profit
+    const requiredProfit = costs.totalCost * (profitMargin / 100);
     
-    // Calculate selling price before platform commission
-    const revenueNeeded = costs.totalCost + profit;
+    // Calculate net revenue needed (cost + profit)
+    const netRevenueNeeded = costs.totalCost + requiredProfit;
     
     // Calculate online selling price (accounting for 25% platform commission)
-    // revenueNeeded = onlineSellingPrice × (1 - 0.25)
-    // onlineSellingPrice = revenueNeeded ÷ 0.75
-    const onlineSellingPrice = revenueNeeded / 0.75;
+    // netRevenue = onlineSellingPrice × (1 - 0.25) = onlineSellingPrice × 0.75
+    const onlineSellingPrice = netRevenueNeeded / 0.75;
     const platformCommission = onlineSellingPrice * 0.25;
-    const netRevenue = onlineSellingPrice - platformCommission;
+    const actualNetRevenue = onlineSellingPrice - platformCommission;
+    const actualProfit = actualNetRevenue - costs.totalCost;
+    const actualMargin = costs.totalCost > 0 ? (actualProfit / actualNetRevenue) * 100 : 0;
     
     return {
       ...costs,
-      profit: profit,
-      profitMargin: profitMargin,
-      netRevenue: netRevenue,
+      onlineSellingPrice: onlineSellingPrice,
       platformCommission: platformCommission,
-      onlineSellingPrice: onlineSellingPrice
+      netRevenue: actualNetRevenue,
+      profit: actualProfit,
+      profitMargin: actualMargin
     };
   }, [onlineMenuInputs.ingredientCost, onlineMenuInputs.desiredProfitMargin]);
 
@@ -586,24 +587,24 @@ const App = () => {
     if (!onlineMenuInputs.ingredientCost || !onlineMenuInputs.targetSellingPrice) return null;
     
     const costs = calculateOnlineMenuCosts(onlineMenuInputs.ingredientCost);
-    const targetPrice = parseFloat(onlineMenuInputs.targetSellingPrice);
+    const targetPrice = parseFloat(onlineMenuInputs.targetSellingPrice) || 0;
     
     // Calculate platform commission and net revenue
     const platformCommission = targetPrice * 0.25;
     const netRevenue = targetPrice - platformCommission;
-    
-    // Calculate profit and margin
     const profit = netRevenue - costs.totalCost;
-    const profitMargin = targetPrice > 0 ? (profit / targetPrice) * 100 : 0;
+    const profitMargin = netRevenue > 0 ? (profit / netRevenue) * 100 : 0;
+    const feasible = profit > 0;
     
     return {
       ...costs,
       targetSellingPrice: targetPrice,
+      onlineSellingPrice: targetPrice,
       platformCommission: platformCommission,
       netRevenue: netRevenue,
       profit: profit,
       profitMargin: profitMargin,
-      feasible: profit > 0
+      feasible: feasible
     };
   }, [onlineMenuInputs.ingredientCost, onlineMenuInputs.targetSellingPrice]);
 
